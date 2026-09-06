@@ -1,0 +1,28 @@
+PASS actual keyboard chord and sustain performance reaches results
+PASS eligible player high score is saved
+PASS completed autoplay is explicitly unranked
+PASS invalid loop bounds are rejected before playback
+PASS practice loops reset for another pass
+PASS calibration starts a timed tap session
+PASS calibration cancellation returns safely
+PASS synth voices clean up after stop
+PASS denied MIDI permission produces actionable fallback
+PASS insecure contexts show local-launch instructions
+PASS no JavaScript errors during completion and error paths
+{
+  "checks": 11,
+  "passed": [
+    "actual keyboard chord and sustain performance reaches results",
+    "eligible player high score is saved",
+    "completed autoplay is explicitly unranked",
+    "invalid loop bounds are rejected before playback",
+    "practice loops reset for another pass",
+    "calibration starts a timed tap session",
+    "calibration cancellation returns safely",
+    "synth voices clean up after stop",
+    "denied MIDI permission produces actionable fallback",
+    "insecure contexts show local-launch instructions",
+    "no JavaScript errors during completion and error paths"
+  ],
+  "javascript_errors": []
+}

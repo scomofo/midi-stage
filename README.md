@@ -1,34 +1,241 @@
-# MIDI Stage
+# MIDI Stage — playable prototype 0.2.0 / Audio Soundcheck
 
-A local multiplayer rhythm game built for real instruments: MIDI electronic drums, an 88-key MIDI keyboard, electric guitar, and electric bass.
+## Repository status
 
-The project is inspired by the band-performance loop of rhythm games, but uses original code, visuals, and music. It is not affiliated with Rock Band or Harmonix.
+This repository contains the playable v0.2 source, single-file build, launchers, original MIDI examples, and tests. See [ROADMAP.md](ROADMAP.md) for planned development and [docs/IMPORT_VALIDATION.md](docs/IMPORT_VALIDATION.md) for the repository-import verification.
 
-## Prototype status
+Target hardware: MIDI e-drums, an 88-key MIDI-capable keyboard, and electric guitar/bass through an audio interface. Exact models and physical compatibility are not yet verified. **Live guitar/bass audio scoring is planned for v0.3, not included in v0.2.**
 
-A playable v0.2 prototype has already been built and validated outside this repository. It currently includes:
+## New in 0.2: find your interface without remembering its model
 
-- Web MIDI input and per-player device/channel routing
-- MIDI Learn for drum pads and keys
-- 1–4 local player note highways
-- Timing judgments, streaks, multipliers, accuracy, sustains, and practice loops
-- MIDI-file import and optional backing audio
-- Guitar/bass audio soundcheck with input selection, channel routing, meters, clipping warnings, and single-note tuning
-- Local-only operation; no account or audio uploads
+**Audio soundcheck** adds an opt-in device picker, live guitar/bass input meters,
+clipping warnings, adjustable noise gates, browser-channel selection, a single-note
+tuner, and a local device-report export. The original MIDI rhythm game is retained.
 
-This repository is now the canonical home for continued development. The first implementation PR after initialization will bring the playable prototype into a maintainable source layout and then add live guitar/bass scoring.
+**This release does not score guitar or bass from audio.** It verifies the input
+path and estimates individual pitches; it is not full guitar transcription or a
+Rocksmith-style performance judge. Guitar with MIDI output can still use the
+existing MIDI gameplay path. Audio scoring is a subsequent milestone.
 
-## Hardware target
+### Soundcheck in a minute
 
-- MIDI electronic drum kit
-- 88-key MIDI keyboard
-- Electric guitar through an audio interface / USB audio path
-- Electric bass through an audio interface / USB audio path
+1. Connect your interface and launch this folder with the included Windows/Mac
+   launcher or `python3 start.py` (Python 3 required). Open the localhost address
+   in desktop Chrome.
+2. Click **Audio soundcheck → Allow & find audio inputs**. The browser may call
+   audio-interface access “microphone” permission. This brief discovery capture
+   stops after enumeration. Device names are whatever the browser/driver exposes;
+   a generic name is usable and does not imply a missing model database.
+3. Select the input under Guitar or Bass and click **Check guitar / Check bass**.
+   Start on channel 1. Pluck one clean string. The meter should move; a steady
+   single note should produce a note name and tuning offset.
+4. For a shared interface, test the instruments separately to identify the
+   channels. Choose a different exposed channel for the second part. The app
+   rejects channel 2 when the device reports only one channel. It does not assume
+   the browser channel is the physical front-panel jack number, or claim stereo
+   when the browser does not report its channel count.
+5. **Save device report** exports labels, selected routes and reported capture
+   settings locally. It includes no audio samples, device IDs or group IDs.
+   Review the labels before sharing it. Closing the panel or hiding the tab stops
+   soundcheck capture. Reopening never starts capture automatically.
 
-Exact interface and controller models will be documented after physical-device validation.
+The audio check is muted by design and has no software-monitoring output. No
+recording file is made; no audio is uploaded. Use the interface's existing direct
+monitoring separately when available. The tuner is intended for a clean,
+individual note. Chords, noise, heavy effects, missing fundamentals and actual
+hardware latency are not validated by the synthetic tests. Guitar checks cover
+approximately 65–1500 Hz; bass checks cover approximately 28–550 Hz. The tuner
+uses an 8192-sample analysis window, so it is not a low-latency note-on detector.
 
-## Next milestone
+Drum kit, 88-key keyboard (when MIDI-capable), and a MIDI-equipped guitar use
+**Connect MIDI → Instrument setup**. The audio panel does not replace MIDI Learn.
 
-Live single-note guitar/bass scoring with attack detection, pitch confidence, held-note scoring, and independent latency correction—without regressing MIDI drums or keys.
 
-See `ROADMAP.md` for the development sequence.
+An original Rock Band–style rhythm game for **real MIDI instruments**. One to four local players follow individual note highways while the band plays a synthesized arrangement. Runs locally, with no account, runtime packages, external assets, or uploads.
+
+This is a playable foundation, not a feature-complete commercial game. It does not contain Rock Band code, artwork, characters, recordings, or a licensed commercial song library.
+
+## Start playing
+
+### Quick keyboard try-out
+
+Open **MIDI-Stage.html** in a desktop browser. It contains the complete game in one file. Select **Watch demo**, or select **Start set** and use the on-screen keyboard bindings. A chat attachment preview is not the intended MIDI host: save/open the file on your computer.
+
+### Recommended for MIDI hardware: desktop Chrome + localhost
+
+Unzip the complete project first. The launcher requires **Python 3**, but no Python packages. It serves this folder on your own computer only.
+
+**Windows:** double-click `Start-Windows.bat`. Alternatively, run this inside the extracted folder:
+
+```powershell
+py -3 start.py
+```
+
+**macOS / Linux:** open Terminal in the extracted folder and run:
+
+```sh
+python3 start.py
+```
+
+`Start-Mac.command` is also included; its executable permission may need restoring after extraction. The launcher opens your default browser. When that browser is not Chrome, copy this address into desktop Chrome:
+
+```text
+http://localhost:8765
+```
+
+Keep the launcher terminal open while playing. Press Ctrl+C there to stop it. Port occupied? Use `python3 start.py --port 8766` (or `py -3` on Windows).
+
+1. Connect your instruments to the computer using their normal USB-MIDI connection or MIDI interface.
+2. Click **Connect MIDI** and approve the browser's MIDI permission prompt.
+3. In **Instrument setup**, assign each player a device. Choosing a specific device selects **Any channel** automatically. Use explicit channels when several instruments share one interface.
+4. Enable the desired parts under **Your lineup**, choose a track, and click **Start set**. There is a four-beat count-in.
+
+The operating system must recognize the device as a MIDI input. Install a manufacturer's driver when your hardware requires one. For an electronic kit that already produces its own audio, turn off **Hear my MIDI notes** to avoid doubling its sound. Use wired audio for timing-sensitive play.
+
+## What is implemented
+
+| Area | Current build |
+| --- | --- |
+| Players | One to four simultaneous local parts: drums, keys, guitar, bass |
+| Gameplay | Perspective note highways, independent player judgments, combos, up to 4× multipliers, hold tails, shared total score, results, per-configuration personal bests |
+| MIDI | Multiple inputs, device/channel routing, hot-plug handling, Note On/Off, velocity-zero Note On handling, minimum-velocity filter, repeated-note retrigger handling |
+| Mapping | Six General MIDI drum lanes; custom per-instrument MIDI Learn. Melodic lanes derive from the chart's pitch classes, up to twelve lanes. |
+| Melody | Arcade / any-octave lane matching; optional exact MIDI pitch; independently scored chord tones; sustain completion bonuses and early-release tracking |
+| Pedals | CC64 sustain pedal for melodic parts; CC120 / CC123 release handling |
+| Practice | Three timing difficulties, 50–125% tempo, section loops with count-ins, metronome, guide part, timing calibration, pause/resume, no-fail play |
+| Songs | Three original synthesized arrangements; local MIDI-file import with track/channel selection and tempo changes |
+| Backing | Local synthesis or optional user-supplied audio; manual audio start offset |
+| Fallback | Computer keyboard and clickable/touchable note pads |
+| Privacy | No application network requests, uploads, accounts, analytics, SysEx access, or MIDI output |
+
+Scored guitar and bass gameplay requires controllers that actually send MIDI notes. The new audio soundcheck is diagnostic only. This build does **not** transcribe an ordinary guitar's audio. Controllers that only send MIDI CC messages cannot yet be mapped as note triggers, apart from the supported pedal controls. MIDI 2.0 UMP, MIDI clock sync, program changes, pitch-bend scoring, strum direction, and per-string guitar interpretation are not implemented.
+
+## MIDI Learn and channels
+
+Open **Instrument setup**, click a lane's small mapping button, then strike the physical pad/key. The game records its note number and binds the detected device and channel. An alias changes the controller mapping, never the authored chart. **Reset mapping** restores the default lane mappings.
+
+Defaults before device assignment are drums on input channel 10, keys on 1, guitar on 2, and bass on 3. This prevents a shared wildcard input from scoring every part. Channel 10 is only a default, not a requirement: choose the actual channel or Any channel for a dedicated instrument.
+
+The input monitor shows the received note number, channel, and velocity. This is useful when a drum module sends a different mapping or a keyboard has been transposed. Note numbers are authoritative; octave labels vary between manufacturers. MIDI Stage labels middle C / note 60 as C4.
+
+Learned melodic mappings refer to lane indices, so recheck them when loading a chart with a different set of pitch classes. Exact mode still requires the authored MIDI pitch. Computer keyboard and on-screen pads always use lane assist; full voicings that put several octaves in the same lane are best played on MIDI hardware.
+
+## Keyboard controls
+
+| Action / part | Keys |
+| --- | --- |
+| Start / pause / resume | Enter |
+| Pause | Escape |
+| Restart | R, unless R is assigned to a currently active melodic lane |
+| Drums | Space = kick; D = snare; F = hi-hat; G = toms; H = crash; J = ride |
+| Keys, default original-song lanes | A, S, W, E, R = C, D, E, G, A |
+| Guitar, default original-song lanes | Z, X, C, V, B = C, D, E, G, A |
+| Bass, default original-song lanes | 1, 2, 3, 4 = C, D, G, A |
+
+Imported arrangements can add more lanes; use the bindings displayed under each highway and on the input pads. Hold melodic keys through their tails. Each chord tone needs its own attack. Focused form fields and dialogs do not trigger gameplay shortcuts.
+
+## Timing and scoring
+
+The Web Audio playback clock drives scheduling and visual position. Where available, `getOutputTimestamp()` maps MIDI event timestamps to the audible output timeline. A short look-ahead scheduler prepares audio independently of visual frames. This improves synchronization but cannot guarantee a latency figure for untested hardware.
+
+| Difficulty | Perfect | Great | Good / final acceptance window |
+| --- | --- | --- | --- |
+| Chill | ±70 ms | ±120 ms | ±190 ms |
+| Standard | ±45 ms | ±90 ms | ±140 ms |
+| Expert | ±25 ms | ±55 ms | ±90 ms |
+
+Windows retain the same real-time width when tempo changes. Perfect / Great / Good attacks earn 100 / 75 / 40 base points. The multiplier increases at 10-, 20-, and 30-note streaks to a maximum of 4×. Misses and extra mapped hits break that player's streak. Unsupported/unmapped MIDI notes are ignored rather than counted as errors.
+
+Notes at least 350 ms long at the selected playback speed can earn a 50-point sustain-completion bonus, using their attack multiplier. Early release breaks the streak and is reported separately from attack accuracy. Drums do not require holds.
+
+Accuracy is weighted attack quality divided by graded notes, misses, and extra mapped hits; it does not include sustain bonuses. Each player maintains an independent combo. In band mode, the large streak number is the sum of active streaks and the large multiplier shows the lowest active multiplier; actual scoring remains per player.
+
+Best scores are separated by song content, lineup, selected source tracks, matching modes, difficulty, and tempo. Autoplay and loops never save a best. Pausing during a held note clears that hold without awarding the remaining sustain bonus and makes that run practice-only. Scores and input settings are stored in this browser's local storage when available.
+
+### Calibration
+
+Choose **Instrument setup → Calibrate timing**. Listen to three warm-up clicks, then tap ten times. The game uses the median tap offset with outlier rejection. Positive correction subtracts consistent late input from the judgment timestamp. This is an estimate of the combined perceived timing offset, not an independent measurement of device latency. Calibration applies globally in this prototype, not per player or per device.
+
+## Your own music
+
+**Import your MIDI** accepts Standard MIDI Files in format 0 or 1 with musical PPQ timing. Imported events are split by track and channel; choose the desired source for each player under Instrument setup. Tempo changes are preserved in note timing. Running status, overlapping note pairs, velocity-zero releases, track names, and missing note-off events are handled.
+
+Limits: 8 MB per MIDI file, 60,000 notes, 500,000 events, 512 tracks, and one hour. Format 2 and SMPTE timing are rejected with an explanation. Controller automation, time-signature presentation, recorded sustain-pedal durations, instrument programs and pitch bends are not reproduced from imported files. Imported parts use simple local instrument-category synthesis rather than a full General MIDI soundfont.
+
+Three example MIDI exports are included under `songs/`, so you can exercise the import path without finding another file. The app's originals are generated internally and do not need those files at runtime.
+
+Under **Practice tools**, an optional backing audio file replaces the synthesized backing. The audio stays in memory on your computer. **Audio starts at** specifies the song time at which the audio file's beginning belongs: positive values delay it; negative values trim the beginning. MIDI and audio must already correspond; there is no automatic transcription or alignment. Changing tempo changes both playback speed and pitch of imported audio. Choose the speed before starting. Audio files are limited to 80 MB and must use a format the browser can decode.
+
+**Guide part** plays the selected player's chart alongside the backing when using local synthesis. With it off, unselected parts provide backing and the selected instrument sounds when you play it (when monitoring is enabled). External backing audio is a single mixed track and cannot be selectively muted by instrument.
+
+Loop bounds use song seconds, not bar numbers. Loops reset their scores each pass and insert another count-in. Switch away from the tab or disconnect an active MIDI device and playback pauses rather than silently accumulating misses.
+
+Use recordings and MIDI arrangements you have permission to use. The build includes no commercial songs.
+
+## Source layout
+
+```text
+index.html            Readable multi-file application entry point
+MIDI-Stage.html        Complete single-file offline build
+src/core.js           Deterministic charts, scoring, routing and SMF parsing
+src/midi.js           Web MIDI input connection and message normalization
+src/audio.js          Audio-clock transport and synthesis
+src/input.js          Opt-in audio capture, channel routing, meter and tuner
+src/soundcheck.js     Soundcheck UI and local device reports
+src/app.js            Game UI, mapping, calibration and canvas renderer
+src/styles.css        Responsive interface styling
+songs/                Three original sample MIDI exports
+start.py              Loopback-only Python launcher
+build.py              Rebuild the complete single-file HTML
+Start-Windows.bat     Windows convenience launcher
+Start-Mac.command     macOS convenience launcher
+tests/                Engine, browser and edge-case checks
+TEST_REPORT.md        What was tested, and what was not
+LICENSE               MIT license for the original source and included material
+```
+
+There is no framework or build toolchain required to play. The modular source is intentionally separate from your other apps and repositories. To regenerate the single-file build after editing:
+
+```sh
+python3 build.py
+```
+
+Engine tests require Node.js:
+
+```sh
+node --test tests/core.test.cjs tests/input.test.cjs
+```
+
+The optional browser suites require Python Playwright and an installed Chromium browser. Set `CHROMIUM_PATH` to use a specific executable; otherwise they use a Chromium found on PATH or Playwright's installed browser. They load the app in memory and mock devices and permission responses, while running actual DOM, canvas, and Web Audio code. The soundcheck suite uses real Web Audio oscillators and MediaStream graphs to simulate separate input channels, not physical hardware. Browser loopback navigation is blocked in this execution environment, so the HTTP server is smoke-tested separately:
+
+```sh
+python3 tests/browser.test.py
+python3 tests/edge.test.py
+python3 tests/soundcheck.browser.py
+```
+
+## Current boundaries / next production work
+
+This build has not been tested with your physical instruments. A model number is not needed to try the soundcheck. Real channel separation, MIDI mappings, and timing must still be verified with the connected hardware; a saved device report helps with that step. It is desktop-first; three- and four-player layouts need desktop screen space.
+
+Not included: microphone/vocal pitch scoring, online multiplayer, avatars or 3D concert scenes, a visual chart editor, licensed commercial content, native installers, per-device latency profiles, audio time-stretching, controller firmware features, or MIDI output. A self-contained playable prototype is included—not a claim that those production systems are complete.
+
+## Technical references
+
+- W3C Web MIDI API: https://www.w3.org/TR/webmidi/
+- Chrome MIDI permission behavior: https://developer.chrome.com/blog/web-midi-permission-prompt
+- W3C secure contexts / localhost: https://www.w3.org/TR/secure-contexts/
+- Web Audio output timestamps: https://www.w3.org/TR/webaudio-1.1/
+- MIDI Association Standard MIDI Files: https://midi.org/standard-midi-files
+- General MIDI percussion map: https://usermanuals.finalemusic.com/Finale2011Win/Content/Finale/General_MIDI_Percussion_Map_Table.htm
+
+### Audio API references
+
+The implementation uses the browser's MediaDevices APIs and Web Audio channel
+splitters. Permission, enumeration and actual channel availability are controlled
+by the browser and the driver, not by a list of supported interface models.
+
+- MediaDevices enumeration: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
+- Audio capture and permission: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+- Stream input: https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/createMediaStreamSource
+- Separate channel processing: https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createChannelSplitter

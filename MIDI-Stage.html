@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a1019"><meta name="description" content="An original rhythm game for real MIDI instruments. Local co-op, note highways, and your own MIDI songs.">
+  <title>MIDI Stage — Your instruments. Your stage.</title>
+  <style>
+:root{color-scheme:dark;--bg:#0a1019;--panel:#101923;--panel2:#151f2c;--line:#26323f;--text:#eef3f6;--muted:#91a0ae;--dim:#637686;--mint:#62ecd2;--rose:#ff647c;--amber:#f9bc62;--font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#13252b66,transparent 45%),var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5}button,input,select{font:inherit}button,a,input,select,summary{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.4}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--mint);outline-offset:4px}button{color:inherit}a{color:inherit;text-decoration:none}.topbar{height:88px;border-bottom:1px solid var(--line);padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:#0a1019cc}.brand{display:flex;gap:14px;align-items:center;font-size:23px;font-weight:850;letter-spacing:-1px;white-space:nowrap}.brand-slash{color:var(--mint);padding:0 2px}.brand small{font-size:9px;letter-spacing:1.6px;line-height:1.5;font-weight:600;color:var(--dim);max-width:100px;white-space:normal;margin-left:8px;padding-left:20px;border-left:1px solid var(--line)}.brand-bars{display:flex;align-items:center;gap:3px;height:28px}.brand-bars i{display:block;width:4px;background:var(--mint);border-radius:3px}.brand-bars i:nth-child(1){height:13px}.brand-bars i:nth-child(2){height:27px}.brand-bars i:nth-child(3){height:21px}.brand-bars i:nth-child(4){height:11px}.header-right{display:flex;align-items:center;gap:14px}.local-badge{font-size:10px;font-weight:700;letter-spacing:1.4px;color:var(--muted);margin-right:8px}.local-badge i,.stage-top i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mint);margin-right:7px}.button{height:43px;padding:0 21px;border:1px solid transparent;border-radius:7px;font-size:12px;font-weight:750;letter-spacing:.1px;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:background .15s,transform .15s}.button:hover:not(:disabled){transform:translateY(-1px)}.button.primary{color:#07241e;background:var(--mint);box-shadow:0 2px 18px #62ecd213}.button.primary:hover{background:#8bf6e1}.button.secondary{background:var(--panel2);border-color:var(--line)}.button.secondary:hover{background:#202d3b}.button.ghost{background:transparent;color:var(--muted)}.button.ghost:hover{background:#ffffff09;color:var(--text)}.button.small{height:35px;padding:0 14px;font-size:11px}.icon-button{background:#ffffff05;border:1px solid var(--line);border-radius:7px;width:37px;height:37px;font-size:22px;display:inline-flex;justify-content:center;align-items:center}.icon-button:hover{background:#ffffff0b}.layout{max-width:1600px;margin:0 auto;padding:32px 40px 24px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:36px}.sidebar{border-right:1px solid var(--line);padding-right:28px}.eyebrow{font-size:9px;letter-spacing:1.7px;font-weight:750;color:var(--mint)}h1{font-size:36px;line-height:1.13;letter-spacing:-1.6px;margin:17px 0 15px;font-weight:750}h1 em{font-style:normal;color:var(--mint)}.intro{color:var(--muted);font-size:12px;line-height:1.9;margin-bottom:29px}.section-heading{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px}.section-heading h2{font-size:10px;letter-spacing:1.8px;margin:0;font-weight:700}.section-heading>span{font-size:8px;letter-spacing:1.1px;color:var(--dim);white-space:nowrap}.setlist{display:flex;flex-direction:column;gap:8px}.song-card{display:flex;text-align:left;gap:12px;align-items:center;padding:12px 10px;border:1px solid var(--line);border-radius:8px;background:#111a24;width:100%;transition:border .15s}.song-card:hover{border-color:#5c7f82}.song-card.selected{background:linear-gradient(110deg,#183a36aa,#10252277);border-color:#62ecd281}.song-art{width:40px;height:43px;border-radius:5px;flex-shrink:0;position:relative;overflow:hidden;background:#183939;color:var(--mint);display:flex;align-items:center;justify-content:center;font-size:29px;font-weight:250}.song-art:after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,#0a10194d 4px)}.song-art.a1{background:linear-gradient(145deg,#292449,#463554);color:#c7aaff}.song-art.a2{background:linear-gradient(145deg,#4c3823,#31231b);color:var(--amber)}.song-art.a3{background:#233146;color:#8fc3ff}.song-card strong{display:block;font-size:12px;font-weight:650}.song-card small{display:block;color:var(--muted);font-size:9px;margin-top:5px}.song-card .song-indicator{margin-left:auto;font-size:13px;color:var(--mint)}.import-button{border:1px dashed #354551;background:transparent;color:var(--muted);font-size:11px;border-radius:7px;width:100%;padding:11px 8px;margin-top:12px;text-align:left;display:flex;align-items:center;gap:9px}.import-button>span{font-size:16px}.import-button small{margin-left:auto;color:var(--dim)}.import-button:hover{border-color:var(--mint);color:var(--mint)}.band-heading{margin-top:28px}.band-pick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.part-toggle{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:10px 9px;text-align:left;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}.part-toggle .part-icon{font-size:17px}.part-toggle .tick{margin-left:auto;font-size:10px}.part-toggle[aria-pressed="true"]{border-color:#62ecd266;color:var(--text);background:#15302e}.part-toggle[aria-pressed="true"] .tick{color:var(--mint)}.setup-link{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:13px 0;color:var(--muted);font-size:11px}.setup-link:hover{color:var(--mint)}.input-card{border:1px solid var(--line);background:#111a2480;border-radius:8px;margin-top:13px;padding:13px}.input-card strong{font-size:10px;font-weight:600}.status-dot{display:inline-block;background:var(--amber);width:6px;height:6px;border-radius:50%;margin-right:7px}.status-dot.connected{background:var(--mint);box-shadow:0 0 7px #62ecd270}.input-card p{font-size:10px;line-height:1.65;color:var(--muted);margin:8px 0}.velocity-track{height:3px;background:#243340;border-radius:3px}.velocity-track>span{display:block;width:0;height:100%;background:var(--mint);transition:width .15s}.sidebar-foot{margin-top:25px;color:var(--dim);font-size:9px}.sidebar-foot>span{color:var(--mint);font-size:6px;margin-right:5px}.session-heading{display:flex;align-items:center;justify-content:space-between;padding-top:2px;margin-bottom:18px}.session-heading .eyebrow{color:var(--dim)}.session-heading h2{font-size:27px;letter-spacing:-.75px;line-height:1.25;margin:7px 0 0;font-weight:700}.song-meta{display:flex;gap:15px;align-items:center}.song-meta strong{font-size:16px;font-weight:600}.song-meta small{font-size:9px;color:var(--muted);font-weight:500}.song-meta>span{font-size:11px;color:var(--muted)}.song-meta .no-fail{font-size:8px;letter-spacing:1.1px;padding:5px 8px;background:#19332f66;color:var(--mint);border:1px solid #24443d;border-radius:4px}.hud{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr;padding:17px 21px 15px;border:1px solid var(--line);border-bottom:0;border-radius:10px 10px 0 0;background:#121c27}.hud>div{padding-left:22px;border-left:1px solid var(--line)}.hud>div:first-child{padding-left:0;border:0}.hud span{display:block;font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px}.hud strong{font-size:25px;line-height:1.2;font-weight:650;letter-spacing:-.5px;font-variant-numeric:tabular-nums}.hud small{font-size:9px;color:var(--dim);font-weight:500;letter-spacing:1px}.hud .score-stat strong{color:var(--mint);font-size:29px}.hud .best-stat strong{font-size:20px;color:var(--muted)}.stage{height:430px;background:#070f17;position:relative;border:1px solid var(--line);border-radius:0 0 9px 9px;overflow:hidden;isolation:isolate}.stage canvas{display:block;width:100%;height:100%}.stage-top{position:absolute;z-index:2;inset:14px 17px auto;display:flex;align-items:center;justify-content:space-between;font-size:8px;font-weight:600;letter-spacing:1.8px;color:#7e9da8;pointer-events:none}.stage-top>span:first-child{color:#b0c3cc}.stage-top i{width:5px;height:5px}.fullscreen{pointer-events:auto;background:transparent;border:0;color:var(--muted);font-size:19px;padding:0 3px;line-height:1}.stage-bottom{position:absolute;inset:auto 17px 13px;display:flex;align-items:center;justify-content:space-between;font-size:7px;letter-spacing:1.8px;color:#76909f;pointer-events:none}.stage-overlay{position:absolute;z-index:3;inset:43px 0 95px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 45%,#0b152aef 0%,#08121fd9 30%,transparent 66%);pointer-events:none}.stage-overlay>*{pointer-events:auto}.stage-overlay[hidden]{display:none}.overlay-mark{font-size:30px;color:var(--mint);line-height:1.2;margin-bottom:9px;font-weight:300}.stage-overlay .eyebrow{font-size:8px;color:var(--muted)}.stage-overlay h3{margin:8px 0 8px;font-size:35px;line-height:1.2;letter-spacing:-1.2px;font-weight:650}.stage-overlay p{font-size:11px;color:#a4b8c5;line-height:1.8;margin:0 0 17px}.stage-overlay .button{height:40px;padding:0 19px}.stage-overlay kbd{margin-left:9px;background:#0a292522;color:#125448;border:1px solid #13544933}.overlay-hint{font-size:8px;color:#6e8996;margin-top:12px}.countdown{position:absolute;inset:25% 0 auto;text-align:center;pointer-events:none;font-size:83px;font-weight:750;line-height:1;letter-spacing:-4px;color:var(--mint);text-shadow:0 0 40px #62ecd240}.countdown small{display:block;font-size:11px;font-weight:600;letter-spacing:3px;margin-top:14px;color:var(--muted)}.progress-wrap{padding-top:12px}.progress-line{height:3px;background:#21313d;border-radius:5px;overflow:hidden}.progress-line>span{display:block;width:0;height:100%;background:var(--mint)}.progress-labels{display:flex;justify-content:space-between;margin:6px 0 15px;color:var(--muted);font-size:9px;font-variant-numeric:tabular-nums}.progress-labels>span:nth-child(2){color:#95b0b9}.transport{display:flex;justify-content:space-between;align-items:center;gap:12px}.transport-main{display:flex;align-items:center;gap:8px}.transport .button{height:39px}.transport .icon-button{height:39px}.session-controls{display:flex;align-items:end;gap:20px;margin-top:21px;padding-bottom:18px;border-bottom:1px solid var(--line)}label{font-size:10px;color:var(--muted)}.session-controls>label:not(.check){display:flex;flex-direction:column;gap:6px;font-size:8px;letter-spacing:1px}select,input[type="number"]{color:var(--text);background:#121e2b;border:1px solid #304150;border-radius:5px;padding:6px 8px;height:32px;font-size:11px;min-width:80px}select{cursor:pointer}input[type="checkbox"]{accent-color:var(--mint);width:13px;height:13px;margin:0 6px 0 0}label.check{display:flex;align-items:center;gap:2px;font-size:10px;white-space:nowrap;height:32px}.volume-label{margin-left:auto;min-width:90px}.volume-label input{width:100px;height:32px;accent-color:var(--mint);margin:0}.pads{margin-top:15px;display:flex;flex-direction:column;gap:10px}.pad-group{display:flex;align-items:center;gap:7px}.pad-group-name{font-size:8px;letter-spacing:1px;min-width:45px;color:var(--muted)}.pad{flex:1;min-width:0;height:39px;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid #30404a;border-bottom:2px solid var(--pad-color,var(--mint));border-radius:5px;background:#111e27;color:var(--pad-color,var(--mint));font-size:8px;letter-spacing:.4px;touch-action:none}.pad kbd{font-size:8px;letter-spacing:0;color:var(--text)}.pad.flash,.pad:active{background:color-mix(in srgb,var(--pad-color) 24%,#132029);box-shadow:0 0 14px color-mix(in srgb,var(--pad-color) 17%,transparent)}.keyboard-hint{margin-top:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;color:var(--dim);font-size:8px}.keyboard-hint span:last-child{margin-left:auto}.keyboard-hint small{font-size:7px}kbd{font-family:var(--font);border:1px solid #3b4b58;background:#1b2833;border-radius:3px;padding:2px 4px;font-size:8px;color:#b1c2ce;line-height:1}.practice-tools{margin-top:20px;border-top:1px solid var(--line);padding-top:13px}.practice-tools summary{font-size:10px;color:var(--muted);cursor:pointer}.practice-tools summary>span{float:right;font-size:9px;color:var(--dim)}.practice-row{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-top:15px}.practice-row>label:not(.check){display:flex;flex-direction:column;gap:4px;font-size:9px}.practice-row input[type="number"]{width:90px}.practice-row .check{height:34px}.practice-tools p{color:var(--dim);font-size:9px}footer{max-width:1520px;margin:auto;padding:22px 40px;display:flex;justify-content:space-between;border-top:1px solid var(--line);font-size:8px;color:var(--dim);letter-spacing:.6px}footer b{color:#9eafbb;font-weight:500;margin:0 5px}dialog{background:#101a26;border:1px solid #344957;border-radius:13px;color:var(--text);padding:26px;box-shadow:0 30px 120px #0009;max-height:90vh;overflow-y:auto;width:min(860px,94vw)}dialog::backdrop{background:#03070ce0;backdrop-filter:blur(6px)}.dialog-heading{display:flex;justify-content:space-between;align-items:center;gap:20px}.dialog-heading h2{font-size:25px;letter-spacing:-.8px;margin:5px 0;font-weight:650}.dialog-heading .icon-button{font-size:27px;flex-shrink:0}.dialog-intro,dialog>p{color:var(--muted);font-size:12px;line-height:1.8}.route-card{border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:13px;background:#131f2d}.route-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.route-title strong{font-size:14px;font-weight:650}.route-title button{border:0;background:none;color:var(--muted);font-size:10px}.route-fields{display:grid;grid-template-columns:1.3fr .7fr 1.2fr 1fr;gap:12px}.route-fields label{display:flex;flex-direction:column;gap:5px;font-size:9px}.route-fields select{width:100%;min-width:0}.mapping-pads{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}.learn-button{background:#0b1722;border:1px solid #344551;border-bottom-color:var(--pad-color);border-radius:5px;padding:7px 12px;min-width:55px;color:var(--pad-color);font-size:9px}.learn-button small{display:block;color:var(--dim);font-size:8px;margin-top:3px}.learn-button.learning{border-color:var(--mint);background:#24584c;color:#fff}.route-note{color:var(--dim);font-size:9px;margin:10px 0 0}.global-settings{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;border-top:1px solid var(--line);margin-top:24px;padding-top:20px;align-items:center}.global-settings>label:not(.check){display:flex;flex-direction:column;gap:6px}.global-settings small{font-size:8px;color:var(--dim)}.global-settings input[type="number"]{width:100%}.global-settings>button{grid-column:3;grid-row:2}.dialog-footer{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-top:25px;padding-top:20px;border-top:1px solid var(--line)}.dialog-footer>span{font-size:10px;color:var(--muted)}.warning{background:#e8a75313;border:1px solid #e8a75377;border-radius:6px;color:#f5c07a;padding:11px;font-size:11px;margin:14px 0}.calibration-dialog{width:min(550px,94vw);text-align:center}.calibration-dialog .dialog-heading{text-align:left}.calibration-pulse{height:115px;width:115px;border:1px solid #62ecd244;border-radius:50%;background:#1b3a3655;color:var(--mint);font-size:62px;line-height:110px;margin:24px auto;transition:background .05s,box-shadow .05s}.calibration-pulse.lit{background:#347465aa;box-shadow:0 0 40px #62ecd22a}.calibration-dialog>strong{display:block;font-size:12px;color:var(--mint);min-height:35px}.calibration-actions{display:flex;justify-content:center;gap:10px;margin:20px 0}.calibration-dialog .muted{font-size:10px;color:var(--dim)}.results-dialog{width:min(700px,94vw)}.result-score{font-size:60px;letter-spacing:-3px;color:var(--mint);font-weight:700;line-height:1.2;margin:22px 0 7px}.result-subtitle{font-size:12px;color:var(--muted)}.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}.result-grid>div{border:1px solid var(--line);border-radius:7px;padding:12px}.result-grid span{display:block;font-size:9px;color:var(--muted)}.result-grid strong{font-size:23px}.result-table{border-collapse:collapse;width:100%;font-size:11px}.result-table th{font-weight:500;font-size:9px;color:var(--muted);text-align:left}.result-table td,.result-table th{border-bottom:1px solid var(--line);padding:10px 4px}.result-advice{color:var(--muted);font-size:11px;line-height:1.7}.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);max-width:min(680px,90vw);background:#20363d;border:1px solid #557b80;border-radius:8px;padding:13px 19px;color:#e2f7f3;font-size:12px;z-index:1000;box-shadow:0 10px 35px #0007;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}[hidden]{display:none!important}.stage:fullscreen{height:100vh;width:100vw;border:0;border-radius:0}.stage:fullscreen .stage-top,.stage:fullscreen .stage-bottom{font-size:12px}.stage:fullscreen .stage-overlay{inset:15% 0 20%}@media(min-width:1500px){.stage{height:500px}.layout{grid-template-columns:285px minmax(0,1fr);gap:44px}.sidebar{padding-right:35px}h1{font-size:40px}}@media(max-width:1150px){.layout{padding:25px;gap:23px;grid-template-columns:220px minmax(0,1fr)}.sidebar{padding-right:20px}.topbar{padding:0 25px}.brand small{display:none}.hud{padding:15px}.hud>div{padding-left:12px}.hud .best-stat{display:none}.hud{grid-template-columns:1.5fr 1fr 1fr 1fr}.song-meta{gap:10px}.song-meta .no-fail{display:none}.session-controls{gap:13px}.pad{gap:4px}.pad-group-name{min-width:37px}h1{font-size:32px}.keyboard-hint span:last-child{margin-left:0}.stage{height:410px}}@media(max-width:850px){.layout{grid-template-columns:1fr;padding:22px 18px;gap:25px}.sidebar{border-right:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.sidebar>.eyebrow,.sidebar>h1,.sidebar>.intro,.sidebar-foot,.sidebar>.section-heading:first-of-type{display:none}.sidebar>.setlist{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:8px}.sidebar>.import-button{grid-column:1/-1;margin:0 0 15px;justify-content:center;padding:7px}.import-button small{margin-left:0}.band-heading{grid-column:1;align-self:center;margin:0 0 8px}.band-pick{grid-column:1;grid-row:4;grid-template-columns:repeat(4,1fr);gap:5px}.part-toggle{padding:8px 5px;font-size:9px;gap:4px}.part-icon{display:none}.setup-link{grid-column:1;padding:8px 0}.input-card{grid-column:2;grid-row:3/6;margin:0}.session-heading{margin-bottom:15px}.stage{height:450px}.topbar{height:69px;padding:0 18px}.brand{font-size:21px}.local-badge{display:none}.header-right{gap:8px}.song-card{padding:9px 7px;gap:7px}.song-art{width:30px;height:34px}.song-card strong{font-size:10px}.song-card small{font-size:8px}.song-indicator{display:none}.route-fields{grid-template-columns:1fr 1fr}.global-settings{grid-template-columns:1fr 1fr}.global-settings>button{grid-column:2;grid-row:2}.song-meta{font-size:10px}footer{padding:18px;gap:16px;font-size:7px}.keyboard-hint{gap:10px}}@media(max-width:500px){.header-right #settingsTop{display:none}.brand{font-size:18px}.brand-bars{gap:2px}.brand-bars i{width:3px}.button.small{padding:0 10px}.sidebar>.setlist{gap:6px}.song-card{flex-direction:column;align-items:flex-start;gap:7px;padding:10px}.song-art{width:100%;height:22px;font-size:24px}.song-card small{margin-top:3px}.band-pick{grid-template-columns:1fr 1fr}.session-heading h2{font-size:23px}.song-meta{flex-direction:column;align-items:end;gap:0}.hud{padding:13px 11px;grid-template-columns:1.4fr 1fr .9fr .9fr}.hud>div{padding-left:9px}.hud strong{font-size:20px}.hud .score-stat strong{font-size:24px}.hud span{font-size:7px;letter-spacing:.8px}.hud small{font-size:7px}.stage{height:395px}.stage-overlay h3{font-size:29px}.stage-overlay p{font-size:10px}.stage-overlay{inset:48px 0 95px}.overlay-mark{font-size:24px;margin-bottom:6px}.stage-bottom{font-size:6px;letter-spacing:1px}.stage-top{font-size:7px;letter-spacing:1px}.transport-main{gap:6px}.transport .button{padding:0 12px;font-size:10px}.transport>.button{padding:0 6px}.session-controls{flex-wrap:wrap;gap:10px;align-items:end}.session-controls .volume-label{display:none}.session-controls select{min-width:78px}.pad-group{flex-wrap:wrap;gap:4px}.pad-group-name{width:100%;font-size:8px}.pad{height:34px;flex-direction:column;gap:4px;padding:3px;font-size:7px}.pad kbd{font-size:7px;padding:1px 3px}.practice-tools summary>span{font-size:8px}dialog{padding:20px}.global-settings{gap:12px}.dialog-footer{gap:12px}.result-grid{grid-template-columns:1fr 1fr}.calibration-actions{flex-direction:column}.keyboard-hint span:nth-child(2){display:none}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;scroll-behavior:auto!important}}
+
+/* Explicit compact-layout placement keeps import and lineup controls in order. */
+@media(max-width:850px){.sidebar>.section-heading:not(.band-heading){display:none}.sidebar>.setlist{grid-row:1}.sidebar>.import-button{grid-row:2}.sidebar>.band-heading{grid-row:3}.sidebar>.band-pick{grid-row:4}.sidebar>.setup-link{grid-row:5}.sidebar>.input-card{grid-row:3 / 6}}
+@media(max-width:500px){.session-controls>label.volume-label{display:none}}
+
+/* 0.2 — audio soundcheck. All input meters are driven by actual capture data. */
+.soundcheck-link{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 12px;margin:0 0 7px;border:1px solid #62ecd249;border-radius:7px;color:var(--mint);background:#17322b55;font-size:11px}.soundcheck-link small{font-size:8px;letter-spacing:1px}.soundcheck-dialog{width:min(940px,calc(100vw - 28px));max-width:940px;max-height:94vh;padding:28px 30px}.soundcheck-dialog .dialog-heading h2{font-size:29px;letter-spacing:-.7px;margin-top:6px}.sound-intro{font-size:13px;color:var(--muted);margin:8px 0 16px}.sound-scope{display:flex;gap:15px;align-items:center;padding:12px 14px;background:#f9bc6208;border:1px solid #f9bc6238;border-radius:8px}.sound-scope strong{font-size:9px;letter-spacing:1px;color:var(--amber);max-width:112px;flex-shrink:0}.sound-scope span{font-size:11px;color:#bdc8d0;line-height:1.7}.sound-toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:20px}.sound-privacy{font-size:10px;color:var(--muted);line-height:1.7;margin:9px 0}.sound-status{font-size:11px;min-height:19px;color:var(--mint);margin:9px 0 16px}.sound-status.error{color:var(--rose)}.sound-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}.sound-card{min-width:0;background:linear-gradient(135deg,#14232a,#101923 70%);border:1px solid var(--line);border-radius:12px;padding:20px}.sound-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px;gap:10px}.sound-card-head h3{font-size:19px;letter-spacing:-.4px;margin:4px 0 0}.sound-card-head .eyebrow{font-size:8px;letter-spacing:1.3px}.sound-badge{font-size:8px;letter-spacing:.8px;color:var(--muted);border:1px solid var(--line);padding:4px 6px;border-radius:5px;white-space:nowrap}.sound-badge.active{color:var(--mint);border-color:#62ecd24d;background:#62ecd20d}.sound-badge.error{color:var(--amber)}.sound-fields{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:10px}.sound-fields label,.sound-gate{font-size:8px;letter-spacing:1px;color:var(--muted)}.sound-fields select{width:100%;min-width:0;display:block;margin-top:6px;padding:9px 24px 9px 9px;font-size:11px;text-overflow:ellipsis;letter-spacing:0}.sound-capture-info{font-size:10px;line-height:1.6;min-height:33px;color:var(--muted);margin:8px 0 16px;overflow-wrap:anywhere}.sound-meter-label{display:flex;justify-content:space-between;align-items:center;font-size:8px;letter-spacing:1px;color:var(--muted);margin-bottom:6px}.sound-meter-label output{font-size:11px;letter-spacing:0;font-variant-numeric:tabular-nums;color:var(--text)}.sound-level{height:13px;border-radius:3px;background:#25323e;overflow:hidden}.sound-level>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#388c85,var(--mint));transition:width .08s linear}.sound-level.clipping>span{background:var(--rose)}.sound-meter-scale{display:flex;justify-content:space-between;margin-top:4px;color:var(--dim);font-size:8px}.sound-tuner{display:flex;gap:19px;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:13px 0;margin:16px 0 10px;min-height:90px}.sound-tuner>output{font-size:46px;letter-spacing:-2px;line-height:1.1;color:var(--mint);min-width:79px;font-variant-numeric:tabular-nums}.sound-tuner strong{display:block;font-size:12px;font-weight:600}.sound-tuner small{font-size:9px;color:var(--muted);display:block;margin-top:5px}.sound-signal{font-size:11px;min-height:38px;color:var(--muted);line-height:1.7}.sound-gate{display:block;margin-top:10px}.sound-gate>output{float:right;letter-spacing:0;font-size:10px}.sound-gate input{width:100%;display:block;accent-color:var(--mint);margin:8px 0 13px}.sound-card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}.sound-card-foot .button{height:36px;padding:0 15px;font-size:11px}.sound-card-foot small{font-size:8px;color:var(--dim);text-align:right}.sound-routing-note{font-size:10px;color:var(--muted);line-height:1.8;margin:14px 0 16px}.sound-midi{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:15px 17px;background:#0c151f;border:1px solid var(--line);border-radius:9px}.sound-midi h3{font-size:12px;margin:0 0 4px}.sound-midi p{font-size:10px;color:var(--muted);margin:0;overflow-wrap:anywhere}.sound-midi small{font-size:9px;color:var(--dim);display:block;margin-top:5px}.sound-midi .button{flex-shrink:0}.sound-footer{margin-top:18px;gap:12px}.sound-footer>span{font-size:9px;color:var(--muted)}.sound-footer>div{display:flex;gap:7px;align-items:center}.soundcheck-dialog .warning{margin-bottom:14px}
+@media(max-width:850px){.sidebar>.soundcheck-link{grid-column:1;grid-row:6}.soundcheck-dialog{padding:22px}.sound-card{padding:16px}.sound-card-head{flex-wrap:wrap;gap:6px}.sound-fields{grid-template-columns:1fr}.sound-capture-info{min-height:48px}.sound-card-foot{flex-wrap:wrap}.sound-card-foot small{text-align:left}}
+@media(max-width:620px){.sound-cards{grid-template-columns:1fr}.soundcheck-dialog{padding:20px 16px}.soundcheck-dialog .dialog-heading h2{font-size:25px}.sound-fields{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}.sound-capture-info{min-height:0}.sound-scope{align-items:flex-start}.sound-toolbar{gap:7px}.sound-toolbar .button{height:37px;padding:0 12px;font-size:10px}.sound-midi{align-items:flex-start;flex-direction:column;gap:10px}.sound-footer{align-items:flex-start;flex-direction:column}.sound-footer>div{width:100%;justify-content:space-between}}
+
+</style>
+  
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="MIDI Stage home"><span class="brand-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>MIDI<span class="brand-slash"> / </span>STAGE</span><small>REAL INSTRUMENTS. REAL PLAY.</small></a>
+    <div class="header-right"><span class="local-badge"><i></i> LOCAL CO-OP</span><button id="connectMIDI" class="button primary small"><span aria-hidden="true">⌁</span> Connect MIDI</button><button id="settingsTop" class="icon-button" aria-label="Instrument settings">⚙</button></div>
+  </header>
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="eyebrow">THE STAGE IS YOURS</div>
+      <h1>Make some<br><em>real noise.</em></h1>
+      <p class="intro">Your drum kit. Your keys. Your band.<br>Plug in and find your groove.</p>
+      <div class="section-heading"><h2>SETLIST</h2><span id="songCount">03 TRACKS</span></div>
+      <div id="setlist" class="setlist" aria-label="Choose a song"></div>
+      <button id="importButton" class="import-button"><span>＋</span> Import your MIDI <small>.mid</small></button>
+      <input id="midiFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
+      <div class="section-heading band-heading"><h2>YOUR LINEUP</h2><span>1–4 PLAYERS</span></div>
+      <div id="bandPick" class="band-pick" aria-label="Enable player parts"></div>
+      <button id="openSetup" class="setup-link">Instrument setup <span>↗</span></button>
+      <button id="openSoundcheck" class="soundcheck-link"><span>⌁ &nbsp; Audio soundcheck</span><small>NEW</small></button>
+      <div class="input-card"><div><span class="status-dot" id="midiDot"></span><strong id="midiStatus">Keyboard ready</strong></div><p id="lastMIDI">No instruments connected. You can still play.</p><div class="velocity-track"><span id="velocityBar"></span></div></div>
+      <div class="sidebar-foot"><span>●</span> Runs locally. No account. No uploads.</div>
+    </aside>
+    <section class="play-area" aria-label="Rhythm game">
+      <div class="session-heading"><div><div class="eyebrow" id="songTag">ORIGINAL SESSION / SYNTH ROCK</div><h2 id="songTitle">Neon Circuit</h2></div><div class="song-meta"><strong id="bpmLabel">112 <small>BPM</small></strong><span id="durationLabel">01:09</span><span class="no-fail">NO-FAIL PRACTICE</span></div></div>
+      <div class="hud" aria-live="off"><div class="score-stat"><span>SCORE</span><strong id="score">000,000</strong></div><div><span>STREAK</span><strong id="combo">0 <small>NOTES</small></strong></div><div><span>MULTIPLIER</span><strong id="multiplier">1<small>×</small></strong></div><div><span>ACCURACY</span><strong id="accuracy">—<small>%</small></strong></div><div class="best-stat"><span>PERSONAL BEST</span><strong id="best">—</strong></div></div>
+      <div id="stage" class="stage">
+        <div class="stage-top"><span id="stageMode"><i></i> SOLO SESSION</span><span id="sectionName">INTRO</span><button id="fullscreen" aria-label="Toggle full screen" class="fullscreen">⛶</button></div>
+        <canvas id="stageCanvas" role="img" aria-label="Notes travel down each instrument highway. Hit the matching pad when a note reaches the glowing strike line."></canvas>
+        <div id="stageOverlay" class="stage-overlay"><div class="overlay-mark" aria-hidden="true">↘</div><div class="eyebrow">YOUR NEXT SESSION</div><h3>Take the stage.</h3><p>Hit the notes as they cross the line.<br>Start with your keyboard or connect an instrument.</p><button id="overlayStart" class="button primary">▶ &nbsp; Start set <kbd>ENTER</kbd></button><span class="overlay-hint">Solo by default. Add your band on the left.</span></div>
+        <div id="countdown" class="countdown" aria-live="polite"></div>
+        <div class="stage-bottom"><span id="inputMode">COMPUTER KEYBOARD / MIDI</span><span id="speedBadge">1.00× TEMPO</span></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-line"><span id="progressFill"></span></div><div class="progress-labels"><span id="elapsed">00:00</span><span id="runStatus" role="status">Ready when you are.</span><span id="remaining">01:09</span></div></div>
+      <div class="transport"><div class="transport-main"><button id="start" class="button primary">▶ &nbsp; Start set</button><button id="pause" class="button secondary" disabled>Ⅱ &nbsp; Pause</button><button id="restart" class="icon-button" aria-label="Restart song" title="Restart (R)">↺</button></div><button id="demo" class="button ghost">▷ &nbsp; Watch demo</button></div>
+      <div class="session-controls"><label>DIFFICULTY<select id="difficulty"><option value="chill">Chill</option><option value="standard" selected>Standard</option><option value="expert">Expert</option></select></label><label>TEMPO<select id="speed"><option value="0.5">50%</option><option value="0.75">75%</option><option value="1" selected>100%</option><option value="1.25">125%</option></select></label><label class="check"><input type="checkbox" id="guide"> Guide part</label><label class="check"><input type="checkbox" id="metronome"> Click</label><label class="volume-label">VOLUME<input type="range" id="volume" min="0" max="100" value="55" aria-label="Master volume"></label></div>
+      <div id="pads" class="pads" aria-label="Playable input pads"></div>
+      <div class="keyboard-hint"><span><kbd>ENTER</kbd> Start / pause</span><span><kbd>R</kbd> Restart <small>(when not a note)</small></span><span><kbd>ESC</kbd> Pause</span><span>Hold melodic notes to the end of their tails.</span></div>
+      <details class="practice-tools"><summary>Practice tools <span>Loop a section · Add backing audio</span></summary><div class="practice-row"><label class="check"><input type="checkbox" id="loop"> Loop</label><label>From (sec)<input id="loopStart" type="number" min="0" step="0.5" value="0"></label><label>To (sec)<input id="loopEnd" type="number" min="1" step="0.5" value="17.1"></label><button id="audioButton" class="button secondary small">Add backing audio</button><input id="audioFile" type="file" accept="audio/*" hidden><button id="clearAudio" class="button ghost small" hidden>Clear audio</button><label>Audio starts at (sec)<input id="audioOffset" type="number" value="0" step="0.01" min="-120" max="120"></label></div><p id="audioStatus">MIDI tracks are synthesized locally. Optional audio must match your chart; it is not automatically transcribed or aligned.</p></details>
+    </section>
+  </main>
+  <footer><span>MIDI STAGE <b>0.2</b> / PLAYABLE PROTOTYPE</span><span>Original game & music. Not affiliated with Rock Band or Harmonix.</span></footer>
+  <dialog id="setupDialog" class="setup-dialog"><div class="dialog-heading"><div><div class="eyebrow">PLUG IN. MAP IT. PLAY.</div><h2>Your instrument rack</h2></div><button data-close="setupDialog" class="icon-button" aria-label="Close instrument settings">×</button></div><p class="dialog-intro">Assign each player a different device or MIDI channel. Select “Any channel” for a dedicated controller. Settings save on this browser.</p><div id="routeWarning" class="warning" hidden></div><div id="routeSettings"></div><div class="global-settings"><label>Ignore velocities below<input id="minVelocity" type="number" min="1" max="127" value="12"><small>Reject very light / accidental triggers.</small></label><label>Input correction (ms)<input id="inputOffset" type="number" min="-500" max="500" value="0"><small>Positive values compensate late input.</small></label><label class="check"><input id="monitor" type="checkbox" checked> Hear my MIDI notes</label><button id="calibrateButton" class="button secondary">Calibrate timing</button></div><div class="dialog-footer"><span id="learnStatus" role="status">MIDI Learn: click a lane, then play its pad or key.</span><button data-close="setupDialog" class="button primary">Done</button></div></dialog>
+  <dialog id="calibrationDialog" class="calibration-dialog"><div class="dialog-heading"><div><div class="eyebrow">GET IN THE POCKET</div><h2>Timing calibration</h2></div><button data-close="calibrationDialog" class="icon-button" aria-label="Close calibration">×</button></div><p>Listen to the clicks. After the first three, tap your instrument or the button in time for ten beats. This estimates your input/audio correction; it does not measure hardware latency independently.</p><div id="calibrationPulse" class="calibration-pulse">♩</div><strong id="calibrationStatus" role="status">Use the same headphones or speakers you will play with.</strong><div class="calibration-actions"><button id="calibrationStart" class="button primary">Start clicks</button><button id="calibrationTap" class="button secondary" disabled>Tap on the beat <kbd>SPACE</kbd></button></div><p class="muted">Wired audio is recommended. Bluetooth delay and jitter can make timing inconsistent.</p></dialog>
+  <dialog id="resultsDialog" class="results-dialog"><div class="dialog-heading"><div><div class="eyebrow" id="resultEyebrow">SET COMPLETE</div><h2 id="resultTitle">That's your groove.</h2></div><button data-close="resultsDialog" class="icon-button" aria-label="Close results">×</button></div><div id="resultContent"></div><div class="dialog-footer"><button id="resultSetup" class="button secondary">Instrument setup</button><button id="playAgain" class="button primary">↺ &nbsp; Play again</button></div></dialog>
+  <dialog id="soundcheckDialog" class="soundcheck-dialog" aria-labelledby="soundcheckTitle">
+    <div class="dialog-heading"><div><div class="eyebrow">0.2 / KNOW YOUR INPUTS</div><h2 id="soundcheckTitle">Your band, connected.</h2></div><button id="soundClose" class="icon-button" aria-label="Close soundcheck">×</button></div>
+    <p class="sound-intro">No model number needed. Find your interface, choose a channel, then pluck a string to check the signal.</p>
+    <div class="sound-scope"><strong>SOUNDCHECK, NOT AUDIO SCORING</strong><span>This checks live guitar/bass audio. Playing for points still uses MIDI or computer keys. The tuner estimates one note at a time.</span></div>
+    <div class="sound-toolbar"><button id="soundAllow" class="button primary">Allow &amp; find audio inputs</button><button id="soundRefresh" class="button secondary">Refresh</button><button id="soundStop" class="button ghost">Stop all inputs</button></div>
+    <p class="sound-privacy">Your browser calls this “microphone” permission. The brief discovery capture stops immediately after listing devices. Checks are silent; no recordings or uploads.</p>
+    <p id="soundStatus" class="sound-status" role="status">Connect your interface, then allow audio access to reveal the names your browser can see.</p>
+    <div id="soundConflict" class="warning" hidden></div>
+    <div id="soundCards" class="sound-cards"></div>
+    <p class="sound-routing-note">Browser channel numbers may differ from physical jack numbers. Play each instrument alone to confirm the route. A mono input cannot separate guitar and bass; test them one at a time. Generic names such as “USB Audio” are normal.</p>
+    <section class="sound-midi"><div><h3>MIDI drums, keys &amp; MIDI-equipped guitar</h3><p id="soundMidiDevices"></p><small id="soundMidiLast">MIDI gameplay and lane mappings are unchanged.</small></div><button id="soundMIDI" class="button secondary small">MIDI routing</button></section>
+    <div class="dialog-footer sound-footer"><span>Capture stops when you close this panel or hide the tab.</span><div><button id="soundReport" class="button ghost small">Save device report</button><button id="soundDone" class="button primary">Done</button></div></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+/* MIDI Stage: deterministic charts, scoring, and Standard MIDI File parsing.
+   No DOM, network, clocks, or audio dependencies. */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.StageCore = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+  const PC = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  const COLORS = ['#ff647c','#f9bc62','#49dcc8','#69a8ff','#be91ff','#eb81cd','#91dc78','#f2df8c','#73cce8','#afadff','#ee9e6c','#8ec2b4'];
+  const DRUMS = [
+    {name:'KICK', short:'KICK', notes:[35,36], pitch:36, color:COLORS[1]},
+    {name:'SNARE', short:'SNR', notes:[37,38,39,40], pitch:38, color:COLORS[0]},
+    {name:'HI-HAT', short:'HAT', notes:[42,44,46], pitch:42, color:COLORS[2]},
+    {name:'TOMS', short:'TOM', notes:[41,43,45,47,48,50], pitch:45, color:COLORS[3]},
+    {name:'CRASH', short:'CRSH', notes:[49,52,55,57], pitch:49, color:COLORS[4]},
+    {name:'RIDE', short:'RIDE', notes:[51,53,59], pitch:51, color:COLORS[5]}
+  ];
+  const WINDOWS = {chill:[0.07,0.12,0.19], standard:[0.045,0.09,0.14], expert:[0.025,0.055,0.09]};
+  const TYPES = ['drums','keys','guitar','bass'];
+  const LABELS = {drums:'Drums',keys:'Keys',guitar:'Guitar',bass:'Bass'};
+  const KEYS = {
+    drums:['Space','KeyD','KeyF','KeyG','KeyH','KeyJ'],
+    keys:['KeyA','KeyS','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft'],
+    guitar:['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash','Semicolon','Quote'],
+    bass:['Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','Minus','Equal']
+  };
+  function keyLabel(code) { return code === 'Space' ? 'SPACE' : code.replace(/^Key|^Digit/,'').replace('BracketLeft','[').replace('Comma',',').replace('Period','.').replace('Slash','/').replace('Semicolon',';').replace('Quote',"'").replace('Minus','−').replace('Equal','='); }
+  const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
+  const pc = n => ((n % 12)+12)%12;
+  const noteName = n => PC[pc(n)] + (Math.floor(n/12)-1);
+  function defaults() { return TYPES.map((type,i) => ({id:type,type,label:LABELS[type],enabled:i===0,device:'any',channel:type==='drums'?10:i,mode:'pitch',source:type,learned:{}})); }
+  function median(a) { if (!a.length) return 0; const s=[...a].sort((a,b)=>a-b), m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; }
+  function calibration(taps) { const center=median(taps), mad=median(taps.map(x=>Math.abs(x-center))); const clean=taps.filter(x=>Math.abs(x-center)<=Math.max(45,3*mad)); return {offset:Math.round(median(clean)),spread:Math.round(median(clean.map(x=>Math.abs(x-median(clean))))),count:clean.length}; }
+  function lowerBound(a,t,field='time') { let l=0,r=a.length; while(l<r){const m=(l+r)>>>1;if(a[m][field]<t) l=m+1; else r=m;}return l; }
+  function makeSong(id=0) {
+    const info = [
+      {id:'neon-circuit',name:'Neon Circuit',subtitle:'A driving pocket. A little electricity.',bpm:112,bars:32,tag:'SYNTH ROCK',accent:'#49dcc8'},
+      {id:'after-hours',name:'After Hours',subtitle:'Room to breathe. Space to find your groove.',bpm:88,bars:24,tag:'DOWNTEMPO',accent:'#be91ff'},
+      {id:'voltage-run',name:'Voltage Run',subtitle:'Fast hands, tight fills, no holding back.',bpm:144,bars:32,tag:'HIGH ENERGY',accent:'#f9bc62'}
+    ][id];
+    const beat=60/info.bpm, parts = TYPES.map(type=>({id:type,name:LABELS[type],channel:type==='drums'?10:1,type,notes:[]}));
+    const add=(type,b,p,d=.18,v=100)=>parts.find(x=>x.type===type).notes.push({time:b*beat,duration:d*beat,pitch:p,velocity:v});
+    const roots=[0,4,3,1], scale=[60,62,64,67,69];
+    for(let bar=0;bar<info.bars;bar++) {
+      const b=bar*4,r=roots[Math.floor(bar/4)%4],root=scale[r];
+      add('drums',b,36);add('drums',b+2,36);
+      if(bar%2 && id!==1) add('drums',b+2.5,36,.15,87);
+      add('drums',b+1,38);add('drums',b+3,38);
+      for(let h=0;h<8;h++) if(id!==1||h%2===0) add('drums',b+h/2,bar>=16&&bar<24?51:42,.12,h%2?64:83);
+      if(bar%8===0) add('drums',b,49,.7,95);
+      if(bar%8===7) for(let f=0;f<4;f++) add('drums',b+3+f*.25,[48,47,45,43][f],.14,82+f*5);
+      for(let k=0;k<4;k++) add('keys',b+k,scale[(r+[0,2,4,2][k])%5],k===3?.75:.65,78);
+      if(bar%4===2) {add('keys',b,scale[(r+2)%5]+12,1.65,61);add('keys',b+2,scale[(r+4)%5]+12,1.6,63);}
+      for(let g=0;g<4;g++) add('guitar',b+g,scale[(r+(g===3?2:0))%5]-12,g===3?.7:.5,84);
+      if(bar%4===3) add('guitar',b+3.5,scale[(r+1)%5]-12,.35,78);
+      for(let k=0;k<(id===2?4:2);k++) add('bass',b+k*(id===2?1:2),root-24,(id===2?.8:1.7),95);
+    }
+    parts.forEach(p=>p.notes.sort((a,b)=>a.time-b.time||a.pitch-b.pitch));
+    const duration=info.bars*4*beat;
+    return {...info,parts,duration,original:true,tempoMap:[{tick:0,time:0,bpm:info.bpm}],beats:Array.from({length:info.bars*4+1},(_,i)=>({time:i*beat,bar:i%4===0})),sections:[{time:0,name:'INTRO'},{time:8*4*beat,name:'IN THE POCKET'},{time:16*4*beat,name:'TURN IT UP'},{time:24*4*beat,name:'BRING IT HOME'}].filter(x=>x.time<duration)};
+  }
+  function sourceFor(song, player) { return song.parts.find(p=>p.id===player.source)||song.parts.find(p=>p.type===player.type)||song.parts[0]; }
+  function lanesFor(song,player) {
+    if(player.type==='drums') return DRUMS.map(d=>({...d,notes:[...d.notes]}));
+    const part=sourceFor(song,player), pitches=[...new Set(part.notes.map(n=>pc(n.pitch)))].sort((a,b)=>a-b);
+    return pitches.map((p,i)=>{const all=part.notes.filter(n=>pc(n.pitch)===p).map(n=>n.pitch).sort((a,b)=>a-b);const pitch=all[Math.floor(all.length/2)]||60+p;return {name:PC[p],short:PC[p],pitch,pc:p,color:COLORS[i%COLORS.length]};});
+  }
+  function laneForPitch(pitch,player,lanes) {
+    if(Object.prototype.hasOwnProperty.call(player.learned,pitch)) return player.learned[pitch];
+    return player.type==='drums'?lanes.findIndex(l=>l.notes.includes(pitch)):lanes.findIndex(l=>l.pc===pc(pitch));
+  }
+  function makeChart(song,player,start=0,end=song.duration) {
+    const lanes=lanesFor(song,player), part=sourceFor(song,player);
+    // Learned mappings change the controller, never the authored chart.
+    const chartPlayer={...player,learned:{}};
+    const notes=part.notes.filter(n=>n.time>=start-1e-6&&n.time<end-1e-6).map((n,id)=>({...n,id,lane:laneForPitch(n.pitch,chartPlayer,lanes),duration:Math.min(n.duration,end-n.time)})).filter(n=>n.lane>=0);
+    return {lanes,notes};
+  }
+  function routes(player,device,channel) { return player.enabled&&(player.device==='any'||player.device===device)&&(player.channel===0||player.channel===channel); }
+  function routingConflicts(players) {
+    const enabled=players.filter(p=>p.enabled), out=[];
+    for(let i=0;i<enabled.length;i++)for(let j=i+1;j<enabled.length;j++){
+      const a=enabled[i],b=enabled[j];
+      if((a.device==='any'||b.device==='any'||a.device===b.device)&&(a.channel===0||b.channel===0||a.channel===b.channel)) out.push(`${a.label} and ${b.label} share a MIDI route`);
+    } return out;
+  }
+  class Judge {
+    constructor(chart,{difficulty='standard',speed=1,drums=false,mode='pitch',onJudge=()=>{}}={}) {
+      this.notes=chart.notes.map(n=>({...n,state:0,hold:null}));this.lanes=chart.lanes;this.windows=(WINDOWS[difficulty]||WINDOWS.standard).map(x=>x*speed);this.speed=speed;this.drums=drums;this.mode=mode;this.onJudge=onJudge;this.cursor=0;this.held=new Map();this.activeHolds=new Set();
+      this.stats={score:0,combo:0,maxCombo:0,perfect:0,great:0,good:0,miss:0,extra:0,holdBreaks:0,holds:0,weight:0,offsets:[]};
+    }
+    get multiplier(){return Math.min(4,1+Math.floor(this.stats.combo/10));}
+    get accuracy(){const s=this.stats,n=s.perfect+s.great+s.good+s.miss+s.extra;return n?100*s.weight/n:100;}
+    tick(t){
+      while(this.cursor<this.notes.length&&this.notes[this.cursor].time<t-this.windows[2]-1e-8){const n=this.notes[this.cursor++];if(!n.state){n.state=2;this.stats.miss++;this.stats.combo=0;this.onJudge({grade:'miss',note:n,delta:0});}}
+      for(const n of [...this.activeHolds]) if(t>=n.time+n.duration-.065*this.speed) this.finishHold(n,true);
+    }
+    hit(t,{lane,pitch,token='keyboard',arcade=false}){
+      this.tick(t);let closest=null,best=Infinity;
+      for(let i=this.cursor;i<this.notes.length;i++){
+        const n=this.notes[i];if(n.time>t+this.windows[2]+1e-8)break;
+        if(n.state||n.lane!==lane||(!this.drums&&!arcade&&this.mode==='exact'&&n.pitch!==pitch))continue;
+        const d=Math.abs(n.time-t);if(d<=this.windows[2]+1e-8&&d<best){closest=n;best=d;}
+      }
+      if(!closest){this.stats.extra++;this.stats.combo=0;this.onJudge({grade:'extra',lane,delta:0});return null;}
+      const grade=best<=this.windows[0]+1e-8?'perfect':best<=this.windows[1]+1e-8?'great':'good';
+      const weight={perfect:1,great:.75,good:.4}[grade],n=closest,s=this.stats;
+      n.state=1;n.hitAt=t;n.grade=grade;s[grade]++;s.weight+=weight;s.combo++;s.maxCombo=Math.max(s.maxCombo,s.combo);s.score+=Math.round(100*weight*this.multiplier);s.offsets.push((t-n.time)/this.speed*1000);
+      if(!this.drums&&n.duration/this.speed>=.35){n.hold='held';n.token=token;n.holdMultiplier=this.multiplier;this.activeHolds.add(n);if(!this.held.has(token))this.held.set(token,new Set());this.held.get(token).add(n);}
+      this.onJudge({grade,note:n,delta:(t-n.time)/this.speed*1000});return n;
+    }
+    finishHold(n,success){
+      if(n.hold!=='held')return;n.hold=success?'complete':'broken';this.activeHolds.delete(n);const set=this.held.get(n.token);if(set){set.delete(n);if(!set.size)this.held.delete(n.token);}
+      if(success){this.stats.holds++;this.stats.score+=50*n.holdMultiplier;}else{this.stats.holdBreaks++;this.stats.combo=0;this.onJudge({grade:'release',note:n,delta:0});}
+    }
+    release(token,t){for(const n of [...(this.held.get(token)||[])])this.finishHold(n,t>=n.time+n.duration-.09*this.speed);}
+    finish(t){this.tick(t+this.windows[2]+.001);return {...this.stats,accuracy:this.accuracy,total:this.notes.length,meanOffset:this.stats.offsets.length?this.stats.offsets.reduce((a,b)=>a+b,0)/this.stats.offsets.length:0};}
+  }
+  function parseMIDI(input,name='Imported MIDI') {
+    const bytes=input instanceof Uint8Array?input:new Uint8Array(input);
+    if(bytes.length>8*1024*1024)throw Error('MIDI files must be smaller than 8 MB.');
+    const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);let pos=0,limit=bytes.length,events=0,noteCount=0,maxTick=0;
+    function need(n){if(pos+n>limit)throw Error('Truncated MIDI file.');}
+    function u8(){need(1);return bytes[pos++];}function u16(){need(2);const n=view.getUint16(pos);pos+=2;return n;}function u32(){need(4);const n=view.getUint32(pos);pos+=4;return n;}
+    function str(n){need(n);const s=String.fromCharCode(...bytes.subarray(pos,pos+n));pos+=n;return s;}
+    function vlq(){let n=0;for(let i=0;i<4;i++){const b=u8();n=n*128+(b&127);if(!(b&128))return n;}throw Error('Invalid MIDI variable-length value.');}
+    if(str(4)!=='MThd')throw Error('This is not a Standard MIDI File (.mid).');
+    const hlen=u32();if(hlen<6)throw Error('Invalid MIDI header.');need(hlen);const hend=pos+hlen,format=u16(),tracks=u16(),ppq=u16();pos=hend;
+    if(format>1)throw Error('Use MIDI format 0 or 1. Format 2 contains independent sequences.');
+    if(!tracks||tracks>512||(format===0&&tracks!==1))throw Error('Invalid MIDI track count.');
+    if(!ppq||(ppq&0x8000))throw Error('SMPTE-timed MIDI is not supported. Export with musical/PPQ timing.');
+    const tempos=[{tick:0,us:500000}],raw=[];
+    for(let ti=0;ti<tracks;ti++){
+      limit=bytes.length;if(str(4)!=='MTrk')throw Error('Expected a MIDI track chunk.');const len=u32();need(len);const end=pos+len;limit=end;
+      let tick=0,running=0,trackName=`Track ${ti+1}`;const active=new Map(),parts=new Map();
+      const partFor=ch=>{if(!parts.has(ch))parts.set(ch,{id:`track-${ti}-ch-${ch+1}`,name:trackName,channel:ch+1,type:ch===9?'drums':'keys',notes:[]});return parts.get(ch);};
+      const close=(ch,pitch)=>{const key=`${ch}:${pitch}`,q=active.get(key);if(q&&q.length){const n=q.shift();n.endTick=Math.max(n.tick+1,tick);if(!q.length)active.delete(key);}};
+      while(pos<end){
+        if(++events>500000)throw Error('This MIDI has too many events. Export a shorter arrangement.');
+        tick+=vlq();maxTick=Math.max(maxTick,tick);let status=u8();
+        if(status<128){if(!running)throw Error('MIDI running status is missing.');pos--;status=running;}
+        if(status===0xff){running=0;const type=u8(),n=vlq();need(n);const at=pos;
+          if(type===0x51&&n===3){const us=bytes[pos]*65536+bytes[pos+1]*256+bytes[pos+2];if(us>0)tempos.push({tick,us});}
+          if(type===3){trackName=new TextDecoder().decode(bytes.subarray(pos,pos+n)).slice(0,100);parts.forEach(p=>p.name=trackName);}
+          pos=at+n;if(type===0x2f){pos=end;break;}continue;
+        }
+        if(status===0xf0||status===0xf7){running=0;const n=vlq();need(n);pos+=n;continue;}
+        if(status>=0xf0)throw Error('Unsupported system event inside this MIDI file.');
+        running=status;const type=status&0xf0,ch=status&15,a=u8(),b=(type===0xc0||type===0xd0)?0:u8();if(a>127||b>127)throw Error('Invalid MIDI data byte.');
+        if(type===0x90&&b){if(++noteCount>60000)throw Error('This MIDI has more than 60,000 notes. Export a shorter arrangement.');const n={tick,pitch:a,velocity:b,endTick:null};partFor(ch).notes.push(n);const key=`${ch}:${a}`;if(!active.has(key))active.set(key,[]);active.get(key).push(n);}
+        else if(type===0x80||(type===0x90&&!b))close(ch,a);
+      }
+      for(const queue of active.values())for(const n of queue)n.endTick=Math.max(n.tick+ppq/4,tick);
+      for(const p of parts.values())if(p.notes.length)raw.push(p);
+      pos=end;
+    }
+    if(!raw.length)throw Error('No playable Note On events were found in this MIDI.');
+    tempos.sort((a,b)=>a.tick-b.tick);const map=[];
+    for(const t of tempos){if(map.length&&map[map.length-1].tick===t.tick)map[map.length-1]=t;else map.push(t);}
+    let time=0;map.forEach((t,i)=>{if(i)time+=(t.tick-map[i-1].tick)/ppq*map[i-1].us/1e6;t.time=time;t.bpm=60e6/t.us;});
+    const toSec=tick=>{let i=lowerBound(map,tick+1e-7,'tick')-1;i=Math.max(0,i);const t=map[i];return t.time+(tick-t.tick)/ppq*t.us/1e6;};
+    let duration=0;
+    const parts=raw.map(p=>({...p,name:`${p.name} · ch ${p.channel}`,notes:p.notes.map(n=>{const t=toSec(n.tick),e=toSec(n.endTick);duration=Math.max(duration,e);return {time:t,duration:Math.max(.02,e-t),pitch:n.pitch,velocity:n.velocity};}).sort((a,b)=>a.time-b.time||a.pitch-b.pitch)}));
+    if(duration>3600)throw Error('This MIDI is longer than one hour. Export a shorter section.');
+    const beats=[];for(let tick=0;tick<=maxTick&&beats.length<20000;tick+=ppq)beats.push({time:toSec(tick),bar:false});
+    let hash=2166136261;for(const byte of bytes){hash^=byte;hash=Math.imul(hash,16777619);}
+    return {id:`midi-${(hash>>>0).toString(16)}`,name:name.replace(/\.midi?$/i,''),subtitle:'Your MIDI. Your instruments. Your stage.',tag:'LOCAL MIDI',bpm:Math.round(map[0].bpm),parts,duration:Math.max(duration,.25),original:false,tempoMap:map,beats,sections:[{time:0,name:'YOUR ARRANGEMENT'}],format};
+  }
+  return {PC,COLORS,DRUMS,WINDOWS,TYPES,LABELS,KEYS,keyLabel,clamp,pc,noteName,defaults,median,calibration,lowerBound,makeSong,sourceFor,lanesFor,laneForPitch,makeChart,routes,routingConflicts,Judge,parseMIDI};
+});
+
+/* MIDI input only: no SysEx, output, firmware access, or network traffic. */
+(function(root){
+  'use strict';
+  class MIDIHub {
+    constructor({onMessage=()=>{},onDevices=()=>{},onDisconnect=()=>{}}={}){this.access=null;this.onMessage=onMessage;this.onDevices=onDevices;this.onDisconnect=onDisconnect;this.attached=new Map();}
+    async connect(){
+      if(!window.isSecureContext)throw Error('MIDI needs a secure page. Launch with start.py and open http://localhost:8765 in Chrome.');
+      if(!navigator.requestMIDIAccess)throw Error('Web MIDI is not available here. Use desktop Chrome. Keyboard play still works.');
+      this.access=await navigator.requestMIDIAccess({sysex:false});
+      this.access.onstatechange=()=>this.refresh();this.refresh();return this.devices();
+    }
+    devices(){return this.access?[...this.access.inputs.values()].filter(p=>p.state==='connected').map(p=>({id:p.id,name:p.name||'MIDI input',manufacturer:p.manufacturer||''})):[];}
+    refresh(){
+      const devices=this.devices(),ids=new Set(devices.map(d=>d.id));
+      for(const [id,port] of this.attached)if(!ids.has(id)){port.onmidimessage=null;this.attached.delete(id);this.onDisconnect(id);}
+      if(this.access)for(const port of this.access.inputs.values())if(port.state==='connected'&&!this.attached.has(port.id)){
+        port.onmidimessage=event=>this.receive(port.id,event);this.attached.set(port.id,port);
+      }
+      this.onDevices(devices);
+    }
+    receive(device,event){
+      const d=event.data;if(!d||!d.length)return;const type=d[0]&0xf0,channel=(d[0]&15)+1;
+      const timestamp=Number.isFinite(event.timeStamp)?event.timeStamp:performance.now();
+      if(d.length>=3&&(type===0x90||type===0x80))this.onMessage({kind:type===0x90&&d[2]>0?'on':'off',device,channel,note:d[1],velocity:type===0x80?0:d[2],timestamp,token:`${device}:${channel}:${d[1]}`});
+      else if(d.length>=3&&type===0xb0)this.onMessage({kind:'cc',device,channel,controller:d[1],value:d[2],timestamp});
+    }
+  }
+  root.StageMIDI={MIDIHub};
+})(globalThis);
+
+/* Audio-clock transport with a short look-ahead scheduler. All sounds synthesized here. */
+(function(root){
+  'use strict';
+  class AudioEngine {
+    constructor(){this.ctx=null;this.master=null;this.nodes=new Set();this.origin=0;this.speed=1;this.running=false;this.events=[];this.cursor=0;this.timer=null;this.volume=.55;this.monitorVoices=new Map();}
+    async init(){
+      if(!this.ctx){
+        const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw Error('Web Audio is unavailable in this browser.');
+        this.ctx=new AC({latencyHint:'interactive'});this.master=this.ctx.createGain();this.master.gain.value=this.volume*.5;
+        const limiter=this.ctx.createDynamicsCompressor();limiter.threshold.value=-12;limiter.knee.value=8;limiter.ratio.value=12;limiter.attack.value=.003;limiter.release.value=.15;
+        this.master.connect(limiter);limiter.connect(this.ctx.destination);
+        this.noise=this.ctx.createBuffer(1,this.ctx.sampleRate*2,this.ctx.sampleRate);const a=this.noise.getChannelData(0);let seed=12553;
+        for(let i=0;i<a.length;i++){seed=(Math.imul(seed,1664525)+1013904223)|0;a[i]=(seed>>>0)/2147483648-1;}
+      }
+      if(this.ctx.state==='suspended')await this.ctx.resume();
+      if(this.ctx.state!=='running')throw Error('Audio could not start. Click Start again to enable browser audio.');
+    }
+    setVolume(v){this.volume=v;if(this.master)this.master.gain.setTargetAtTime(v*.5,this.ctx.currentTime,.02);}
+    contextAt(stamp=performance.now()){
+      if(!this.ctx)return 0;
+      const ts=this.ctx.getOutputTimestamp?.();
+      if(ts&&ts.contextTime>0&&ts.performanceTime>0)return ts.contextTime+(stamp-ts.performanceTime)/1000;
+      return this.ctx.currentTime-(this.ctx.outputLatency||this.ctx.baseLatency||0)+(stamp-performance.now())/1000;
+    }
+    songAt(stamp=performance.now()){return (this.contextAt(stamp)-this.origin)*this.speed;}
+    track(source,gain,filter){
+      const voice={source,gain,filter,stopped:false,stop:()=>{if(voice.stopped)return;voice.stopped=true;try{gain.gain.cancelScheduledValues(this.ctx.currentTime);gain.gain.setTargetAtTime(.0001,this.ctx.currentTime,.012);source.stop(this.ctx.currentTime+.05);}catch(_){}}};
+      this.nodes.add(voice);source.onended=()=>{this.nodes.delete(voice);try{source.disconnect();gain.disconnect();filter?.disconnect();}catch(_){}};return voice;
+    }
+    tone(type,pitch,velocity=90,at=this.ctx.currentTime,duration=.3,level=1){
+      const ctx=this.ctx,start=Math.max(ctx.currentTime,at),v=Math.max(.01,velocity/127)*level;
+      if(type==='drums')return this.drum(pitch,v,start);
+      const osc=ctx.createOscillator(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();const freq=440*Math.pow(2,(pitch-69)/12);
+      osc.type=type==='bass'?'sawtooth':type==='guitar'?'sawtooth':'triangle';osc.frequency.value=freq;
+      filter.type='lowpass';filter.frequency.setValueAtTime(type==='bass'?700:type==='guitar'?2200:4000,start);filter.frequency.exponentialRampToValueAtTime(type==='bass'?160:900,start+Math.min(duration,.35));filter.Q.value=.5;
+      const sustain=Math.max(.06,Math.min(duration,10)),amp=v*(type==='bass'?.2:type==='guitar'?.095:.23);
+      gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(Math.max(.0002,amp),start+.008);gain.gain.exponentialRampToValueAtTime(Math.max(.0002,amp*.55),start+.12);gain.gain.setValueAtTime(Math.max(.0002,amp*.5),start+sustain+.12);gain.gain.exponentialRampToValueAtTime(.0001,start+sustain+.24);
+      osc.connect(filter);filter.connect(gain);gain.connect(this.master);const voice=this.track(osc,gain,filter);osc.start(start);osc.stop(start+sustain+.25);return voice;
+    }
+    drum(pitch,v,start){
+      const ctx=this.ctx;let freq,duration,kind;
+      if([35,36].includes(pitch)){freq=150;duration=.27;kind='kick';}
+      else if([37,38,39,40].includes(pitch)){freq=1500;duration=.15;kind='noise';}
+      else if([41,43,45,47,48,50].includes(pitch)){freq=95+(pitch-41)*15;duration=.24;kind='tom';}
+      else{freq=[49,52,55,57].includes(pitch)?5000:8000;duration=[49,52,55,57].includes(pitch)?.6:pitch===46?.28:.075;kind='metal';}
+      const gain=ctx.createGain(),filter=ctx.createBiquadFilter();let source;
+      if(kind==='kick'||kind==='tom'){
+        source=ctx.createOscillator();source.type='sine';source.frequency.setValueAtTime(freq,start);source.frequency.exponentialRampToValueAtTime(kind==='kick'?45:freq*.55,start+duration);filter.type='lowpass';filter.frequency.value=1000;
+      }else{source=ctx.createBufferSource();source.buffer=this.noise;filter.type=kind==='metal'?'highpass':'bandpass';filter.frequency.value=freq;filter.Q.value=.55;}
+      const amp=v*(kind==='kick'?.65:kind==='metal'?.18:.36);
+      gain.gain.setValueAtTime(Math.max(.0002,amp),start);gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+      source.connect(filter);filter.connect(gain);gain.connect(this.master);const voice=this.track(source,gain,filter);source.start(start);source.stop(start+duration+.01);return voice;
+    }
+    click(at,accent=false){if(!this.ctx)return;const ctx=this.ctx,start=Math.max(at,ctx.currentTime),osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=accent?1400:1000;gain.gain.setValueAtTime(.15,start);gain.gain.exponentialRampToValueAtTime(.0001,start+.045);osc.connect(gain);gain.connect(this.master);const v=this.track(osc,gain);osc.start(start);osc.stop(start+.05);return v;}
+    async begin({song,players,speed=1,seek=0,end=song.duration,countIn=true,guide=false,demo=false,metronome=false,buffer=null,audioOffset=0}){
+      await this.init();this.stop();this.speed=speed;this.song=song;const beat=60/song.bpm;
+      const pre=countIn?4*beat/speed:.12;this.origin=this.ctx.currentTime+.12+pre-seek/speed;
+      this.events=[];
+      if(countIn)for(let i=4;i>0;i--)this.events.push({time:seek-i*beat,click:true,accent:i===4});
+      if(metronome)for(const b of song.beats)if(b.time>=seek&&b.time<end)this.events.push({time:b.time,click:true,accent:b.bar});
+      const sources=new Set(players.filter(p=>p.enabled).map(p=>root.StageCore.sourceFor(song,p).id));
+      if(!buffer)for(const part of song.parts){const selected=sources.has(part.id);if(selected&&!guide&&!demo)continue;
+        const player=players.find(p=>p.enabled&&root.StageCore.sourceFor(song,p).id===part.id);const type=player?.type||part.type||'keys';
+        for(const n of part.notes)if(n.time>=seek-1e-6&&n.time<end)this.events.push({...n,type,level:selected?.42:.65,duration:Math.min(n.duration,end-n.time)/speed});
+      }
+      this.events.sort((a,b)=>a.time-b.time);this.cursor=0;this.running=true;
+      if(buffer){
+        const src=this.ctx.createBufferSource(),gain=this.ctx.createGain();src.buffer=buffer;src.playbackRate.value=speed;gain.gain.value=.8;src.connect(gain);gain.connect(this.master);
+        const songStart=Math.max(seek,audioOffset),offset=Math.max(0,seek-audioOffset),at=this.origin+songStart/speed;
+        if(offset<buffer.duration&&songStart<end){this.track(src,gain);src.start(Math.max(this.ctx.currentTime,at),offset);src.stop(this.origin+end/speed);}else{src.disconnect();gain.disconnect();}
+      }
+      this.schedule();this.timer=setInterval(()=>this.schedule(),25);
+    }
+    schedule(){
+      if(!this.running)return;const until=(this.ctx.currentTime+.12-this.origin)*this.speed;
+      while(this.cursor<this.events.length&&this.events[this.cursor].time<=until){const e=this.events[this.cursor++],at=this.origin+e.time/this.speed;if(at<this.ctx.currentTime-.07)continue;
+        if(e.click)this.click(at,e.accent);else this.tone(e.type,e.pitch,e.velocity,at,e.duration,e.level);
+      }
+    }
+    stop(){this.running=false;clearInterval(this.timer);this.timer=null;for(const n of [...this.nodes])n.stop();this.monitorVoices.clear();}
+    monitor(token,type,pitch,velocity,duration=1){if(!this.ctx||this.ctx.state!=='running')return;this.release(token);const v=this.tone(type,pitch,velocity,this.ctx.currentTime,duration,.85);if(type!=='drums')this.monitorVoices.set(token,v);}
+    release(token){const v=this.monitorVoices.get(token);if(v){v.stop();this.monitorVoices.delete(token);}}
+  }
+  root.StageAudio={AudioEngine};
+})(globalThis);
+
+/* Local audio soundcheck. Capture is explicit, muted and never recorded.
+   Single-note pitch estimates are diagnostic only; this module cannot award scores. */
+(function(root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.StageInput = api;
+})(globalThis, function() {
+  'use strict';
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  function level(samples) {
+    let sum = 0, energy = 0, peak = 0;
+    for (const x of samples) { if (!Number.isFinite(x)) return {rms:0, db:-100, peak:0}; sum += x; energy += x*x; peak = Math.max(peak, Math.abs(x)); }
+    const n = samples.length || 1;
+    const rms = Math.sqrt(Math.max(0, energy/n - (sum/n)**2));
+    return {rms, db: Math.max(-100, 20*Math.log10(Math.max(1e-5, rms))), peak};
+  }
+  function noteAt(frequency) {
+    if (!(frequency > 0) || !Number.isFinite(frequency)) return null;
+    const value = 69 + 12*Math.log2(frequency/440), midi = Math.round(value);
+    const names = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+    return {frequency, midi, name:names[((midi%12)+12)%12]+(Math.floor(midi/12)-1), cents:100*(value-midi)};
+  }
+  /* Cumulative normalized difference, using a fixed comparison window.
+     Downsampling bounds work for the low strings. Not polyphonic transcription. */
+  function detectPitch(samples, sampleRate, options={}) {
+    if (!samples || samples.length < 512 || !Number.isFinite(sampleRate) || sampleRate < 8000) return null;
+    const minHz = options.minHz || 28, maxHz = options.maxHz || 1500;
+    const meter = level(samples);
+    if (meter.db < (options.gateDb ?? -55) || meter.rms < 1e-5) return null;
+    const step = Math.max(1, Math.floor(sampleRate/12000)), rate = sampleRate/step;
+    const n = Math.floor(samples.length/step), data = new Float64Array(n);
+    let mean = 0;
+    for (let i=0; i<n; i++) { let x=0; for (let k=0; k<step; k++) x+=samples[i*step+k]; data[i]=x/step; mean+=data[i]; }
+    mean/=n; for(let i=0;i<n;i++) data[i]-=mean;
+    const minLag=Math.max(2,Math.floor(rate/maxHz)), maxLag=Math.min(Math.ceil(rate/minHz),Math.floor(n/2)-1);
+    if(maxLag<=minLag) return null;
+    const windowSize=n-maxLag, diff=new Float64Array(maxLag+1);
+    let cumulative=0; diff[0]=1;
+    for(let lag=1;lag<=maxLag;lag++) {
+      let d=0; for(let i=0;i<windowSize;i++){const v=data[i]-data[i+lag]; d+=v*v;}
+      cumulative+=d; diff[lag]=cumulative>1e-15?d*lag/cumulative:1;
+    }
+    let chosen=-1;
+    for(let lag=minLag;lag<maxLag;lag++) {
+      if(diff[lag]<.13){while(lag+1<=maxLag&&diff[lag+1]<diff[lag])lag++;chosen=lag;break;}
+    }
+    if(chosen<0) return null;
+    const left=diff[chosen-1], middle=diff[chosen], right=diff[Math.min(maxLag,chosen+1)];
+    const denom=left-2*middle+right;
+    const correction=chosen<maxLag&&Math.abs(denom)>1e-15?clamp(.5*(left-right)/denom,-1,1):0;
+    const frequency=rate/(chosen+correction);
+    if(frequency<minHz*.98||frequency>maxHz*1.02) return null;
+    return {...noteAt(frequency), confidence:clamp(1-middle,0,1)};
+  }
+  function messageFor(error) {
+    switch(error?.name) {
+      case 'NotAllowedError': return 'Audio permission was denied. Allow microphone/audio input for this local page in browser settings, then retry.';
+      case 'NotFoundError': return 'No audio input was found. Connect the interface and check that your computer recognizes it.';
+      case 'NotReadableError': return 'The audio input could not be opened. Check the cable, driver, or whether another app is holding the device.';
+      case 'OverconstrainedError': return 'That saved audio input is unavailable. Refresh the device list and choose a connected input.';
+      default: return error?.message || 'Audio input could not start.';
+    }
+  }
+  class AudioInputHub {
+    constructor({getContext, mediaDevices, onData=()=>{}, onState=()=>{}, onDevices=()=>{}}={}) {
+      this.media = mediaDevices || globalThis.navigator?.mediaDevices;
+      this.getContext=getContext;this.onData=onData;this.onState=onState;this.onDevices=onDevices;
+      this.entries=new Map();this.routes=new Map();this.requests=new Map();this.devices=[];this.timer=null;this.serial=0;this.discoveryEpoch=0;this.discoveryStreams=new Set();
+      this.deviceChange=()=>this.refresh().catch(e=>this.onState(null,{error:messageFor(e)}));
+      this.media?.addEventListener?.('devicechange',this.deviceChange);
+    }
+    supported() { return !!(this.media?.getUserMedia && this.media?.enumerateDevices); }
+    assertSupport() {
+      if(!this.supported()) throw Error('Audio capture is unavailable here. Use the localhost launcher in desktop Chrome and check site permissions.');
+      if(globalThis.isSecureContext===false) throw Error('Audio input needs a secure page. Use start.py and open the localhost address.');
+    }
+    async refresh() {
+      if(!this.media?.enumerateDevices) return [];
+      const all=(await this.media.enumerateDevices()).filter(d=>d.kind==='audioinput'&&d.deviceId);
+      // Avoid listing the same physical input again as the system-default alias.
+      const direct=all.filter(d=>!['default','communications'].includes(d.deviceId));
+      this.devices=(direct.length?direct:all).map((d,i)=>({id:d.deviceId,name:d.label||`Audio input ${i+1} (allow access to reveal its name)`}));
+      this.onDevices(this.devices.map(d=>({...d})));
+      for(const [role,r] of [...this.routes]) if(!all.some(d=>d.deviceId===r.deviceId)) {
+        this.stop(role);this.onState(role,{error:'This audio input disconnected. Reconnect it, refresh, and start the check again.'});
+      }
+      return this.devices;
+    }
+    async allow() {
+      this.assertSupport();
+      // This temporary capture is only for permission and enumeration, never playback.
+      const epoch=this.discoveryEpoch;
+      const stream=await this.media.getUserMedia({audio:true,video:false});
+      this.discoveryStreams.add(stream);
+      try{if(epoch!==this.discoveryEpoch)return [];const devices=await this.refresh();return epoch===this.discoveryEpoch?devices:[];}
+      finally{this.discoveryStreams.delete(stream);stream.getTracks().forEach(t=>t.stop());}
+    }
+    async acquire(deviceId,ctx) {
+      let entry=this.entries.get(deviceId);
+      if(!entry) {
+        entry={deviceId,refs:0,stream:null,source:null,splitter:null,mute:null,track:null,settings:{},channels:null};
+        this.entries.set(deviceId,entry);
+        entry.promise=(async()=>{
+          try {
+            const stream=await this.media.getUserMedia({audio:{deviceId:{exact:deviceId},channelCount:{ideal:2},echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false});
+            entry.stream=stream;entry.track=stream.getAudioTracks()[0];
+            if(!entry.track)throw Error('The device did not return an audio track.');
+            entry.settings=entry.track.getSettings?.()||{};
+            const count=Number(entry.settings.channelCount);
+            entry.channels=Number.isInteger(count)&&count>0?count:null;
+            entry.source=ctx.createMediaStreamSource(stream);entry.splitter=ctx.createChannelSplitter(Math.min(entry.channels||2,32));
+            entry.mute=ctx.createGain();entry.mute.gain.value=0;
+            entry.source.connect(entry.splitter);entry.mute.connect(ctx.destination);
+            entry.ended=()=>{for(const [role,r] of [...this.routes])if(r.entry===entry){this.stop(role);this.onState(role,{error:'Audio capture ended. Check the connection and start again.'});}};
+            entry.track.addEventListener?.('ended',entry.ended);
+            return entry;
+          } catch(e){this.dispose(entry);throw e;}
+        })();
+      }
+      entry.refs++;
+      try{return await entry.promise;}catch(e){entry.refs--;throw e;}
+    }
+    release(entry) {entry.refs--;if(entry.refs<=0)this.dispose(entry);}
+    dispose(entry) {
+      if(this.entries.get(entry.deviceId)===entry)this.entries.delete(entry.deviceId);
+      entry.track?.removeEventListener?.('ended',entry.ended);
+      for(const node of [entry.source,entry.splitter,entry.mute])try{node?.disconnect();}catch(_){}
+      entry.stream?.getTracks().forEach(t=>t.stop());
+    }
+    async start(role,deviceId,channel=1,gateDb=-55) {
+      this.assertSupport();
+      if(!['guitar','bass'].includes(role))throw Error('Choose guitar or bass.');
+      if(typeof deviceId!=='string'||!deviceId)throw Error('Choose an audio input first.');
+      if(!Number.isInteger(channel)||channel<1||channel>32)throw Error('Choose a valid browser channel.');
+      this.stop(role);
+      const request=++this.serial;this.requests.set(role,request);this.onState(role,{pending:true});
+      let entry=null,analyser=null;
+      try {
+        const ctx=await this.getContext();
+        if(this.requests.get(role)!==request)return null;
+        entry=await this.acquire(deviceId,ctx);
+        if(this.requests.get(role)!==request){this.release(entry);return null;}
+        if(entry.track.readyState==='ended')throw Error('Audio capture has ended. Reconnect and try again.');
+        if(channel>Math.min(entry.channels||2,32))throw Error(`This input exposes ${entry.channels||2} browser channel${entry.channels===1?'':'s'}, not channel ${channel}. Choose an available channel; do not assume the physical jack number.`);
+        analyser=ctx.createAnalyser();analyser.fftSize=8192;analyser.smoothingTimeConstant=0;
+        entry.splitter.connect(analyser,channel-1,0);analyser.connect(entry.mute);
+        const route={role,deviceId,channel,gateDb:clamp(Number(gateDb)||-55,-80,-15),entry,analyser,samples:new Float32Array(analyser.fftSize),sampleRate:ctx.sampleRate};
+        this.routes.set(role,route);this.requests.delete(role);
+        this.onState(role,{active:true,channel,channels:entry.channels,settings:this.safeSettings(entry.settings),name:entry.track.label||this.devices.find(d=>d.id===deviceId)?.name||'Audio input'});
+        if(!this.timer)this.timer=setInterval(()=>this.sample(),85);
+        return this.describe(role);
+      } catch(e) {
+        try{if(analyser){entry?.splitter?.disconnect(analyser);analyser.disconnect();}}catch(_){}
+        if(entry)this.release(entry);
+        if(this.requests.get(role)!==request)return null;
+        this.requests.delete(role);this.onState(role,{error:messageFor(e)});throw e;
+      }
+    }
+    setGate(role,db) {const route=this.routes.get(role);if(route)route.gateDb=clamp(Number(db)||-55,-80,-15);}
+    sample() {
+      for(const [role,r] of this.routes) {
+        try {
+          r.analyser.getFloatTimeDomainData(r.samples);
+          const meter=level(r.samples),pitch=detectPitch(r.samples,r.sampleRate,{minHz:role==='bass'?28:65,maxHz:role==='bass'?550:1500,gateDb:r.gateDb});
+          this.onData(role,{...meter,pitch,clipping:meter.peak>=.985,signal:meter.db>=r.gateDb,muted:!!r.entry.track.muted});
+        } catch(e){this.stop(role);this.onState(role,{error:messageFor(e)});}
+      }
+    }
+    stop(role) {
+      this.requests.delete(role);
+      const r=this.routes.get(role);
+      if(r){this.routes.delete(role);try{r.entry.splitter.disconnect(r.analyser);r.analyser.disconnect();}catch(_){}this.release(r.entry);}
+      if(!this.routes.size){clearInterval(this.timer);this.timer=null;}
+      this.onState(role,{active:false});
+    }
+    stopAll(){this.discoveryEpoch++;for(const stream of this.discoveryStreams)stream.getTracks().forEach(t=>t.stop());this.discoveryStreams.clear();for(const role of new Set([...this.requests.keys(),...this.routes.keys()]))this.stop(role);}
+    safeSettings(s){return Object.fromEntries(['channelCount','sampleRate','sampleSize','latency','echoCancellation','noiseSuppression','autoGainControl'].filter(k=>s[k]!==undefined).map(k=>[k,s[k]]));}
+    describe(role){const r=this.routes.get(role);return r?{role,channel:r.channel,channels:r.entry.channels,settings:this.safeSettings(r.entry.settings),active:true}:null;}
+    destroy(){this.stopAll();this.media?.removeEventListener?.('devicechange',this.deviceChange);}
+  }
+  return {AudioInputHub,detectPitch,noteAt,level,messageFor};
+});
+
+/* The Soundcheck UI is intentionally separate from the rhythm-game judge. */
+(function(root){
+  'use strict';
+  const $=id=>document.getElementById(id), roles=['guitar','bass'];
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  class Controller {
+    constructor({getContext,beforeOpen=()=>{},onMIDI=()=>{},getMIDI=()=>[]}={}) {
+      this.beforeOpen=beforeOpen;this.onMIDI=onMIDI;this.getMIDI=getMIDI;this.devices=[];this.status={};this.details={};this.scanSerial=0;
+      let saved={};try{saved=JSON.parse(localStorage.getItem('midi-stage-soundcheck-v1'))||{};}catch(_){}
+      this.settings=Object.fromEntries(roles.map(role=>[role,{device:typeof saved[role]?.device==='string'?saved[role].device:'',channel:Number.isInteger(saved[role]?.channel)&&saved[role].channel>=1&&saved[role].channel<=32?saved[role].channel:1,gateDb:Number.isFinite(saved[role]?.gateDb)?Math.max(-80,Math.min(-15,saved[role].gateDb)):-55}]));
+      this.hub=new StageInput.AudioInputHub({getContext,onData:(role,data)=>this.meter(role,data),onState:(role,status)=>this.state(role,status),onDevices:devices=>{this.devices=devices;this.renderDevices();}});
+      this.renderCards();
+      $('openSoundcheck').onclick=()=>this.open();
+      $('soundClose').onclick=()=>$('soundcheckDialog').close();
+      $('soundDone').onclick=()=>$('soundcheckDialog').close();
+      $('soundcheckDialog').addEventListener('close',()=>{this.scanSerial++;this.hub.stopAll();this.save();});
+      $('soundAllow').onclick=()=>this.allow();
+      $('soundRefresh').onclick=()=>this.hub.refresh().then(d=>this.notice(d.length?`${d.length} audio input${d.length===1?'':'s'} listed. Select yours below.`:'No audio inputs listed. Connect your interface, then allow audio access.')).catch(e=>this.notice(StageInput.messageFor(e),true));
+      $('soundStop').onclick=()=>{this.scanSerial++;this.hub.stopAll();this.notice('All soundcheck inputs stopped. Nothing is recording.');};
+      $('soundMIDI').onclick=()=>{$('soundcheckDialog').close();this.onMIDI();};
+      $('soundReport').onclick=()=>this.downloadReport();
+      document.addEventListener('visibilitychange',()=>{if(document.hidden){this.scanSerial++;this.hub.stopAll();if($('soundcheckDialog').open)this.notice('Soundcheck stopped because this tab was hidden. Start a check again when ready.');}});
+      window.addEventListener('beforeunload',()=>this.hub.destroy());
+    }
+    save(){try{localStorage.setItem('midi-stage-soundcheck-v1',JSON.stringify(this.settings));}catch(_){}}
+    async open(){
+      if(this.beforeOpen()===false)return;
+      this.updateMIDI();$('soundcheckDialog').showModal();
+      if(!this.hub.supported())this.notice('Audio capture is unavailable in this view. Use the localhost launcher in desktop Chrome. MIDI and keyboard play are unchanged.',true);
+      else try{await this.hub.refresh();}catch(e){this.notice(StageInput.messageFor(e),true);}
+    }
+    notice(message,error=false){$('soundStatus').textContent=message;$('soundStatus').classList.toggle('error',error);}
+    async allow(){
+      const ticket=++this.scanSerial;$('soundAllow').disabled=true;this.notice('Approve audio access in your browser. Its permission dialog may call your interface a microphone.');
+      try{const d=await this.hub.allow();if(ticket===this.scanSerial)this.notice(d.length?`${d.length} audio input${d.length===1?'':'s'} found. The permission check has stopped; select an input to test.`:'Permission granted, but no audio inputs were listed. Check your interface connection.');}
+      catch(e){if(ticket===this.scanSerial)this.notice(StageInput.messageFor(e),true);}
+      finally{$('soundAllow').disabled=false;}
+    }
+    renderCards(){
+      $('soundCards').innerHTML=roles.map(role=>`<section class="sound-card" aria-labelledby="${role}SoundTitle"><div class="sound-card-head"><div><span class="eyebrow">${role==='guitar'?'01 / ELECTRIC GUITAR':'02 / ELECTRIC BASS'}</span><h3 id="${role}SoundTitle">${role==='guitar'?'Guitar':'Bass'} soundcheck</h3></div><span class="sound-badge" id="${role}Badge">STOPPED</span></div><div class="sound-fields"><label for="${role}AudioDevice">AUDIO INPUT<select id="${role}AudioDevice"></select></label><label for="${role}AudioChannel">BROWSER CHANNEL<select id="${role}AudioChannel"></select></label></div><p id="${role}CaptureInfo" class="sound-capture-info">Channel availability will be checked when capture starts.</p><div class="sound-meter-label"><span>INPUT LEVEL</span><output id="${role}Db">— dBFS</output></div><div id="${role}Level" class="sound-level" role="meter" aria-label="${role} input level" aria-valuemin="-80" aria-valuemax="0" aria-valuenow="-80"><span id="${role}LevelBar"></span></div><div class="sound-meter-scale"><span>−80</span><span>−40</span><span>−12</span><span>0 dBFS</span></div><div class="sound-tuner"><output id="${role}Pitch" aria-label="${role} detected note">—</output><div><strong id="${role}Cents">Play one clean note</strong><small id="${role}Frequency">Reference: A4 = 440 Hz</small></div></div><p class="sound-signal" id="${role}Signal" role="status">Choose your interface, then start the check.</p><label class="sound-gate" for="${role}Gate">NOISE GATE <output id="${role}GateValue">${this.settings[role].gateDb} dBFS</output><input id="${role}Gate" type="range" min="-80" max="-15" step="1" value="${this.settings[role].gateDb}"></label><div class="sound-card-foot"><button id="${role}Check" class="button secondary">Check ${role}</button><small>Silent analysis · no audio playback</small></div></section>`).join('');
+      for(const role of roles){
+        $(`${role}AudioDevice`).onchange=e=>{this.hub.stop(role);this.settings[role].device=e.target.value;delete this.details[role];this.renderChannels(role);$(`${role}CaptureInfo`).textContent='Channel availability will be checked when capture starts.';this.save();this.conflicts();};
+        $(`${role}AudioChannel`).onchange=e=>{this.hub.stop(role);this.settings[role].channel=Number(e.target.value);this.save();this.conflicts();};
+        $(`${role}Gate`).oninput=e=>{const db=Number(e.target.value);this.settings[role].gateDb=db;$(`${role}GateValue`).textContent=`${db} dBFS`;this.hub.setGate(role,db);this.save();};
+        $(`${role}Check`).onclick=async()=>{
+          if(this.status[role]?.active||this.status[role]?.pending){this.hub.stop(role);return;}
+          const s=this.settings[role];
+          try{await this.hub.start(role,s.device,s.channel,s.gateDb);}catch(e){this.state(role,{error:StageInput.messageFor(e)});}
+        };
+      }
+      this.renderDevices();
+    }
+    renderDevices(){
+      for(const role of roles){const s=this.settings[role],missing=s.device&&!this.devices.some(d=>d.id===s.device);
+        $(`${role}AudioDevice`).innerHTML=`<option value="">Select your audio input</option>${this.devices.map(d=>`<option value="${esc(d.id)}" ${d.id===s.device?'selected':''}>${esc(d.name)}</option>`).join('')}${missing?`<option value="${esc(s.device)}" selected>Saved input — unavailable / permission needed</option>`:''}`;
+        this.renderChannels(role);
+      }
+      this.conflicts();
+    }
+    renderChannels(role){
+      const s=this.settings[role],count=this.details[role]?.channels,available=Math.min(count||2,32);
+      $(`${role}AudioChannel`).innerHTML=Array.from({length:available},(_,i)=>`<option value="${i+1}" ${s.channel===i+1?'selected':''}>Channel ${i+1}${count?'':' · verify'}</option>`).join('')+(s.channel>available?`<option value="${s.channel}" selected>Channel ${s.channel} — not exposed</option>`:'');
+    }
+    state(role,status){
+      if(!role){if(status.error)this.notice(status.error,true);return;}
+      this.status[role]=status;const active=!!status.active,pending=!!status.pending;
+      $(`${role}Check`).textContent=active?'Stop check':pending?'Cancel check':`Check ${role}`;
+      $(`${role}AudioDevice`).disabled=active||pending;$(`${role}AudioChannel`).disabled=active||pending;
+      const badge=$(`${role}Badge`);badge.textContent=active?'LISTENING':pending?'CONNECTING':status.error?'CHECK INPUT':'STOPPED';badge.classList.toggle('active',active);badge.classList.toggle('error',!!status.error);
+      if(active){this.details[role]=status;this.renderChannels(role);const s=status.settings;
+        $(`${role}CaptureInfo`).textContent=`${status.name} · ${status.channels?`${status.channels} browser channel${status.channels===1?'':'s'}`:'channel count not reported — verify manually'}${s.sampleRate?` · ${(s.sampleRate/1000).toFixed(1)} kHz`:''}${[s.echoCancellation,s.noiseSuppression,s.autoGainControl].some(x=>x===true)?' · browser processing remains enabled':''}`;
+        $(`${role}Signal`).textContent='Listening. Pluck one string and watch the meter.';
+      }else{
+        this.meter(role,{db:-100,peak:0,pitch:null,signal:false});
+        $(`${role}Signal`).textContent=status.error|| (pending?'Waiting for the browser to open this input…':'Input stopped. Start a check when ready.');
+      }
+      this.conflicts();
+    }
+    meter(role,data){
+      const db=Math.max(-80,Math.min(0,data.db)),isActive=!!this.status[role]?.active;
+      $(`${role}LevelBar`).style.width=`${(db+80)/80*100}%`;$(`${role}Level`).setAttribute('aria-valuenow',db.toFixed(1));$(`${role}Level`).classList.toggle('clipping',!!data.clipping);
+      $(`${role}Db`).textContent=data.db<=-99?'— dBFS':`${data.db.toFixed(1)} dBFS`;
+      $(`${role}Pitch`).textContent=data.pitch?.name||'—';
+      $(`${role}Cents`).textContent=data.pitch?`${Math.abs(data.pitch.cents)<5?'In tune':`${Math.abs(data.pitch.cents).toFixed(0)} cents ${data.pitch.cents>0?'sharp':'flat'}`}`:'Play one clean note';
+      $(`${role}Frequency`).textContent=data.pitch?`${data.pitch.frequency.toFixed(1)} Hz · ${Math.round(data.pitch.confidence*100)}% periodicity`:'Reference: A4 = 440 Hz';
+      if(isActive){const message=data.muted?'Input interrupted or muted by the device.':data.clipping?'CLIPPING — lower the interface input gain.':!data.signal?'No signal above the gate. Pluck a string; check the input, channel and gain.':data.pitch?'Signal and single-note pitch detected.': 'Signal detected. Let one clean note ring; chords and effects may confuse the tuner.';if($(`${role}Signal`).textContent!==message)$(`${role}Signal`).textContent=message;}
+    }
+    conflicts(){
+      const a=this.settings.guitar,b=this.settings.bass;
+      const same=a.device&&a.device===b.device&&a.channel===b.channel;
+      $('soundConflict').hidden=!same;$('soundConflict').textContent='Guitar and bass are assigned to the same input channel. These checks will hear the same signal. Use separate exposed channels or test the instruments one at a time.';
+    }
+    updateMIDI(){const devices=this.getMIDI();$('soundMidiDevices').textContent=devices.length?devices.map(d=>d.name).join(' · '):'No MIDI inputs connected in this session. Use Connect MIDI on the main screen.';}
+    receiveMIDI(event){if(event.kind==='on'&&$('soundcheckDialog').open)$('soundMidiLast').textContent=`${this.getMIDI().find(d=>d.id===event.device)?.name||'MIDI input'} · note ${event.note} · channel ${event.channel} · velocity ${event.velocity}`;}
+    report(){return {app:'MIDI Stage',version:'0.2.0-soundcheck',createdAt:new Date().toISOString(),purpose:'Local input diagnostics; no audio scoring or physical-device certification.',audioInputs:this.devices.map(d=>({name:d.name})),midiInputs:this.getMIDI().map(d=>({name:d.name,manufacturer:d.manufacturer||''})),routes:Object.fromEntries(roles.map(role=>[role,{inputName:this.devices.find(d=>d.id===this.settings[role].device)?.name||'Not selected / unavailable',browserChannel:this.settings[role].channel,gateDb:this.settings[role].gateDb,capture:this.hub.describe(role),lastOpened:this.details[role]?{name:this.details[role].name,channels:this.details[role].channels,settings:this.details[role].settings}:null}])),limitations:['Device names may be generic.','Browser channels do not prove physical jack routing.','The tuner estimates single notes only.','No audio samples, device IDs or group IDs are included.']};}
+    downloadReport(){const blob=new Blob([JSON.stringify(this.report(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='MIDI-Stage-Device-Report.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);this.notice('Device report saved locally. It contains device labels and settings, not audio or private device IDs.');}
+  }
+  root.StageSoundcheck={Controller};
+})(globalThis);
+
+/* MIDI Stage application. Local-only, dependency-free browser build. */
+(function(){
+  'use strict';
+  const C=StageCore,$=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt=t=>{t=Math.max(0,Math.floor(t));return `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;};
+  const icons={drums:'◉',keys:'▥',guitar:'ϟ',bass:'≋'};
+  const storage={get(k,fallback){try{return JSON.parse(localStorage.getItem(k))??fallback;}catch(_){return fallback;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(_){}}};
+  const saved=storage.get('midi-stage-settings-v1',{});
+  const players=C.defaults().map(p=>{const old=saved.players?.find(x=>x.id===p.id);if(!old)return p;return {...p,enabled:!!old.enabled,device:typeof old.device==='string'?old.device:'any',channel:C.clamp(Number(old.channel)||0,0,16),mode:old.mode==='exact'?'exact':'pitch',learned:old.learned&&typeof old.learned==='object'?Object.fromEntries(Object.entries(old.learned).filter(([n,l])=>Number(n)>=0&&Number(n)<128&&Number.isInteger(l)&&l>=0&&l<12)): {}};});
+  if(!players.some(p=>p.enabled))players[0].enabled=true;
+  const state={songs:[C.makeSong(0),C.makeSong(1),C.makeSong(2)],song:null,players,status:'ready',position:0,speed:1,difficulty:'standard',judges:new Map(),charts:new Map(),feedback:new Map(),flashes:new Map(),particles:[],devices:[],demo:false,assisted:false,learn:null,from:0,to:0,loops:0,buffer:null,bufferName:'',minVelocity:C.clamp(Number(saved.minVelocity)||12,1,127),inputOffset:C.clamp(Number(saved.inputOffset)||0,-500,500),monitor:saved.monitor!==false,lastInput:new Map(),activeTokens:new Map(),pedals:new Map(),deferred:new Map(),keyDown:new Set(),calibration:null,startLock:false};
+  state.song=state.songs[0];
+  const audio=new StageAudio.AudioEngine();
+  let toastTimer=0,raf=0,view={w:900,h:430,dpr:1},lastHud=0,lastCount='',calTimer=0,loopTimer=0;
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hub=new StageMIDI.MIDIHub({onMessage:handleMIDI,onDevices:updateDevices,onDisconnect:id=>{if(state.status==='playing'&&players.some(p=>p.enabled&&(p.device===id||p.device==='any'))){pauseGame('An instrument disconnected. Reconnect it, then resume.');}releaseDevice(id);}});
+  const soundcheck=new StageSoundcheck.Controller({getContext:async()=>{await audio.init();return audio.ctx;},beforeOpen:()=>{if(state.status==='starting')return false;if(state.status==='playing')pauseGame('Paused for soundcheck.');},onMIDI:openSetup,getMIDI:()=>state.devices});
+  function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),5000);}
+  function persist(){storage.set('midi-stage-settings-v1',{players:players.map(({id,enabled,device,channel,mode,learned})=>({id,enabled,device,channel,mode,learned})),minVelocity:state.minVelocity,inputOffset:state.inputOffset,monitor:state.monitor});}
+  function enabled(){return players.filter(p=>p.enabled);}
+  function bestKey(){return ['midi-stage-best-v1',state.song.id,state.difficulty,state.speed,enabled().map(p=>`${p.id}:${p.source}:${p.mode}`).join('|')].join('/');}
+  function resetReady(message){
+    clearTimeout(loopTimer);audio.stop();state.status='ready';state.position=0;state.demo=false;state.assisted=false;state.loops=0;state.activeTokens.clear();state.pedals.clear();state.deferred.clear();state.keyDown.clear();state.feedback.clear();state.particles=[];state.from=0;state.to=state.song.duration;
+    rebuildCharts();setControls();$('stageOverlay').hidden=false;$('countdown').innerHTML='';lastCount='';$('runStatus').textContent=message||'Ready when you are.';updateHUD();
+  }
+  function rebuildCharts(){state.charts.clear();state.judges.clear();for(const p of enabled()){const chart=C.makeChart(state.song,p,state.from,state.to);state.charts.set(p.id,chart);state.judges.set(p.id,new C.Judge(chart,{difficulty:state.difficulty,speed:state.speed,drums:p.type==='drums',mode:p.mode,onJudge:r=>feedback(p.id,r)}));}renderPads();}
+  function renderSetlist(){
+    $('songCount').textContent=`${String(state.songs.length).padStart(2,'0')} TRACKS`;
+    $('setlist').innerHTML=state.songs.map((s,i)=>`<button class="song-card ${s===state.song?'selected':''}" data-song="${esc(s.id)}" aria-pressed="${s===state.song}"><span class="song-art a${Math.min(i,3)}" aria-hidden="true">${['≋','◒','ϟ','♫'][Math.min(i,3)]}</span><span><strong>${esc(s.name)}</strong><small>${s.bpm} BPM &nbsp;·&nbsp; ${fmt(Math.ceil(s.duration))}</small></span><span class="song-indicator" aria-hidden="true">${s===state.song?'●':'›'}</span></button>`).join('');
+    $('setlist').querySelectorAll('button').forEach(b=>b.onclick=()=>selectSong(state.songs.find(s=>s.id===b.dataset.song)));
+  }
+  function renderBand(){
+    $('bandPick').innerHTML=players.map(p=>`<button class="part-toggle" data-part="${p.id}" aria-pressed="${p.enabled}" title="${p.enabled?'Remove':'Add'} ${p.label} player"><span class="part-icon" aria-hidden="true">${icons[p.type]}</span>${p.label}<span class="tick" aria-hidden="true">${p.enabled?'✓':'＋'}</span></button>`).join('');
+    $('bandPick').querySelectorAll('button').forEach(b=>b.onclick=()=>{const p=players.find(p=>p.id===b.dataset.part);if(p.enabled&&enabled().length===1)return toast('Keep at least one player in your lineup.');p.enabled=!p.enabled;persist();renderBand();resetReady('Lineup updated. Start a fresh set.');});
+    $('stageMode').innerHTML=`<i></i> ${enabled().length===1?'SOLO SESSION':`${enabled().length}-PLAYER BAND`}`;
+  }
+  function selectSong(song){
+    state.song=song;state.buffer=null;state.bufferName='';$('audioFile').value='';$('clearAudio').hidden=true;$('audioStatus').textContent='MIDI tracks are synthesized locally. Optional audio must match your chart; it is not automatically transcribed or aligned.';
+    if(song.original){players.forEach(p=>p.source=p.type);}else{
+      const drums=song.parts.find(p=>p.channel===10),melodic=song.parts.filter(p=>p.channel!==10);
+      players.forEach(p=>{p.source=p.type==='drums'?(drums||song.parts[0]).id:(melodic.find(t=>t.name.toLowerCase().includes(p.type))||melodic[0]||song.parts[0]).id;p.enabled=drums?p.type==='drums':p.type==='keys';});
+    }
+    $('songTitle').textContent=song.name;$('songTag').textContent=`${song.original?'ORIGINAL SESSION':'YOUR COLLECTION'} / ${song.tag}`;$('bpmLabel').innerHTML=`${song.bpm} <small>${song.tempoMap.length>1?'BPM*':'BPM'}</small>`;$('bpmLabel').title=song.tempoMap.length>1?'Initial tempo. Tempo changes are preserved.':'';$('durationLabel').textContent=fmt(Math.ceil(song.duration));$('loopStart').value=0;$('loopEnd').value=Math.min(song.duration,Math.round(32*60/song.bpm*10)/10);$('loop').checked=false;renderSetlist();renderBand();resetReady();
+  }
+  function renderPads(){
+    $('pads').innerHTML=enabled().map(p=>{const chart=state.charts.get(p.id);return `<div class="pad-group"><span class="pad-group-name">${p.label.toUpperCase()}</span>${chart.lanes.map((l,i)=>`<button class="pad" data-player="${p.id}" data-lane="${i}" style="--pad-color:${l.color}" aria-label="Play ${p.label} ${esc(l.name)}; keyboard ${C.keyLabel(C.KEYS[p.id][i])}"><span>${esc(l.short)}</span><kbd>${esc(C.keyLabel(C.KEYS[p.id][i]))}</kbd></button>`).join('')}</div>`;}).join('');
+    $('pads').querySelectorAll('.pad').forEach(b=>{const p=players.find(p=>p.id===b.dataset.player),lane=Number(b.dataset.lane),token=`touch:${p.id}:${lane}`;b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);ensureAudio();inputHit(p,lane,state.charts.get(p.id).lanes[lane].pitch,token,105,performance.now(),true);};b.onpointerup=b.onpointercancel=()=>inputRelease(p,token,performance.now());});
+  }
+  async function ensureAudio(){try{await audio.init();}catch(e){toast(e.message);}}
+  function setControls(){
+    const playing=state.status==='playing',paused=state.status==='paused',busy=playing||paused||state.status==='starting';
+    $('start').disabled=playing||state.status==='starting';$('start').innerHTML=paused?'▶ &nbsp; Resume':'▶ &nbsp; Start set';$('pause').disabled=!playing;$('demo').disabled=busy;
+    ['difficulty','speed','guide','metronome','loop','loopStart','loopEnd','audioOffset','audioButton','clearAudio'].forEach(id=>$(id).disabled=busy);
+    $('speedBadge').textContent=`${state.speed.toFixed(2)}× TEMPO`;
+  }
+  function range(){if(!$('loop').checked)return {from:0,to:state.song.duration};const from=Number($('loopStart').value),to=Number($('loopEnd').value);if(!Number.isFinite(from)||!Number.isFinite(to)||from<0||to>state.song.duration+.05||to-from<1)throw Error(`Choose a loop at least one second long, within 0–${state.song.duration.toFixed(1)} seconds.`);return {from,to:Math.min(to,state.song.duration)};}
+  async function startSession(demo=false,loopRestart=false){
+    if(state.startLock||state.status==='playing')return;state.startLock=true;
+    try{
+      const resume=state.status==='paused'&&!demo;
+      if(!resume){const r=range();state.from=r.from;state.to=r.to;state.position=r.from;state.demo=demo;state.assisted=false;if(!loopRestart)state.loops=0;rebuildCharts();state.feedback.clear();state.particles=[];}
+      if(![...state.judges.values()].some(j=>j.notes.length))throw Error('This section has no notes for your lineup. Choose another MIDI track in Instrument setup.');
+      const conflicts=C.routingConflicts(players);if(conflicts.length&&!demo)toast(`${conflicts.join('; ')}. Use Instrument setup to give players separate devices or channels.`);
+      state.status='starting';setControls();await audio.begin({song:state.song,players,speed:state.speed,seek:state.position,end:state.to,countIn:true,guide:$('guide').checked,demo:state.demo,metronome:$('metronome').checked,buffer:state.buffer,audioOffset:Number($('audioOffset').value)||0});
+      state.status='playing';$('stageOverlay').hidden=true;$('runStatus').textContent=state.demo?'DEMO · Autoplay · Scores are not saved':$('loop').checked?`Loop practice · Pass ${state.loops+1}`:'Count in, then make it yours.';setControls();
+    }catch(e){state.status='ready';audio.stop();setControls();toast(e.message||'The set could not start.');}finally{state.startLock=false;}
+  }
+  function pauseGame(message='Paused. Press Enter or Resume to continue.'){
+    if(state.status!=='playing')return;state.position=C.clamp(audio.songAt(),state.from,state.to);state.status='paused';audio.stop();
+    // A paused hold earns no unplayed sustain bonus. The run becomes practice-only.
+    for(const j of state.judges.values())for(const n of [...j.activeHolds]){n.hold='paused';j.activeHolds.delete(n);j.held.delete(n.token);state.assisted=true;}
+    state.activeTokens.clear();state.pedals.clear();state.deferred.clear();state.keyDown.clear();$('countdown').innerHTML='Ⅱ<small>PAUSED</small>';$('runStatus').textContent=message;setControls();
+  }
+  function feedback(id,result){
+    const time=performance.now()/1000;state.feedback.set(id,{...result,until:time+.64});
+    if(result.note&&['perfect','great','good'].includes(result.grade)){flash(id,result.note.lane);if(!reduced)for(let i=0;i<5;i++)state.particles.push({id,lane:result.note.lane,created:time,vx:(i-2)*26,vy:-55-(i%3)*20,color:state.charts.get(id).lanes[result.note.lane].color});}
+    if(state.particles.length>120)state.particles.splice(0,state.particles.length-120);
+  }
+  function flash(id,lane){state.flashes.set(`${id}:${lane}`,performance.now()/1000+.14);const b=$('pads').querySelector(`[data-player="${id}"][data-lane="${lane}"]`);if(b){b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),120);}}
+  function timeAt(stamp){return state.status==='playing'?audio.songAt(stamp)-state.inputOffset/1000*state.speed:state.position;}
+  function inputHit(p,lane,pitch,token,velocity,stamp,arcade=false){
+    if(lane<0||lane>=state.charts.get(p.id)?.lanes.length)return;flash(p.id,lane);let matched=null;
+    if(state.status==='playing'&&!state.demo&&!$('setupDialog').open&&!$('calibrationDialog').open){const t=timeAt(stamp);if(t>=state.from-.2*state.speed&&t<=state.to+.2*state.speed)matched=state.judges.get(p.id)?.hit(t,{lane,pitch,token,arcade});}
+    if((state.monitor||arcade)&&!state.demo)audio.monitor(token,p.type,pitch,velocity,matched?matched.duration/state.speed:1.7);
+    state.activeTokens.set(token,{player:p.id,pitch,lane});
+  }
+  function inputRelease(p,token,stamp){state.judges.get(p.id)?.release(token,timeAt(stamp));audio.release(token);state.activeTokens.delete(token);}
+  function releaseDevice(device){for(const [token,value]of [...state.activeTokens])if(token.includes(`|${device}:`))inputRelease(players.find(p=>p.id===value.player),token,performance.now());}
+  function handleMIDI(event){
+    soundcheck.receiveMIDI(event);
+    if(event.kind==='on'){
+      $('lastMIDI').textContent=`${C.noteName(event.note)} · note ${event.note} · ch ${event.channel} · velocity ${event.velocity}`;$('velocityBar').style.width=`${event.velocity/127*100}%`;
+      if(event.velocity<state.minVelocity)return;
+      if(state.calibration){calibrationTap(event.timestamp);return;}
+      if(state.learn){const p=players.find(p=>p.id===state.learn.id);p.learned[event.note]=state.learn.lane;p.device=event.device;p.channel=event.channel;state.learn=null;persist();renderSetup();$('learnStatus').textContent=`Mapped ${p.label} to note ${event.note}, channel ${event.channel}.`;return;}
+      const prev=state.lastInput.get(event.token);if(prev!==undefined&&event.timestamp-prev>=0&&event.timestamp-prev<16)return;state.lastInput.set(event.token,event.timestamp);
+    }
+    for(const p of enabled()){
+      if(!C.routes(p,event.device,event.channel))continue;const route=`${p.id}|${event.device}:${event.channel}`,token=`${p.id}|${event.token}`;
+      if(event.kind==='cc'){
+        if(event.controller===64&&p.type!=='drums'){
+          state.pedals.set(route,event.value>=64);
+          if(event.value<64){for(const tok of state.deferred.get(route)||[])inputRelease(p,tok,event.timestamp);state.deferred.delete(route);}
+        }else if(event.controller===120||event.controller===123){
+          state.pedals.delete(route);state.deferred.delete(route);for(const tok of [...state.activeTokens.keys()])if(tok.startsWith(route+':'))inputRelease(p,tok,event.timestamp);
+        }continue;
+      }
+      if(event.kind==='off'){
+        if(state.pedals.get(route)&&p.type!=='drums'){if(!state.deferred.has(route))state.deferred.set(route,new Set());state.deferred.get(route).add(token);}else inputRelease(p,token,event.timestamp);
+      }else{
+        state.deferred.get(route)?.delete(token);
+        // Repeated same-note Note On releases the preceding voice before retriggering.
+        if(state.activeTokens.has(token))inputRelease(p,token,event.timestamp);
+        const lanes=state.charts.get(p.id)?.lanes;if(!lanes)continue;const lane=C.laneForPitch(event.note,p,lanes);inputHit(p,lane,event.note,token,event.velocity,event.timestamp);
+      }
+    }
+  }
+  function updateDevices(devices){
+    state.devices=devices;$('midiStatus').textContent=devices.length?`${devices.length} MIDI input${devices.length===1?'':'s'} connected`:'Keyboard ready';$('midiDot').classList.toggle('connected',devices.length>0);$('connectMIDI').innerHTML=devices.length?'⌁ &nbsp; MIDI connected':'⌁ &nbsp; Connect MIDI';$('inputMode').textContent=devices.length?'LIVE MIDI INPUT / KEYBOARD BACKUP':'COMPUTER KEYBOARD / MIDI';
+    soundcheck.updateMIDI();if($('setupDialog').open)renderSetup();
+  }
+  function renderSetup(){
+    const conflicts=C.routingConflicts(players);$('routeWarning').hidden=!conflicts.length;$('routeWarning').textContent=`${conflicts.join('. ')}. This sends the same input to multiple parts. Select separate devices or channels.`;
+    $('routeSettings').innerHTML=players.map(p=>{
+      const lanes=C.lanesFor(state.song,p),missing=p.device!=='any'&&!state.devices.some(d=>d.id===p.device);
+      return `<section class="route-card"><div class="route-title"><strong>${icons[p.type]} &nbsp; ${p.label} <span style="color:var(--dim);font-size:10px;font-weight:400">${p.enabled?'IN YOUR LINEUP':'NOT PLAYING'}</span></strong><button data-reset="${p.id}">Reset mapping</button></div><div class="route-fields"><label>MIDI INPUT<select data-route="device" data-player="${p.id}"><option value="any" ${p.device==='any'?'selected':''}>Any MIDI input</option>${state.devices.map(d=>`<option value="${esc(d.id)}" ${p.device===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}${missing?`<option selected value="${esc(p.device)}">Saved device (disconnected)</option>`:''}</select></label><label>INPUT CHANNEL<select data-route="channel" data-player="${p.id}">${Array.from({length:17},(_,i)=>`<option value="${i}" ${p.channel===i?'selected':''}>${i===0?'Any channel':`Channel ${i}`}</option>`).join('')}</select></label><label>SONG TRACK<select data-route="source" data-player="${p.id}">${state.song.parts.map(s=>`<option value="${esc(s.id)}" ${C.sourceFor(state.song,p).id===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label><label>MATCHING<select data-route="mode" data-player="${p.id}" ${p.type==='drums'?'disabled':''}><option value="pitch" ${p.mode==='pitch'?'selected':''}>Arcade / any octave</option><option value="exact" ${p.mode==='exact'?'selected':''}>Exact MIDI pitch</option></select></label></div><div class="mapping-pads">${lanes.map((l,i)=>{const custom=Object.entries(p.learned).filter(([,v])=>v===i).map(([n])=>n);return `<button class="learn-button ${state.learn?.id===p.id&&state.learn?.lane===i?'learning':''}" data-learn="${p.id}" data-lane="${i}" style="--pad-color:${l.color}">${esc(l.name)}<small>${custom.length?'MIDI '+custom.join(', '):p.type==='drums'?'MIDI '+l.notes.join(','):'e.g. '+C.noteName(l.pitch)}</small></button>`;}).join('')}</div><p class="route-note">${p.type==='drums'?'General MIDI drum map by default. Learn a lane to bind its physical pad.':'Arcade matches the displayed pitch class or learned lane; Exact requires the authored MIDI note number.'} Learn also binds the device and channel. Computer keyboard always uses lane assist.</p></section>`;
+    }).join('');
+    $('routeSettings').querySelectorAll('[data-route]').forEach(el=>el.onchange=()=>{const p=players.find(p=>p.id===el.dataset.player),field=el.dataset.route;p[field]=field==='channel'?Number(el.value):el.value;if(field==='device'&&el.value!=='any')p.channel=0;if(field==='source')p.learned={};persist();resetReady('Instrument setup changed. Ready for a fresh set.');renderSetup();});
+    $('routeSettings').querySelectorAll('[data-learn]').forEach(el=>el.onclick=()=>{state.learn={id:el.dataset.learn,lane:Number(el.dataset.lane)};renderSetup();$('learnStatus').textContent='Listening… play the pad/key to assign. Click Done to cancel.';if(!state.devices.length)toast('Connect MIDI first, then play the instrument you want to map.');});
+    $('routeSettings').querySelectorAll('[data-reset]').forEach(el=>el.onclick=()=>{players.find(p=>p.id===el.dataset.reset).learned={};state.learn=null;persist();renderSetup();toast('Default lane mappings restored.');});
+    $('minVelocity').value=state.minVelocity;$('inputOffset').value=state.inputOffset;$('monitor').checked=state.monitor;
+  }
+  function openSetup(){if(state.status==='playing')pauseGame();renderSetup();$('setupDialog').showModal();}
+  function closeDialog(id){$(id).close();if(id==='setupDialog'){state.learn=null;persist();}if(id==='calibrationDialog')stopCalibration();}
+  function updateHUD(){
+    const judges=[...state.judges.values()],score=judges.reduce((a,j)=>a+j.stats.score,0),combo=judges.reduce((a,j)=>a+j.stats.combo,0),den=judges.reduce((a,j)=>a+j.stats.perfect+j.stats.great+j.stats.good+j.stats.miss+j.stats.extra,0),accuracy=den?judges.reduce((a,j)=>a+j.stats.weight,0)/den*100:null;
+    $('score').textContent=String(score).padStart(6,'0').replace(/\B(?=(\d{3})+(?!\d))/g,',');$('combo').innerHTML=`${combo} <small>NOTES</small>`;$('multiplier').innerHTML=`${judges.length===1?judges[0].multiplier:Math.min(...judges.map(j=>j.multiplier))}<small>×</small>`;$('multiplier').title=judges.length>1?'Lowest active player multiplier. Each player scores independently.':'';$('accuracy').innerHTML=`${accuracy===null?'—':accuracy.toFixed(0)}<small>%</small>`;const personalBest=storage.get(bestKey(),0);$('best').textContent=personalBest?personalBest.toLocaleString():'—';
+    const t=state.status==='playing'?audio.songAt():state.position,progress=C.clamp((t-state.from)/(state.to-state.from||1),0,1);$('progressFill').style.width=`${progress*100}%`;$('elapsed').textContent=fmt(Math.max(state.from,t));$('remaining').textContent=fmt(Math.ceil(Math.max(0,state.to-Math.max(state.from,t))));
+  }
+  function finishSession(){
+    if(state.status!=='playing')return;state.position=state.to;state.status='complete';audio.stop();$('countdown').innerHTML='';
+    const results=enabled().map(p=>({player:p,...state.judges.get(p.id).finish(state.to+.25*state.speed)}));
+    const total=results.reduce((a,r)=>a+r.score,0),counts={perfect:0,great:0,good:0,miss:0,extra:0,holdBreaks:0,weight:0};for(const r of results)for(const k of Object.keys(counts))counts[k]+=r[k];const den=counts.perfect+counts.great+counts.good+counts.miss+counts.extra,acc=den?100*counts.weight/den:0;
+    if($('loop').checked&&!state.demo){state.loops++;$('runStatus').textContent=`Loop ${state.loops}: ${Math.round(acc)}% accuracy. Starting next pass…`;state.status='ready';setControls();updateHUD();loopTimer=setTimeout(()=>startSession(false,true),600);return;}
+    const old=storage.get(bestKey(),0),eligible=!state.demo&&!state.assisted&&!$('loop').checked,newBest=eligible&&total>old;
+    if(newBest)storage.set(bestKey(),total);
+    $('resultEyebrow').textContent=state.demo?'AUTOPLAY DEMO · NO SCORE SAVED':newBest?'NEW PERSONAL BEST':eligible?'SET COMPLETE':'PRACTICE RUN · NO SCORE SAVED';$('resultTitle').textContent=state.demo?'Now make it yours.':acc>=90?'You found your groove.':acc>=65?'The band is warming up.':'Every great set starts here.';
+    $('resultContent').innerHTML=`<div class="result-score">${total.toLocaleString()}</div><div class="result-subtitle">${esc(state.song.name)} · ${state.difficulty} · ${Math.round(state.speed*100)}% tempo · ${enabled().length} player${enabled().length===1?'':'s'}</div><div class="result-grid"><div><span>ACCURACY</span><strong>${acc.toFixed(1)}%</strong></div><div><span>PERFECT HITS</span><strong>${counts.perfect}</strong></div><div><span>MISSED NOTES</span><strong>${counts.miss}</strong></div><div><span>EXTRA HITS</span><strong>${counts.extra}</strong></div></div><table class="result-table"><thead><tr><th>PLAYER</th><th>SCORE</th><th>BEST STREAK</th><th>ACCURACY</th><th>EARLY RELEASES</th></tr></thead><tbody>${results.map(r=>`<tr><td>${r.player.label}</td><td>${r.score.toLocaleString()}</td><td>${r.maxCombo}</td><td>${r.accuracy.toFixed(1)}%</td><td>${r.holdBreaks}</td></tr>`).join('')}</tbody></table><p class="result-advice">${state.demo?'This was autoplay, not a recorded player performance. Connect your instrument or use the on-screen keyboard controls to play for real.':acc<60?'Try Chill timing or 75% tempo, and loop a short section. Accuracy includes misses and extra mapped hits; sustained notes earn a completion bonus.':'Accuracy weights Perfect / Great / Good at 100% / 75% / 40%, and includes misses and extra mapped hits. Each instrument has its own streak and multiplier.'}</p>`;
+    $('resultsDialog').showModal();$('runStatus').textContent=state.demo?'Demo complete. Your turn.':'Set complete. Play it again or change your lineup.';setControls();updateHUD();
+  }
+  // Render a perspective highway per active instrument, using the audible audio clock.
+  const canvas=$('stageCanvas'),ctx=canvas.getContext('2d');
+  function resize(){const rect=canvas.getBoundingClientRect();view={w:rect.width,h:rect.height,dpr:Math.min(2,window.devicePixelRatio||1)};canvas.width=Math.round(view.w*view.dpr);canvas.height=Math.round(view.h*view.dpr);}
+  new ResizeObserver(resize).observe(canvas);
+  function poly(points,fill,stroke,width=1){ctx.beginPath();ctx.moveTo(...points[0]);for(let i=1;i<points.length;i++)ctx.lineTo(...points[i]);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.lineWidth=width;ctx.strokeStyle=stroke;ctx.stroke();}}
+  function text(s,x,y,size,color,align='center',weight='500'){ctx.font=`${weight} ${size}px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif`;ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillText(s,x,y);}
+  function render(t,now){
+    const {w,h,dpr}=view;if(!w||!h)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    const bg=ctx.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#070d16');bg.addColorStop(.5,'#0b1825');bg.addColorStop(1,'#09121c');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+    const glow=ctx.createRadialGradient(w*.5,h*.12,0,w*.5,h*.12,w*.63);glow.addColorStop(0,'#33625c22');glow.addColorStop(1,'#18345300');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+    for(let i=0;i<10;i++){const x=w*(i/9);poly([[w*.5+(i-4.5)*13,38],[x-20,h],[x+30,h]],i%2?'#609fc004':'#70d8b104');}
+    ctx.strokeStyle='#65828d13';ctx.lineWidth=1;for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(0,64+i*7);ctx.lineTo(w,64+i*7);ctx.stroke();}
+    for(let i=0;i<34;i++){const x=((i*137+59)%997)/997*w,y=47+(i*47%113);ctx.fillStyle=i%4===0?'#73a4a44d':'#5f82982e';ctx.fillRect(x,y,i%4===0?2:1,1);}
+    const active=enabled(),pw=w/active.length,hit=h-87,far=82,look=2.65*state.speed;
+    const geom=new Map();
+    active.forEach((p,pi)=>{
+      const chart=state.charts.get(p.id),judge=state.judges.get(p.id);if(!chart)return;const lanes=chart.lanes,n=lanes.length,cx=pw*(pi+.5),bw=Math.min(active.length===1?640:500,pw*(active.length===1?.84:.91)),tw=bw*.37;
+      const point=(lane,progress)=>{const f=C.clamp(progress,-.1,1.2),depth=Math.pow(Math.max(0,f),1.65),width=tw+(bw-tw)*Math.max(0,f);return {x:cx+(lane/n-.5)*width,y:far+(hit-far)*depth,width};};
+      const yP=y=>C.clamp((y-t)/look,0,1),progress=nt=>1-(nt-t)/look;
+      geom.set(p.id,{point,bw,n,hit,cx});
+      text(`${active.length>1?'P'+(pi+1)+' / ':''}${p.label.toUpperCase()}`,cx,57,active.length>2?9:10,'#9bb3bd','center','650');
+      if(active.length>1&&state.status==='playing')text(`${judge.stats.combo} STREAK  ·  ${judge.multiplier}×`,cx,72,7,'#62c8b9');
+      const tl=point(0,0),tr=point(n,0),bl=point(0,1.12),br=point(n,1.12);
+      const trackGradient=ctx.createLinearGradient(0,far,0,hit);trackGradient.addColorStop(0,'#101e2bc9');trackGradient.addColorStop(1,'#12232fef');poly([[tl.x,tl.y],[tr.x,tr.y],[br.x,br.y],[bl.x,bl.y]],trackGradient,'#41637755');
+      for(let i=0;i<n;i++){
+        const a=point(i,0),b=point(i+1,0),c=point(i+1,1.1),d=point(i,1.1);poly([[a.x,a.y],[b.x,b.y],[c.x,c.y],[d.x,d.y]],i%2?'#518dab06':'#030d170c');
+        if((state.flashes.get(`${p.id}:${i}`)||0)>now){const aa=point(i,.76),bb=point(i+1,.76);poly([[aa.x,aa.y],[bb.x,bb.y],[c.x,c.y],[d.x,d.y]],lanes[i].color+'1d');}
+      }
+      for(let i=0;i<=n;i++){const a=point(i,0),b=point(i,1.12);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=i===0||i===n?'#6b9daf5a':'#83b0c01b';ctx.lineWidth=i===0||i===n?1.3:.8;ctx.stroke();}
+      const beats=state.song.beats,first=C.lowerBound(beats,t-.15);for(let bi=first;bi<beats.length&&beats[bi].time<t+look;bi++){const pr=progress(beats[bi].time),a=point(0,pr),b=point(n,pr);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=beats[bi].bar?'#82b4c44d':'#81afbe1b';ctx.lineWidth=beats[bi].bar?1.25:.75;ctx.stroke();}
+      const a=point(0,1),b=point(n,1);ctx.shadowColor='#62ecd2';ctx.shadowBlur=12;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle='#97dfd3b8';ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0;
+      for(let lane=0;lane<n;lane++){const mid=point(lane+.5,1),lw=bw/n;ctx.beginPath();ctx.ellipse(mid.x,hit,Math.min(lw*.36,31),7,0,0,Math.PI*2);ctx.fillStyle='#101d28';ctx.fill();ctx.strokeStyle=lanes[lane].color+'aa';ctx.lineWidth=1.5;ctx.stroke();text(lanes[lane].short,mid.x,hit+26,active.length>2?6:active.length>1?7:8,lanes[lane].color);if(active.length<3)text(C.keyLabel(C.KEYS[p.id][lane]),mid.x,hit+40,7,'#6d8996');}
+      const drawNote=n=>{
+        const isHeld=n.hold==='held',pr=isHeld?1:progress(n.time);if(pr<0||pr>1.12)return;if(n.state===1&&!isHeld)return;
+        const color=lanes[n.lane].color,pos=point(n.lane+.5,pr),lw=pos.width/lanes.length;
+        if(p.type!=='drums'&&n.duration/state.speed>=.35&&n.time+n.duration>t){const tail=point(n.lane+.5,C.clamp(progress(n.time+n.duration),0,1));ctx.beginPath();ctx.moveTo(tail.x,tail.y);ctx.lineTo(pos.x,pos.y);ctx.strokeStyle=color+(n.state===2?'20':isHeld?'ba':'52');ctx.lineWidth=Math.max(2,lw*.15);ctx.stroke();}
+        const alpha=n.state===2?'30':'e8',nh=Math.max(3,pr*7),hw=lw*.34;ctx.shadowColor=color;ctx.shadowBlur=n.state===2?0:reduced?0:7;
+        poly([[pos.x-hw*.93,pos.y-nh/2],[pos.x+hw*.93,pos.y-nh/2],[pos.x+hw,pos.y+nh/2],[pos.x-hw,pos.y+nh/2]],color+alpha,n.state===2?null:color,1);ctx.shadowBlur=0;
+        if(pr>.65&&p.mode==='exact'&&p.type!=='drums'&&active.length<3&&lw>22)text(C.noteName(n.pitch),pos.x,pos.y-10,7,color);
+      };
+      const notes=judge.notes,lo=C.lowerBound(notes,t-.4*state.speed),hi=C.lowerBound(notes,t+look);for(let i=Math.min(hi,lo+1500)-1;i>=lo;i--)drawNote(notes[i]);for(const n of judge.activeHolds)if(n.time<t-.4*state.speed)drawNote(n);
+      const f=state.feedback.get(p.id);if(f&&f.until>now){const colors={perfect:'#62ecd2',great:'#8cbcff',good:'#f9bc62',miss:'#ff647c',extra:'#d794a4',release:'#f9bc62'},labels={perfect:'PERFECT',great:'GREAT',good:'GOOD',miss:'MISS',extra:'EXTRA HIT',release:'HOLD TO THE END'};ctx.globalAlpha=C.clamp((f.until-now)*3,0,1);text(labels[f.grade],cx,h*.44,active.length>2?10:active.length>1?15:20,colors[f.grade],'center','750');if(f.note&&['perfect','great','good'].includes(f.grade))text(Math.abs(f.delta)<5?'RIGHT ON TIME':`${Math.abs(Math.round(f.delta))} ms ${f.delta<0?'early':'late'}`,cx,h*.44+21,8,'#9ab4bf');ctx.globalAlpha=1;}
+    });
+    state.particles=state.particles.filter(p=>now-p.created<.5);if(!reduced)for(const p of state.particles){const g=geom.get(p.id);if(!g)continue;const dt=now-p.created,a=g.point(p.lane+.5,1);ctx.globalAlpha=1-dt*2;ctx.fillStyle=p.color;ctx.fillRect(a.x+p.vx*dt,g.hit+p.vy*dt+80*dt*dt,2.5,2.5);}ctx.globalAlpha=1;
+    const vignette=ctx.createLinearGradient(0,0,0,h);vignette.addColorStop(0,'#060d1500');vignette.addColorStop(.89,'#060d1500');vignette.addColorStop(1,'#070f18bb');ctx.fillStyle=vignette;ctx.fillRect(0,0,w,h);
+  }
+  function frame(stamp){
+    const now=stamp/1000;let t=state.status==='playing'?audio.songAt():state.status==='ready'?.4:state.position;
+    if(state.status==='playing'){
+      if(audio.ctx.state!=='running'){pauseGame('Audio was interrupted. Press Resume when ready.');t=state.position;}
+      else{
+        for(const p of enabled()){const j=state.judges.get(p.id);if(state.demo){let i=j.demoCursor||0;while(i<j.notes.length&&j.notes[i].time<=t){const n=j.notes[i++];j.hit(n.time,{lane:n.lane,pitch:n.pitch,token:`demo:${p.id}:${n.id}`});}j.demoCursor=i;}j.tick(t-(state.demo?0:state.inputOffset/1000)*state.speed);}
+        const before=state.position-t;if(before>0){const count=Math.ceil(before/(60/state.song.bpm));const s=String(C.clamp(count,1,4));if(s!==lastCount){$('countdown').innerHTML=`${s}<small>${state.demo?'AUTOPLAY DEMO':'COUNT IN'}</small>`;lastCount=s;}}
+        else if(lastCount){$('countdown').innerHTML='';lastCount='';}
+        const section=[...state.song.sections].reverse().find(s=>s.time<=t);$('sectionName').textContent=state.demo?'AUTOPLAY DEMO':section?.name||'COUNT IN';
+        if(t>=state.to+Math.max(.25,state.demo?0:state.inputOffset/1000+.2)*state.speed)finishSession();
+      }
+    }
+    render(t,now);if(stamp-lastHud>90){updateHUD();lastHud=stamp;}
+    if(state.calibration){const c=state.calibration,ct=audio.contextAt(),i=Math.round((ct-c.start)/c.interval);$('calibrationPulse').classList.toggle('lit',i>=0&&i<c.total&&Math.abs(ct-(c.start+i*c.interval))<.075);}
+    raf=requestAnimationFrame(frame);
+  }
+  async function beginCalibration(){
+    stopCalibration();try{await audio.init();const start=audio.ctx.currentTime+.5,interval=.6,total=16;state.calibration={start,interval,total,taps:[],last:-1};for(let i=0;i<total;i++)audio.click(start+i*interval,i<3);$('calibrationTap').disabled=false;$('calibrationStart').disabled=true;$('calibrationStatus').textContent='Listen to 3 warm-up clicks, then tap 10 times.';calTimer=setTimeout(()=>endCalibration(),(total*interval+.8)*1000);}catch(e){toast(e.message);}
+  }
+  function calibrationTap(stamp=performance.now()){
+    const c=state.calibration;if(!c)return;const t=audio.contextAt(stamp),i=Math.round((t-c.start)/c.interval);if(i<3||i>=c.total||i<=c.last)return;
+    const diff=(t-c.start-i*c.interval)*1000;if(Math.abs(diff)>260)return;c.last=i;c.taps.push(diff);$('calibrationStatus').textContent=`${c.taps.length} / 10 taps captured`;if(c.taps.length>=10)endCalibration();
+  }
+  function endCalibration(){const c=state.calibration;if(!c)return;const taps=[...c.taps];stopCalibration();if(taps.length<6){$('calibrationStatus').textContent='Not enough taps. Try again and begin after the 3 warm-up clicks.';return;}const result=C.calibration(taps);state.inputOffset=C.clamp(result.offset,-500,500);$('inputOffset').value=state.inputOffset;persist();$('calibrationStatus').textContent=`Saved ${state.inputOffset>=0?'+':''}${state.inputOffset} ms correction · ${result.count} taps · ${result.spread} ms variation`;}
+  function stopCalibration(){clearTimeout(calTimer);state.calibration=null;audio.stop();$('calibrationTap').disabled=true;$('calibrationStart').disabled=false;$('calibrationPulse').classList.remove('lit');}
+  // UI events.
+  $('connectMIDI').onclick=async()=>{if(state.status==='playing')pauseGame();try{const devices=await hub.connect();await audio.init();if(devices.length===1&&enabled().length===1&&enabled()[0].device==='any'){enabled()[0].device=devices[0].id;enabled()[0].channel=0;persist();}openSetup();if(!devices.length)toast('MIDI permission granted, but no inputs are connected. Attach your instrument and check its driver.');}catch(e){toast(e.name==='NotAllowedError'?'MIDI permission was denied. Allow MIDI for this site in your browser settings. Keyboard play still works.':e.message);}};
+  $('settingsTop').onclick=$('openSetup').onclick=openSetup;
+  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeDialog(b.dataset.close));
+  $('setupDialog').addEventListener('close',()=>{state.learn=null;persist();});$('calibrationDialog').addEventListener('close',stopCalibration);
+  $('start').onclick=()=>startSession();$('overlayStart').onclick=()=>startSession();$('demo').onclick=()=>startSession(true);$('pause').onclick=()=>pauseGame();$('restart').onclick=()=>{resetReady();startSession();};
+  $('difficulty').onchange=()=>{state.difficulty=$('difficulty').value;resetReady();};$('speed').onchange=()=>{state.speed=Number($('speed').value);resetReady();};$('volume').oninput=()=>audio.setVolume(Number($('volume').value)/100);
+  $('minVelocity').onchange=()=>{state.minVelocity=C.clamp(Number($('minVelocity').value)||1,1,127);$('minVelocity').value=state.minVelocity;persist();};$('inputOffset').onchange=()=>{state.inputOffset=C.clamp(Number($('inputOffset').value)||0,-500,500);$('inputOffset').value=state.inputOffset;persist();};$('monitor').onchange=()=>{state.monitor=$('monitor').checked;persist();};
+  $('calibrateButton').onclick=()=>{closeDialog('setupDialog');if(state.status==='playing')pauseGame();$('calibrationDialog').showModal();};$('calibrationStart').onclick=beginCalibration;$('calibrationTap').onclick=()=>calibrationTap();
+  $('playAgain').onclick=()=>{closeDialog('resultsDialog');resetReady();startSession();};$('resultSetup').onclick=()=>{closeDialog('resultsDialog');resetReady();openSetup();};
+  $('importButton').onclick=()=>{if(state.status==='playing')pauseGame();$('midiFile').click();};
+  $('midiFile').onchange=async()=>{const file=$('midiFile').files[0];if(!file)return;try{if(file.size>8*1024*1024)throw Error('MIDI files must be smaller than 8 MB.');const song=C.parseMIDI(await file.arrayBuffer(),file.name);state.songs=state.songs.filter(s=>s.original||s.id===song.id);if(!state.songs.some(s=>s.id===song.id))state.songs.push(song);else state.songs[state.songs.findIndex(s=>s.id===song.id)]=song;selectSong(song);openSetup();toast(`Imported ${song.parts.length} MIDI part${song.parts.length===1?'':'s'}. Choose a song track for each player.`);}catch(e){toast(e.message);}finally{$('midiFile').value='';}};
+  $('audioButton').onclick=()=>$('audioFile').click();$('audioFile').onchange=async()=>{const file=$('audioFile').files[0];if(!file)return;try{if(file.size>80*1024*1024)throw Error('Use a backing audio file smaller than 80 MB.');await audio.init();state.buffer=await audio.ctx.decodeAudioData(await file.arrayBuffer());state.bufferName=file.name;$('audioStatus').textContent=`Backing audio: ${file.name}. Set “Audio starts at” to align it with the MIDI. Tempo changes playback speed and pitch of this audio.`;$('clearAudio').hidden=false;toast('Backing audio loaded locally. It replaces synthesized backing.');}catch(e){toast(`Audio could not be loaded: ${e.message}`);}};
+  $('clearAudio').onclick=()=>{state.buffer=null;state.bufferName='';$('audioFile').value='';$('clearAudio').hidden=true;$('audioStatus').textContent='Synthesized backing restored.';};
+  $('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('stage').requestFullscreen();}catch(_){toast('Full screen is not available in this browser view.');}};
+  function editing(target){return /INPUT|SELECT|TEXTAREA/.test(target.tagName)||target.isContentEditable;}
+  window.addEventListener('keydown',e=>{
+    if(e.code==='Escape'){if(state.status==='playing')pauseGame();return;}
+    if($('calibrationDialog').open){if(e.code==='Space'&&!editing(e.target)){e.preventDefault();if(!e.repeat)calibrationTap(e.timeStamp);}return;}
+    if(document.querySelector('dialog[open]')||editing(e.target)||e.ctrlKey||e.metaKey||e.altKey)return;
+    // Native button activation must not also fire a musical shortcut.
+    if(e.target.tagName==='BUTTON'&&(e.code==='Enter'||e.code==='Space'))return;
+    if(e.code==='Enter'){e.preventDefault();if(e.repeat)return;if(state.status==='playing')pauseGame();else startSession();return;}
+    const matches=[];for(const p of enabled()){const lane=C.KEYS[p.id].indexOf(e.code);if(lane>=0&&lane<state.charts.get(p.id).lanes.length)matches.push({p,lane});}
+    if(matches.length){e.preventDefault();if(e.repeat||state.keyDown.has(e.code))return;state.keyDown.add(e.code);ensureAudio();for(const {p,lane} of matches)inputHit(p,lane,state.charts.get(p.id).lanes[lane].pitch,`keyboard:${p.id}:${e.code}`,100,e.timeStamp,true);}
+    else if(e.code==='KeyR'&&!e.repeat){e.preventDefault();resetReady();startSession();}
+  });
+  window.addEventListener('keyup',e=>{state.keyDown.delete(e.code);for(const p of enabled())inputRelease(p,`keyboard:${p.id}:${e.code}`,e.timeStamp);});
+  window.addEventListener('blur',()=>{if(state.status==='playing')pauseGame('Window lost focus. Press Resume when you are ready.');state.keyDown.clear();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.status==='playing')pauseGame('Playback paused while this tab was hidden.');});
+  window.addEventListener('beforeunload',()=>{audio.stop();cancelAnimationFrame(raf);});
+  // Read-only diagnostics for tests and troubleshooting. No virtual scores or input backdoors.
+  window.MIDIStage={version:'0.2.0',getSnapshot:()=>({status:state.status,song:state.song.id,time:state.status==='playing'?audio.songAt():state.position,demo:state.demo,players:enabled().map(p=>({id:p.id,device:p.device,channel:p.channel,stats:{...state.judges.get(p.id)?.stats},notes:state.judges.get(p.id)?.notes.map(n=>({time:n.time,lane:n.lane,pitch:n.pitch,state:n.state,hold:n.hold}))})),devices:state.devices.map(d=>({...d})),calibration:state.inputOffset,loopCount:state.loops})};
+  renderSetlist();renderBand();resetReady();resize();raf=requestAnimationFrame(frame);
+})();
+
+</script>
+</body>
+</html>

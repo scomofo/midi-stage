@@ -1,0 +1,190 @@
+TAP version 13
+# Subtest: original songs have sorted, valid charts for all four instruments
+ok 1 - original songs have sorted, valid charts for all four instruments
+  ---
+  duration_ms: 13.224301
+  type: 'test'
+  ...
+# Subtest: computer keyboard bindings do not overlap across players
+ok 2 - computer keyboard bindings do not overlap across players
+  ---
+  duration_ms: 0.384669
+  type: 'test'
+  ...
+# Subtest: default MIDI channels do not cross-score parts
+ok 3 - default MIDI channels do not cross-score parts
+  ---
+  duration_ms: 1.440871
+  type: 'test'
+  ...
+# Subtest: dedicated device routing and wildcard channel work
+ok 4 - dedicated device routing and wildcard channel work
+  ---
+  duration_ms: 0.25361
+  type: 'test'
+  ...
+# Subtest: General MIDI drum aliases map to six lanes
+ok 5 - General MIDI drum aliases map to six lanes
+  ---
+  duration_ms: 3.599218
+  type: 'test'
+  ...
+# Subtest: MIDI learn changes hardware mapping, not chart pitches or authored lanes
+ok 6 - MIDI learn changes hardware mapping, not chart pitches or authored lanes
+  ---
+  duration_ms: 6.654131
+  type: 'test'
+  ...
+# Subtest: Standard perfect, great and good window boundaries are inclusive
+ok 7 - Standard perfect, great and good window boundaries are inclusive
+  ---
+  duration_ms: 1.918706
+  type: 'test'
+  ...
+# Subtest: notes beyond hit window miss and cannot be hit twice
+ok 8 - notes beyond hit window miss and cannot be hit twice
+  ---
+  duration_ms: 0.640102
+  type: 'test'
+  ...
+# Subtest: nearest pending note is chosen
+ok 9 - nearest pending note is chosen
+  ---
+  duration_ms: 0.894549
+  type: 'test'
+  ...
+# Subtest: chords accept independent same-timestamp note attacks
+ok 10 - chords accept independent same-timestamp note attacks
+  ---
+  duration_ms: 1.013199
+  type: 'test'
+  ...
+# Subtest: exact matching rejects the wrong octave
+ok 11 - exact matching rejects the wrong octave
+  ---
+  duration_ms: 0.640951
+  type: 'test'
+  ...
+# Subtest: arcade matching allows the same lane in another octave
+ok 12 - arcade matching allows the same lane in another octave
+  ---
+  duration_ms: 0.229184
+  type: 'test'
+  ...
+# Subtest: timing windows scale with speed to keep wall-clock difficulty constant
+ok 13 - timing windows scale with speed to keep wall-clock difficulty constant
+  ---
+  duration_ms: 0.605081
+  type: 'test'
+  ...
+# Subtest: expert has tighter windows
+ok 14 - expert has tighter windows
+  ---
+  duration_ms: 0.218775
+  type: 'test'
+  ...
+# Subtest: sustain completion adds a bonus only once
+ok 15 - sustain completion adds a bonus only once
+  ---
+  duration_ms: 0.336021
+  type: 'test'
+  ...
+# Subtest: early note-off breaks sustain and combo without erasing attack grade
+ok 16 - early note-off breaks sustain and combo without erasing attack grade
+  ---
+  duration_ms: 0.322281
+  type: 'test'
+  ...
+# Subtest: release grace accepts a near-end note off
+ok 17 - release grace accepts a near-end note off
+  ---
+  duration_ms: 0.234296
+  type: 'test'
+  ...
+# Subtest: drums do not require note-off or sustain
+ok 18 - drums do not require note-off or sustain
+  ---
+  duration_ms: 0.266355
+  type: 'test'
+  ...
+# Subtest: accuracy includes weighted grades, misses, and extra hits
+ok 19 - accuracy includes weighted grades, misses, and extra hits
+  ---
+  duration_ms: 0.282233
+  type: 'test'
+  ...
+# Subtest: multiplier rises at 10-note combo and caps at 4x
+ok 20 - multiplier rises at 10-note combo and caps at 4x
+  ---
+  duration_ms: 0.595827
+  type: 'test'
+  ...
+# Subtest: loop charts omit outside notes and clip sustain at loop end
+ok 21 - loop charts omit outside notes and clip sustain at loop end
+  ---
+  duration_ms: 1.376247
+  type: 'test'
+  ...
+# Subtest: calibration rejects outliers and reports median timing
+ok 22 - calibration rejects outliers and reports median timing
+  ---
+  duration_ms: 1.729765
+  type: 'test'
+  ...
+# Subtest: SMF format 0 supports running status and Note On velocity zero
+ok 23 - SMF format 0 supports running status and Note On velocity zero
+  ---
+  duration_ms: 2.173879
+  type: 'test'
+  ...
+# Subtest: tempo changes alter durations, not just initial BPM
+ok 24 - tempo changes alter durations, not just initial BPM
+  ---
+  duration_ms: 1.02917
+  type: 'test'
+  ...
+# Subtest: format 1 exported original round-trips all four parts
+ok 25 - format 1 exported original round-trips all four parts
+  ---
+  duration_ms: 15.430648
+  type: 'test'
+  ...
+# Subtest: repeated note-on overlap is paired FIFO
+ok 26 - repeated note-on overlap is paired FIFO
+  ---
+  duration_ms: 0.281126
+  type: 'test'
+  ...
+# Subtest: MIDI channel split is retained within a single track
+ok 27 - MIDI channel split is retained within a single track
+  ---
+  duration_ms: 0.240615
+  type: 'test'
+  ...
+# Subtest: MIDI input and track names are text, not executable content
+ok 28 - MIDI input and track names are text, not executable content
+  ---
+  duration_ms: 0.356991
+  type: 'test'
+  ...
+# Subtest: invalid, truncated, empty, format-2, SMPTE and oversized files fail clearly
+ok 29 - invalid, truncated, empty, format-2, SMPTE and oversized files fail clearly
+  ---
+  duration_ms: 5.699285
+  type: 'test'
+  ...
+# Subtest: invalid VLQ and orphan running status fail safely
+ok 30 - invalid VLQ and orphan running status fail safely
+  ---
+  duration_ms: 0.482989
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 340.351547
