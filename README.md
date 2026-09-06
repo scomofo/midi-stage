@@ -4,9 +4,9 @@ A local multiplayer rhythm game built for real instruments: MIDI electronic drum
 
 The project is inspired by the band-performance loop of rhythm games, but uses original code, visuals, and music. It is not affiliated with Rock Band or Harmonix.
 
-## Current state
+## Prototype status
 
-The imported v0.2 prototype includes:
+A playable v0.2 prototype has already been built and validated outside this repository. It currently includes:
 
 - Web MIDI input and per-player device/channel routing
 - MIDI Learn for drum pads and keys
@@ -16,18 +16,7 @@ The imported v0.2 prototype includes:
 - Guitar/bass audio soundcheck with input selection, channel routing, meters, clipping warnings, and single-note tuning
 - Local-only operation; no account or audio uploads
 
-The next milestone is live single-note guitar/bass scoring, followed by a full 88-key piano presentation and richer band/stage feedback.
-
-## Reconstruct the imported prototype
-
-The v0.2 self-contained HTML is stored as gzip/base64 parts in `artifacts/v0.2/parts/` so the original prototype can be carried into this repository losslessly.
-
-```bash
-./scripts/unpack-v0.2.sh
-python3 -m http.server 8765 -d dist
-```
-
-Then open `http://localhost:8765/MIDI-Stage-v0.2.html` in desktop Chrome and grant MIDI/audio permissions when needed.
+This repository is now the canonical home for continued development. The first implementation PR after initialization will bring the playable prototype into a maintainable source layout and then add live guitar/bass scoring.
 
 ## Hardware target
 
@@ -38,6 +27,8 @@ Then open `http://localhost:8765/MIDI-Stage-v0.2.html` in desktop Chrome and gra
 
 Exact interface and controller models will be documented after physical-device validation.
 
-## Development priorities
+## Next milestone
 
-See `ROADMAP.md`.
+Live single-note guitar/bass scoring with attack detection, pitch confidence, held-note scoring, and independent latency correction—without regressing MIDI drums or keys.
+
+See `ROADMAP.md` for the development sequence.
