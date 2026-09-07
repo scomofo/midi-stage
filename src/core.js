@@ -29,7 +29,7 @@
   const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
   const pc = n => ((n % 12)+12)%12;
   const noteName = n => PC[pc(n)] + (Math.floor(n/12)-1);
-  function defaults() { return TYPES.map((type,i) => ({id:type,type,label:LABELS[type],enabled:i===0,device:'any',channel:type==='drums'?10:i,mode:'pitch',source:type,learned:{}})); }
+  function defaults() { return TYPES.map((type,i) => ({id:type,type,label:LABELS[type],enabled:i===0,device:'any',channel:type==='drums'?10:i,mode:'pitch',input:'midi',offsetMs:0,source:type,learned:{}})); }
   function median(a) { if (!a.length) return 0; const s=[...a].sort((a,b)=>a-b), m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; }
   function calibration(taps) { const center=median(taps), mad=median(taps.map(x=>Math.abs(x-center))); const clean=taps.filter(x=>Math.abs(x-center)<=Math.max(45,3*mad)); return {offset:Math.round(median(clean)),spread:Math.round(median(clean.map(x=>Math.abs(x-median(clean))))),count:clean.length}; }
   function lowerBound(a,t,field='time') { let l=0,r=a.length; while(l<r){const m=(l+r)>>>1;if(a[m][field]<t) l=m+1; else r=m;}return l; }
@@ -60,13 +60,30 @@
     const duration=info.bars*4*beat;
     return {...info,parts,duration,original:true,tempoMap:[{tick:0,time:0,bpm:info.bpm}],beats:Array.from({length:info.bars*4+1},(_,i)=>({time:i*beat,bar:i%4===0})),sections:[{time:0,name:'INTRO'},{time:8*4*beat,name:'IN THE POCKET'},{time:16*4*beat,name:'TURN IT UP'},{time:24*4*beat,name:'BRING IT HOME'}].filter(x=>x.time<duration)};
   }
+  function makeValidationSong() {
+    const bpm=96,beat=60/bpm,bars=8;
+    const parts=TYPES.map((type,i)=>({id:type,type,name:LABELS[type],channel:type==='drums'?10:i,notes:[]}));
+    const add=(type,b,pitch,d=.12,velocity=95)=>parts.find(p=>p.type===type).notes.push({time:b*beat,pitch,duration:d*beat,velocity});
+    for(let bar=0;bar<bars;bar++) {
+      const b=bar*4;
+      for(let i=0;i<4;i++){add('drums',b+i,i%2?38:36);add('drums',b+i,42,.1,64);}
+      add('keys',b,64,1.5);add('keys',b+2,67,1.5);
+      const riff=bar%4===3?[40,40,43,40]:[40,43,45,47];
+      if(bar%4===2){add('guitar',b,40,1.65);add('guitar',b+2,43,1.65);add('bass',b,28,1.65);add('bass',b+2,31,1.65);}
+      else for(let i=0;i<4;i++){add('guitar',b+i,riff[i],.68);add('bass',b+i,riff[i]-12,.68);}
+    }
+    parts.forEach(p=>p.notes.sort((a,b)=>a.time-b.time||a.pitch-b.pitch));
+    return {id:'first-rehearsal',name:'First Rehearsal',subtitle:'Four instruments. One clean take.',bpm,bars,tag:'BAND VALIDATION',accent:'#49dcc8',parts,duration:bars*4*beat,original:true,tempoMap:[{tick:0,time:0,bpm}],beats:Array.from({length:bars*4+1},(_,i)=>({time:i*beat,bar:i%4===0})),sections:[{time:0,name:'SINGLE NOTES'},{time:8*beat,name:'HOLD THE NOTE'},{time:12*beat,name:'REPEATED PLUCKS'},{time:16*beat,name:'BRING IT TOGETHER'}]};
+  }
   function sourceFor(song, player) { return song.parts.find(p=>p.id===player.source)||song.parts.find(p=>p.type===player.type)||song.parts[0]; }
   function lanesFor(song,player) {
+    if(song.rhythmOnly)return [{name:'ANY NOTE / PAD',short:'HIT',pitch:{drums:36,keys:60,guitar:40,bass:28}[player.type],pc:0,any:true,color:COLORS[TYPES.indexOf(player.type)]}];
     if(player.type==='drums') return DRUMS.map(d=>({...d,notes:[...d.notes]}));
     const part=sourceFor(song,player), pitches=[...new Set(part.notes.map(n=>pc(n.pitch)))].sort((a,b)=>a-b);
     return pitches.map((p,i)=>{const all=part.notes.filter(n=>pc(n.pitch)===p).map(n=>n.pitch).sort((a,b)=>a-b);const pitch=all[Math.floor(all.length/2)]||60+p;return {name:PC[p],short:PC[p],pitch,pc:p,color:COLORS[i%COLORS.length]};});
   }
   function laneForPitch(pitch,player,lanes) {
+    if(lanes[0]?.any)return Number.isInteger(pitch)&&pitch>=0&&pitch<=127?0:-1;
     if(Object.prototype.hasOwnProperty.call(player.learned,pitch)) return player.learned[pitch];
     return player.type==='drums'?lanes.findIndex(l=>l.notes.includes(pitch)):lanes.findIndex(l=>l.pc===pc(pitch));
   }
@@ -77,24 +94,24 @@
     const notes=part.notes.filter(n=>n.time>=start-1e-6&&n.time<end-1e-6).map((n,id)=>({...n,id,lane:laneForPitch(n.pitch,chartPlayer,lanes),duration:Math.min(n.duration,end-n.time)})).filter(n=>n.lane>=0);
     return {lanes,notes};
   }
-  function routes(player,device,channel) { return player.enabled&&(player.device==='any'||player.device===device)&&(player.channel===0||player.channel===channel); }
+  function routes(player,device,channel) { return player.enabled&&player.input!=='audio'&&(player.device==='any'||player.device===device)&&(player.channel===0||player.channel===channel); }
   function routingConflicts(players) {
-    const enabled=players.filter(p=>p.enabled), out=[];
+    const enabled=players.filter(p=>p.enabled&&p.input!=='audio'), out=[];
     for(let i=0;i<enabled.length;i++)for(let j=i+1;j<enabled.length;j++){
       const a=enabled[i],b=enabled[j];
       if((a.device==='any'||b.device==='any'||a.device===b.device)&&(a.channel===0||b.channel===0||a.channel===b.channel)) out.push(`${a.label} and ${b.label} share a MIDI route`);
     } return out;
   }
   class Judge {
-    constructor(chart,{difficulty='standard',speed=1,drums=false,mode='pitch',onJudge=()=>{}}={}) {
-      this.notes=chart.notes.map(n=>({...n,state:0,hold:null}));this.lanes=chart.lanes;this.windows=(WINDOWS[difficulty]||WINDOWS.standard).map(x=>x*speed);this.speed=speed;this.drums=drums;this.mode=mode;this.onJudge=onJudge;this.cursor=0;this.held=new Map();this.activeHolds=new Set();
+    constructor(chart,{difficulty='standard',speed=1,drums=false,mode='pitch',verifiedHolds=false,onJudge=()=>{}}={}) {
+      this.verifiedHolds=verifiedHolds;this.confirmed=new Map();this.notes=chart.notes.map(n=>({...n,state:0,hold:null}));this.lanes=chart.lanes;this.windows=(WINDOWS[difficulty]||WINDOWS.standard).map(x=>x*speed);this.speed=speed;this.drums=drums;this.mode=mode;this.onJudge=onJudge;this.cursor=0;this.held=new Map();this.activeHolds=new Set();
       this.stats={score:0,combo:0,maxCombo:0,perfect:0,great:0,good:0,miss:0,extra:0,holdBreaks:0,holds:0,weight:0,offsets:[]};
     }
     get multiplier(){return Math.min(4,1+Math.floor(this.stats.combo/10));}
     get accuracy(){const s=this.stats,n=s.perfect+s.great+s.good+s.miss+s.extra;return n?100*s.weight/n:100;}
     tick(t){
       while(this.cursor<this.notes.length&&this.notes[this.cursor].time<t-this.windows[2]-1e-8){const n=this.notes[this.cursor++];if(!n.state){n.state=2;this.stats.miss++;this.stats.combo=0;this.onJudge({grade:'miss',note:n,delta:0});}}
-      for(const n of [...this.activeHolds]) if(t>=n.time+n.duration-.065*this.speed) this.finishHold(n,true);
+      if(!this.verifiedHolds)for(const n of [...this.activeHolds]) if(t>=n.time+n.duration-.065*this.speed) this.finishHold(n,true);
     }
     hit(t,{lane,pitch,token='keyboard',arcade=false}){
       this.tick(t);let closest=null,best=Infinity;
@@ -114,7 +131,8 @@
       if(n.hold!=='held')return;n.hold=success?'complete':'broken';this.activeHolds.delete(n);const set=this.held.get(n.token);if(set){set.delete(n);if(!set.size)this.held.delete(n.token);}
       if(success){this.stats.holds++;this.stats.score+=50*n.holdMultiplier;}else{this.stats.holdBreaks++;this.stats.combo=0;this.onJudge({grade:'release',note:n,delta:0});}
     }
-    release(token,t){for(const n of [...(this.held.get(token)||[])])this.finishHold(n,t>=n.time+n.duration-.09*this.speed);}
+    confirm(token,t){if(!Number.isFinite(t)||!this.held.has(token))return;this.confirmed.set(token,Math.max(this.confirmed.get(token)??-Infinity,t));for(const n of [...(this.held.get(token)||[])])if(t>=n.time+n.duration-.065*this.speed)this.finishHold(n,true);}
+    release(token,t){const through=this.verifiedHolds?(this.confirmed.get(token)??-Infinity):t;for(const n of [...(this.held.get(token)||[])])this.finishHold(n,through>=n.time+n.duration-.09*this.speed);this.confirmed.delete(token);}
     finish(t){this.tick(t+this.windows[2]+.001);return {...this.stats,accuracy:this.accuracy,total:this.notes.length,meanOffset:this.stats.offsets.length?this.stats.offsets.reduce((a,b)=>a+b,0)/this.stats.offsets.length:0};}
   }
   function parseMIDI(input,name='Imported MIDI') {
@@ -167,5 +185,5 @@
     let hash=2166136261;for(const byte of bytes){hash^=byte;hash=Math.imul(hash,16777619);}
     return {id:`midi-${(hash>>>0).toString(16)}`,name:name.replace(/\.midi?$/i,''),subtitle:'Your MIDI. Your instruments. Your stage.',tag:'LOCAL MIDI',bpm:Math.round(map[0].bpm),parts,duration:Math.max(duration,.25),original:false,tempoMap:map,beats,sections:[{time:0,name:'YOUR ARRANGEMENT'}],format};
   }
-  return {PC,COLORS,DRUMS,WINDOWS,TYPES,LABELS,KEYS,keyLabel,clamp,pc,noteName,defaults,median,calibration,lowerBound,makeSong,sourceFor,lanesFor,laneForPitch,makeChart,routes,routingConflicts,Judge,parseMIDI};
+  return {PC,COLORS,DRUMS,WINDOWS,TYPES,LABELS,KEYS,keyLabel,clamp,pc,noteName,defaults,median,calibration,lowerBound,makeSong,makeValidationSong,sourceFor,lanesFor,laneForPitch,makeChart,routes,routingConflicts,Judge,parseMIDI};
 });

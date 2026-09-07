@@ -3,7 +3,7 @@
   'use strict';
   class AudioEngine {
     constructor(){this.ctx=null;this.master=null;this.nodes=new Set();this.origin=0;this.speed=1;this.running=false;this.events=[];this.cursor=0;this.timer=null;this.volume=.55;this.monitorVoices=new Map();}
-    async init(){
+    async init({resume=true}={}){
       if(!this.ctx){
         const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw Error('Web Audio is unavailable in this browser.');
         this.ctx=new AC({latencyHint:'interactive'});this.master=this.ctx.createGain();this.master.gain.value=this.volume*.5;
@@ -12,6 +12,8 @@
         this.noise=this.ctx.createBuffer(1,this.ctx.sampleRate*2,this.ctx.sampleRate);const a=this.noise.getChannelData(0);let seed=12553;
         for(let i=0;i<a.length;i++){seed=(Math.imul(seed,1664525)+1013904223)|0;a[i]=(seed>>>0)/2147483648-1;}
       }
+      // Decoding local files must not wait for autoplay/user-activation permission.
+      if(!resume)return;
       if(this.ctx.state==='suspended')await this.ctx.resume();
       if(this.ctx.state!=='running')throw Error('Audio could not start. Click Start again to enable browser audio.');
     }

@@ -38,7 +38,7 @@ with sync_playwright() as p:
     page=context.new_page(); errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.set_content(HTML,wait_until='load')
-    check('ready state and three original songs', page.evaluate("MIDIStage.getSnapshot().status==='ready'") and page.locator('.song-card').count()==3)
+    check('ready state and four original songs', page.evaluate("MIDIStage.getSnapshot().status==='ready'") and page.locator('.song-card').count()==4)
     page.locator('[data-part="keys"]').click()
     page.locator('#connectMIDI').click()
     check('permission requested with SysEx disabled',page.evaluate('__permissionRequests.length===1 && __permissionRequests[0].sysex===false'))
