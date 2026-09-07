@@ -8,7 +8,8 @@
   const saved=storage.get('midi-stage-settings-v1',{});
   const players=C.defaults().map(p=>{const old=saved.players?.find(x=>x.id===p.id);if(!old)return p;return {...p,enabled:!!old.enabled,input:['guitar','bass'].includes(p.type)&&old.input==='audio'?'audio':'midi',offsetMs:C.clamp(Number(old.offsetMs)||0,-500,500),device:typeof old.device==='string'?old.device:'any',channel:C.clamp(Number(old.channel)||0,0,16),mode:old.mode==='exact'?'exact':'pitch',learned:old.learned&&typeof old.learned==='object'?Object.fromEntries(Object.entries(old.learned).filter(([n,l])=>Number(n)>=0&&Number(n)<128&&Number.isInteger(l)&&l>=0&&l<12)): {}};});
   if(!players.some(p=>p.enabled))players[0].enabled=true;
-  const state={songs:[C.makeSong(0),C.makeSong(1),C.makeSong(2),C.makeValidationSong()],song:null,players,status:'ready',position:0,speed:1,difficulty:'standard',judges:new Map(),charts:new Map(),feedback:new Map(),flashes:new Map(),particles:[],devices:[],demo:false,assisted:false,learn:null,from:0,to:0,loops:0,buffer:null,bufferName:'',minVelocity:C.clamp(Number(saved.minVelocity)||12,1,127),inputOffset:C.clamp(Number(saved.inputOffset)||0,-500,500),monitor:saved.monitor!==false,lastInput:new Map(),activeTokens:new Map(),pedals:new Map(),deferred:new Map(),keyDown:new Set(),calibration:null,startLock:false,startGeneration:0};
+  const assets=new Map(),projects=new Map();let selectionTicket=0;
+  const state={backingLoading:false,songs:[C.makeSong(0),C.makeSong(1),C.makeSong(2),C.makeValidationSong()],song:null,players,status:'ready',position:0,speed:1,difficulty:'standard',judges:new Map(),charts:new Map(),feedback:new Map(),flashes:new Map(),particles:[],devices:[],demo:false,assisted:false,learn:null,from:0,to:0,loops:0,buffer:null,bufferName:'',minVelocity:C.clamp(Number(saved.minVelocity)||12,1,127),inputOffset:C.clamp(Number(saved.inputOffset)||0,-500,500),monitor:saved.monitor!==false,lastInput:new Map(),activeTokens:new Map(),pedals:new Map(),deferred:new Map(),keyDown:new Set(),calibration:null,startLock:false,startGeneration:0};
   state.song=state.songs[0];
   const audio=new StageAudio.AudioEngine();
   let toastTimer=0,raf=0,view={w:900,h:430,dpr:1},lastHud=0,lastCount='',calTimer=0,loopTimer=0;
@@ -20,6 +21,22 @@
       $('soundcheckDialog').close();toast(`${p.label} will score from live audio. Start a set to begin capture.`);
     },getGameSettings:()=>({globalCorrectionMs:state.inputOffset,players:players.map(({id,input,offsetMs})=>({id,input,offsetMs}))}),getMIDI:()=>state.devices});
   const live=new S.LiveSession({InputHub:StageInput.AudioInputHub,getContext:async()=>{await audio.init();return audio.ctx;},onEvent:handleString,onError:interrupt});
+  const workshop=new StageWorkshop.Controller({
+    beforeOpen:()=>{resetReady('Song Workshop open. Start a fresh set after editing.');soundcheck.hub.stopAll();},
+    getSelected:()=>({song:state.song,project:state.song.chartProject||projects.get(state.song.libraryId),players,buffer:state.buffer,bufferName:state.bufferName,audioOffset:Number($('audioOffset').value)||0}),
+    onPublish:(project,buffer)=>{projects.set(project.id,StageWorkshop.clone(project));const song=StageWorkshop.toSong(project);assets.set(song.id,buffer);state.songs=state.songs.filter(s=>s.libraryId!==project.id);state.songs.push(song);selectSong(song);toast('Your highways are ready. Choose Watch demo or Start set. Save in Song Workshop to keep them after reload.');},
+    onLibrary:items=>{for(const project of items){projects.set(project.id,project);for(const old of state.songs.filter(s=>s.libraryId===project.id))assets.delete(old.id);const song=StageWorkshop.toSong(project),index=state.songs.findIndex(s=>s.libraryId===project.id);if(index<0)state.songs.push(song);else if(state.songs[index].id!==song.id)state.songs[index]=song;}renderSetlist();},
+    onDelete:id=>{projects.delete(id);for(const song of state.songs.filter(s=>s.libraryId===id))assets.delete(song.id);const current=state.song.libraryId===id;state.songs=state.songs.filter(s=>s.libraryId!==id);if(current)selectSong(state.songs[0]);else renderSetlist();}
+  });
+  $('openWorkshop').onclick=()=>workshop.open();
+  function restoreBacking(song,ticket){
+    const apply=buffer=>{if(ticket!==selectionTicket)return;state.backingLoading=false;state.buffer=buffer;state.bufferName=buffer?song.audioName||'Saved backing audio':'';if(!buffer)$('guide').checked=true;$('clearAudio').hidden=!buffer;
+      $('audioStatus').textContent=buffer?`Backing audio: ${state.bufferName}. Restored with this song's alignment.`:song.audioName?`Missing backing audio: ${song.audioName}. Reattach it in Song Workshop. Playback will use synthesized chart notes.`:'Synthesized chart backing. Add matching audio in Song Workshop.';setControls();};
+    if(assets.has(song.id)){apply(assets.get(song.id));return;}
+    if(!song.audioName){apply(null);return;}
+    state.backingLoading=true;$('audioStatus').textContent='Loading this song’s saved backing audio…';setControls();
+    workshop.getBacking(song.libraryId).then(buffer=>{if(ticket!==selectionTicket)return;assets.set(song.id,buffer);apply(buffer);}).catch(e=>{if(ticket!==selectionTicket)return;apply(null);toast(e.message);});
+  }
   function interrupt(message) {
     if(state.status==='starting'){state.startGeneration++;state.status='ready';live.stop();audio.stop();setControls();toast(message);}
     else if(state.status==='playing')pauseGame(message);
@@ -66,12 +83,13 @@
     $('stageMode').innerHTML=`<i></i> ${enabled().length===1?'SOLO SESSION':`${enabled().length}-PLAYER BAND`}`;
   }
   function selectSong(song){
+    const ticket=++selectionTicket;state.backingLoading=false;$('audioOffset').value=song.backingOffset||0;
     state.song=song;state.buffer=null;state.bufferName='';$('audioFile').value='';$('clearAudio').hidden=true;$('audioStatus').textContent='MIDI tracks are synthesized locally. Optional audio must match your chart; it is not automatically transcribed or aligned.';
-    if(song.original){players.forEach(p=>p.source=p.type);}else{
+    if(song.workshop){players.forEach(p=>{p.source=p.type;p.enabled=!!song.parts.find(part=>part.type===p.type)?.notes.length;});if(!enabled().length)players[0].enabled=true;}else if(song.original){players.forEach(p=>p.source=p.type);}else{
       const drums=song.parts.find(p=>p.channel===10),melodic=song.parts.filter(p=>p.channel!==10);
       players.forEach(p=>{p.source=p.type==='drums'?(drums||song.parts[0]).id:(melodic.find(t=>t.name.toLowerCase().includes(p.type))||melodic[0]||song.parts[0]).id;p.enabled=drums?p.type==='drums':p.type==='keys';});
     }
-    $('songTitle').textContent=song.name;$('songTag').textContent=`${song.original?'ORIGINAL SESSION':'YOUR COLLECTION'} / ${song.tag}`;$('bpmLabel').innerHTML=`${song.bpm} <small>${song.tempoMap.length>1?'BPM*':'BPM'}</small>`;$('bpmLabel').title=song.tempoMap.length>1?'Initial tempo. Tempo changes are preserved.':'';$('durationLabel').textContent=fmt(Math.ceil(song.duration));$('loopStart').value=0;$('loopEnd').value=Math.min(song.duration,Math.round(32*60/song.bpm*10)/10);$('loop').checked=false;renderSetlist();renderBand();resetReady();
+    $('songTitle').textContent=song.name;$('songTag').textContent=`${song.original?'ORIGINAL SESSION':'YOUR COLLECTION'} / ${song.tag}`;$('bpmLabel').innerHTML=`${song.bpm} <small>${song.tempoMap.length>1?'BPM*':'BPM'}</small>`;$('bpmLabel').title=song.tempoMap.length>1?'Initial tempo. Tempo changes are preserved.':'';$('durationLabel').textContent=fmt(Math.ceil(song.duration));$('loopStart').value=0;$('loopEnd').value=Math.min(song.duration,Math.round(32*60/song.bpm*10)/10);$('loop').checked=false;renderSetlist();renderBand();resetReady();if(song.workshop)restoreBacking(song,ticket);
   }
   function renderPads(){
     $('pads').innerHTML=enabled().map(p=>{const chart=state.charts.get(p.id);return `<div class="pad-group"><span class="pad-group-name">${p.label.toUpperCase()}</span>${chart.lanes.map((l,i)=>`<button class="pad" ${S.isAudio(p)?'disabled title="Use live audio for this player"':''} data-player="${p.id}" data-lane="${i}" style="--pad-color:${l.color}" aria-label="Play ${p.label} ${esc(l.name)}; keyboard ${C.keyLabel(C.KEYS[p.id][i])}"><span>${esc(l.short)}</span><kbd>${esc(C.keyLabel(C.KEYS[p.id][i]))}</kbd></button>`).join('')}</div>`;}).join('');
@@ -80,12 +98,13 @@
   async function ensureAudio(){try{await audio.init();}catch(e){toast(e.message);}}
   function setControls(){
     const playing=state.status==='playing',paused=state.status==='paused',busy=playing||paused||state.status==='starting';
-    $('start').disabled=playing||state.status==='starting';$('start').innerHTML=paused?'▶ &nbsp; Resume':'▶ &nbsp; Start set';$('pause').disabled=!playing;$('demo').disabled=busy;
+    $('start').disabled=playing||state.status==='starting'||state.backingLoading;$('start').innerHTML=paused?'▶ &nbsp; Resume':'▶ &nbsp; Start set';$('pause').disabled=!playing;$('demo').disabled=busy||state.backingLoading;
     ['difficulty','speed','guide','metronome','loop','loopStart','loopEnd','audioOffset','audioButton','clearAudio'].forEach(id=>$(id).disabled=busy);
     $('speedBadge').textContent=`${state.speed.toFixed(2)}× TEMPO`;
   }
   function range(){if(!$('loop').checked)return {from:0,to:state.song.duration};const from=Number($('loopStart').value),to=Number($('loopEnd').value);if(!Number.isFinite(from)||!Number.isFinite(to)||from<0||to>state.song.duration+.05||to-from<1)throw Error(`Choose a loop at least one second long, within 0–${state.song.duration.toFixed(1)} seconds.`);return {from,to:Math.min(to,state.song.duration)};}
   async function startSession(demo=false,loopRestart=false){
+    if(state.backingLoading){toast('The saved backing audio is still loading.');return;}
     if(state.startLock||state.status==='playing')return;state.startLock=true;
     try{
       const resume=state.status==='paused'&&!demo;
@@ -272,7 +291,7 @@
   $('calibrateButton').onclick=()=>{closeDialog('setupDialog');if(state.status==='playing')pauseGame();$('calibrationDialog').showModal();};$('calibrationStart').onclick=beginCalibration;$('calibrationTap').onclick=()=>calibrationTap();
   $('playAgain').onclick=()=>{closeDialog('resultsDialog');resetReady();startSession();};$('resultSetup').onclick=()=>{closeDialog('resultsDialog');resetReady();openSetup();};
   $('importButton').onclick=()=>{if(state.status==='playing')pauseGame();$('midiFile').click();};
-  $('midiFile').onchange=async()=>{const file=$('midiFile').files[0];if(!file)return;try{if(file.size>8*1024*1024)throw Error('MIDI files must be smaller than 8 MB.');const song=C.parseMIDI(await file.arrayBuffer(),file.name);state.songs=state.songs.filter(s=>s.original||s.id===song.id);if(!state.songs.some(s=>s.id===song.id))state.songs.push(song);else state.songs[state.songs.findIndex(s=>s.id===song.id)]=song;selectSong(song);openSetup();toast(`Imported ${song.parts.length} MIDI part${song.parts.length===1?'':'s'}. Choose a song track for each player.`);}catch(e){toast(e.message);}finally{$('midiFile').value='';}};
+  $('midiFile').onchange=async()=>{const file=$('midiFile').files[0];if(!file)return;try{if(file.size>8*1024*1024)throw Error('MIDI files must be smaller than 8 MB.');const song=C.parseMIDI(await file.arrayBuffer(),file.name);if(!state.songs.some(s=>s.id===song.id))state.songs.push(song);else state.songs[state.songs.findIndex(s=>s.id===song.id)]=song;selectSong(song);openSetup();toast(`Imported ${song.parts.length} MIDI part${song.parts.length===1?'':'s'}. Choose a song track for each player.`);}catch(e){toast(e.message);}finally{$('midiFile').value='';}};
   $('audioButton').onclick=()=>$('audioFile').click();$('audioFile').onchange=async()=>{const file=$('audioFile').files[0];if(!file)return;try{if(file.size>80*1024*1024)throw Error('Use a backing audio file smaller than 80 MB.');await audio.init();state.buffer=await audio.ctx.decodeAudioData(await file.arrayBuffer());state.bufferName=file.name;$('audioStatus').textContent=`Backing audio: ${file.name}. Set “Audio starts at” to align it with the MIDI. Tempo changes playback speed and pitch of this audio.`;$('clearAudio').hidden=false;toast('Backing audio loaded locally. It replaces synthesized backing.');}catch(e){toast(`Audio could not be loaded: ${e.message}`);}};
   $('clearAudio').onclick=()=>{state.buffer=null;state.bufferName='';$('audioFile').value='';$('clearAudio').hidden=true;$('audioStatus').textContent='Synthesized backing restored.';};
   $('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('stage').requestFullscreen();}catch(_){toast('Full screen is not available in this browser view.');}};
@@ -293,6 +312,6 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)interrupt('Playback paused while this tab was hidden.');});
   window.addEventListener('beforeunload',()=>{live.destroy();audio.stop();cancelAnimationFrame(raf);});
   // Read-only diagnostics for tests and troubleshooting. No virtual scores or input backdoors.
-  window.MIDIStage={version:'0.3.0',getSnapshot:()=>({status:state.status,song:state.song.id,time:state.status==='playing'?audio.songAt():state.position,demo:state.demo,players:enabled().map(p=>({id:p.id,input:p.input,offsetMs:p.offsetMs,device:p.device,channel:p.channel,stats:{...state.judges.get(p.id)?.stats},notes:state.judges.get(p.id)?.notes.map(n=>({time:n.time,lane:n.lane,pitch:n.pitch,state:n.state,hold:n.hold}))})),devices:state.devices.map(d=>({...d})),calibration:state.inputOffset,loopCount:state.loops,audio:{running:live.running,routes:[...live.hub.routes.keys()]}})};
+  window.MIDIStage={version:'0.4.0',getWorkshopSnapshot:()=>({open:workshop.dialog.open,busy:workshop.busy,preview:workshop.preview.running,project:StageWorkshop.clone(workshop.project)}),getSnapshot:()=>({backingLoading:state.backingLoading,bufferName:state.bufferName,songCount:state.songs.length,status:state.status,song:state.song.id,time:state.status==='playing'?audio.songAt():state.position,demo:state.demo,players:enabled().map(p=>({id:p.id,input:p.input,offsetMs:p.offsetMs,device:p.device,channel:p.channel,stats:{...state.judges.get(p.id)?.stats},notes:state.judges.get(p.id)?.notes.map(n=>({time:n.time,lane:n.lane,pitch:n.pitch,state:n.state,hold:n.hold}))})),devices:state.devices.map(d=>({...d})),calibration:state.inputOffset,loopCount:state.loops,audio:{running:live.running,routes:[...live.hub.routes.keys()]}})};
   renderSetlist();renderBand();resetReady();resize();raf=requestAnimationFrame(frame);
 })();

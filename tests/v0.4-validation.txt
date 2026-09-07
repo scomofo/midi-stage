@@ -1,0 +1,1121 @@
+
+RUN /opt/pyvenv/bin/python build.py
+/mnt/data/workshop-work/midi-stage/MIDI-Stage.html
+
+RUN /opt/nvm/versions/node/v22.16.0/bin/node --test tests/core.test.cjs tests/input.test.cjs tests/strings.test.cjs tests/workshop.test.cjs
+TAP version 13
+# Subtest: original songs have sorted, valid charts for all four instruments
+ok 1 - original songs have sorted, valid charts for all four instruments
+  ---
+  duration_ms: 5.224988
+  type: 'test'
+  ...
+# Subtest: computer keyboard bindings do not overlap across players
+ok 2 - computer keyboard bindings do not overlap across players
+  ---
+  duration_ms: 0.126561
+  type: 'test'
+  ...
+# Subtest: default MIDI channels do not cross-score parts
+ok 3 - default MIDI channels do not cross-score parts
+  ---
+  duration_ms: 0.612784
+  type: 'test'
+  ...
+# Subtest: dedicated device routing and wildcard channel work
+ok 4 - dedicated device routing and wildcard channel work
+  ---
+  duration_ms: 0.140342
+  type: 'test'
+  ...
+# Subtest: General MIDI drum aliases map to six lanes
+ok 5 - General MIDI drum aliases map to six lanes
+  ---
+  duration_ms: 0.84878
+  type: 'test'
+  ...
+# Subtest: MIDI learn changes hardware mapping, not chart pitches or authored lanes
+ok 6 - MIDI learn changes hardware mapping, not chart pitches or authored lanes
+  ---
+  duration_ms: 2.63307
+  type: 'test'
+  ...
+# Subtest: Standard perfect, great and good window boundaries are inclusive
+ok 7 - Standard perfect, great and good window boundaries are inclusive
+  ---
+  duration_ms: 0.488466
+  type: 'test'
+  ...
+# Subtest: notes beyond hit window miss and cannot be hit twice
+ok 8 - notes beyond hit window miss and cannot be hit twice
+  ---
+  duration_ms: 0.321495
+  type: 'test'
+  ...
+# Subtest: nearest pending note is chosen
+ok 9 - nearest pending note is chosen
+  ---
+  duration_ms: 0.306472
+  type: 'test'
+  ...
+# Subtest: chords accept independent same-timestamp note attacks
+ok 10 - chords accept independent same-timestamp note attacks
+  ---
+  duration_ms: 0.389397
+  type: 'test'
+  ...
+# Subtest: exact matching rejects the wrong octave
+ok 11 - exact matching rejects the wrong octave
+  ---
+  duration_ms: 0.157607
+  type: 'test'
+  ...
+# Subtest: arcade matching allows the same lane in another octave
+ok 12 - arcade matching allows the same lane in another octave
+  ---
+  duration_ms: 0.088844
+  type: 'test'
+  ...
+# Subtest: timing windows scale with speed to keep wall-clock difficulty constant
+ok 13 - timing windows scale with speed to keep wall-clock difficulty constant
+  ---
+  duration_ms: 0.194443
+  type: 'test'
+  ...
+# Subtest: expert has tighter windows
+ok 14 - expert has tighter windows
+  ---
+  duration_ms: 0.08668
+  type: 'test'
+  ...
+# Subtest: sustain completion adds a bonus only once
+ok 15 - sustain completion adds a bonus only once
+  ---
+  duration_ms: 0.17281
+  type: 'test'
+  ...
+# Subtest: early note-off breaks sustain and combo without erasing attack grade
+ok 16 - early note-off breaks sustain and combo without erasing attack grade
+  ---
+  duration_ms: 0.125069
+  type: 'test'
+  ...
+# Subtest: release grace accepts a near-end note off
+ok 17 - release grace accepts a near-end note off
+  ---
+  duration_ms: 0.096616
+  type: 'test'
+  ...
+# Subtest: drums do not require note-off or sustain
+ok 18 - drums do not require note-off or sustain
+  ---
+  duration_ms: 0.085579
+  type: 'test'
+  ...
+# Subtest: accuracy includes weighted grades, misses, and extra hits
+ok 19 - accuracy includes weighted grades, misses, and extra hits
+  ---
+  duration_ms: 0.159561
+  type: 'test'
+  ...
+# Subtest: multiplier rises at 10-note combo and caps at 4x
+ok 20 - multiplier rises at 10-note combo and caps at 4x
+  ---
+  duration_ms: 0.180863
+  type: 'test'
+  ...
+# Subtest: loop charts omit outside notes and clip sustain at loop end
+ok 21 - loop charts omit outside notes and clip sustain at loop end
+  ---
+  duration_ms: 0.51778
+  type: 'test'
+  ...
+# Subtest: calibration rejects outliers and reports median timing
+ok 22 - calibration rejects outliers and reports median timing
+  ---
+  duration_ms: 0.173672
+  type: 'test'
+  ...
+# Subtest: SMF format 0 supports running status and Note On velocity zero
+ok 23 - SMF format 0 supports running status and Note On velocity zero
+  ---
+  duration_ms: 1.005025
+  type: 'test'
+  ...
+# Subtest: tempo changes alter durations, not just initial BPM
+ok 24 - tempo changes alter durations, not just initial BPM
+  ---
+  duration_ms: 0.584821
+  type: 'test'
+  ...
+# Subtest: format 1 exported original round-trips all four parts
+ok 25 - format 1 exported original round-trips all four parts
+  ---
+  duration_ms: 6.12863
+  type: 'test'
+  ...
+# Subtest: repeated note-on overlap is paired FIFO
+ok 26 - repeated note-on overlap is paired FIFO
+  ---
+  duration_ms: 0.15255
+  type: 'test'
+  ...
+# Subtest: MIDI channel split is retained within a single track
+ok 27 - MIDI channel split is retained within a single track
+  ---
+  duration_ms: 0.157558
+  type: 'test'
+  ...
+# Subtest: MIDI input and track names are text, not executable content
+ok 28 - MIDI input and track names are text, not executable content
+  ---
+  duration_ms: 0.220362
+  type: 'test'
+  ...
+# Subtest: invalid, truncated, empty, format-2, SMPTE and oversized files fail clearly
+ok 29 - invalid, truncated, empty, format-2, SMPTE and oversized files fail clearly
+  ---
+  duration_ms: 3.60802
+  type: 'test'
+  ...
+# Subtest: invalid VLQ and orphan running status fail safely
+ok 30 - invalid VLQ and orphan running status fail safely
+  ---
+  duration_ms: 0.347344
+  type: 'test'
+  ...
+# Subtest: reference note conversion and invalid frequencies
+ok 31 - reference note conversion and invalid frequencies
+  ---
+  duration_ms: 1.910871
+  type: 'test'
+  ...
+# Subtest: silence and DC are not interpreted as notes
+ok 32 - silence and DC are not interpreted as notes
+  ---
+  duration_ms: 3.015226
+  type: 'test'
+  ...
+# Subtest: guitar and low bass fundamentals survive harmonics at 44.1/48/96 kHz
+ok 33 - guitar and low bass fundamentals survive harmonics at 44.1/48/96 kHz
+  ---
+  duration_ms: 62.996599
+  type: 'test'
+  ...
+# Subtest: noise gate rejects quiet samples and can be lowered
+ok 34 - noise gate rejects quiet samples and can be lowered
+  ---
+  duration_ms: 2.843517
+  type: 'test'
+  ...
+# Subtest: DC offset does not bias pitch estimation
+ok 35 - DC offset does not bias pitch estimation
+  ---
+  duration_ms: 2.500069
+  type: 'test'
+  ...
+# Subtest: unpitched deterministic noise does not produce a tuner note
+ok 36 - unpitched deterministic noise does not produce a tuner note
+  ---
+  duration_ms: 2.369632
+  type: 'test'
+  ...
+# Subtest: invalid sample buffers and rates are rejected
+ok 37 - invalid sample buffers and rates are rejected
+  ---
+  duration_ms: 1.585751
+  type: 'test'
+  ...
+# Subtest: level meter reports amplitude and peak independently
+ok 38 - level meter reports amplitude and peak independently
+  ---
+  duration_ms: 0.944004
+  type: 'test'
+  ...
+# Subtest: permission discovery stops its temporary capture and removes default aliases
+ok 39 - permission discovery stops its temporary capture and removes default aliases
+  ---
+  duration_ms: 0.788108
+  type: 'test'
+  ...
+# Subtest: capture selects exact device, requests stereo and disables speech processing
+ok 40 - capture selects exact device, requests stereo and disables speech processing
+  ---
+  duration_ms: 1.065126
+  type: 'test'
+  ...
+# Subtest: guitar and bass share one stream but get distinct splitter channels
+ok 41 - guitar and bass share one stream but get distinct splitter channels
+  ---
+  duration_ms: 1.012306
+  type: 'test'
+  ...
+# Subtest: mono input cannot silently masquerade as channel two
+ok 42 - mono input cannot silently masquerade as channel two
+  ---
+  duration_ms: 0.8362
+  type: 'test'
+  ...
+# Subtest: unknown channel count is reported as unknown, not confirmed stereo
+ok 43 - unknown channel count is reported as unknown, not confirmed stereo
+  ---
+  duration_ms: 0.226932
+  type: 'test'
+  ...
+# Subtest: cancelling an in-flight permission request releases its late stream
+ok 44 - cancelling an in-flight permission request releases its late stream
+  ---
+  duration_ms: 10.544267
+  type: 'test'
+  ...
+# Subtest: ended capture cleans all shared routes and their timer
+ok 45 - ended capture cleans all shared routes and their timer
+  ---
+  duration_ms: 0.717432
+  type: 'test'
+  ...
+# Subtest: live analyser samples feed meters and tuner without a score callback
+ok 46 - live analyser samples feed meters and tuner without a score callback
+  ---
+  duration_ms: 3.519176
+  type: 'test'
+  ...
+# Subtest: diagnostics strip device and group IDs
+ok 47 - diagnostics strip device and group IDs
+  ---
+  duration_ms: 0.341555
+  type: 'test'
+  ...
+# Subtest: permission, driver and unavailable-device failures have actionable messages
+ok 48 - permission, driver and unavailable-device failures have actionable messages
+  ---
+  duration_ms: 0.12573
+  type: 'test'
+  ...
+# Subtest: missing device and invalid channels never invoke capture
+ok 49 - missing device and invalid channels never invoke capture
+  ---
+  duration_ms: 0.770231
+  type: 'test'
+  ...
+# Subtest: cancelling discovery before permission resolves stops its late stream
+ok 50 - cancelling discovery before permission resolves stops its late stream
+  ---
+  duration_ms: 2.338907
+  type: 'test'
+  ...
+# Subtest: stop-all terminates discovery even while enumeration is pending
+ok 51 - stop-all terminates discovery even while enumeration is pending
+  ---
+  duration_ms: 0.680736
+  type: 'test'
+  ...
+# Subtest: live-play mode rejects an unverified second channel and closes the stream
+ok 52 - live-play mode rejects an unverified second channel and closes the stream
+  ---
+  duration_ms: 0.439944
+  type: 'test'
+  ...
+# Subtest: held tone generates one onset, never a stream of repeat hits
+ok 53 - held tone generates one onset, never a stream of repeat hits
+  ---
+  duration_ms: 1.642206
+  type: 'test'
+  ...
+# Subtest: fresh plucks separated by silence retrigger the same pitch
+ok 54 - fresh plucks separated by silence retrigger the same pitch
+  ---
+  duration_ms: 0.214784
+  type: 'test'
+  ...
+# Subtest: a new amplitude attack retriggers a ringing note only once
+ok 55 - a new amplitude attack retriggers a ringing note only once
+  ---
+  duration_ms: 0.214904
+  type: 'test'
+  ...
+# Subtest: stable pitch changes work without a silent gap (legato)
+ok 56 - stable pitch changes work without a silent gap (legato)
+  ---
+  duration_ms: 1.186248
+  type: 'test'
+  ...
+# Subtest: brief pitch glitches are not note attacks
+ok 57 - brief pitch glitches are not note attacks
+  ---
+  duration_ms: 0.21191
+  type: 'test'
+  ...
+# Subtest: low confidence, cents outside tolerance, clipping and mute cannot attack
+ok 58 - low confidence, cents outside tolerance, clipping and mute cannot attack
+  ---
+  duration_ms: 0.170117
+  type: 'test'
+  ...
+# Subtest: sustained unpitched noise cannot turn into a delayed free attack
+ok 59 - sustained unpitched noise cannot turn into a delayed free attack
+  ---
+  duration_ms: 0.300634
+  type: 'test'
+  ...
+# Subtest: expired onset is discarded rather than awarded very late
+ok 60 - expired onset is discarded rather than awarded very late
+  ---
+  duration_ms: 0.112209
+  type: 'test'
+  ...
+# Subtest: analysis window must clear before retrigger pitch is trusted
+ok 61 - analysis window must clear before retrigger pitch is trusted
+  ---
+  duration_ms: 0.436058
+  type: 'test'
+  ...
+# Subtest: silence releases at the beginning of the dropout, not after debounce
+ok 62 - silence releases at the beginning of the dropout, not after debounce
+  ---
+  duration_ms: 0.366733
+  type: 'test'
+  ...
+# Subtest: brief confidence dropout tolerates jitter without a fake retrigger
+ok 63 - brief confidence dropout tolerates jitter without a fake retrigger
+  ---
+  duration_ms: 0.213963
+  type: 'test'
+  ...
+# Subtest: sustained uncertainty releases and recovery alone cannot re-score a ringing pitch
+ok 64 - sustained uncertainty releases and recovery alone cannot re-score a ringing pitch
+  ---
+  duration_ms: 0.100051
+  type: 'test'
+  ...
+# Subtest: reordered or nonfinite timestamps are ignored
+ok 65 - reordered or nonfinite timestamps are ignored
+  ---
+  duration_ms: 0.104077
+  type: 'test'
+  ...
+# Subtest: reset clears ringing notes but never reuses an old token
+ok 66 - reset clears ringing notes but never reuses an old token
+  ---
+  duration_ms: 0.104888
+  type: 'test'
+  ...
+# Subtest: audio exact-pitch scoring rejects an octave error
+ok 67 - audio exact-pitch scoring rejects an octave error
+  ---
+  duration_ms: 0.475868
+  type: 'test'
+  ...
+# Subtest: no chart-based pitch snapping: unrelated pitch counts as extra
+ok 68 - no chart-based pitch snapping: unrelated pitch counts as extra
+  ---
+  duration_ms: 0.142224
+  type: 'test'
+  ...
+# Subtest: a steady tone cannot score successive chart notes
+ok 69 - a steady tone cannot score successive chart notes
+  ---
+  duration_ms: 0.197237
+  type: 'test'
+  ...
+# Subtest: audio holds need fresh confidence, not just passage of time
+ok 70 - audio holds need fresh confidence, not just passage of time
+  ---
+  duration_ms: 0.159771
+  type: 'test'
+  ...
+# Subtest: valid matching pitch through the tail completes an audio sustain once
+ok 71 - valid matching pitch through the tail completes an audio sustain once
+  ---
+  duration_ms: 0.241394
+  type: 'test'
+  ...
+# Subtest: stopping early breaks the hold despite a late note-off callback
+ok 72 - stopping early breaks the hold despite a late note-off callback
+  ---
+  duration_ms: 0.167633
+  type: 'test'
+  ...
+# Subtest: wrong-pitch transition cannot sustain the old note
+ok 73 - wrong-pitch transition cannot sustain the old note
+  ---
+  duration_ms: 0.157047
+  type: 'test'
+  ...
+# Subtest: MIDI sustain behavior is unchanged when confidence verification is off
+ok 74 - MIDI sustain behavior is unchanged when confidence verification is off
+  ---
+  duration_ms: 0.173742
+  type: 'test'
+  ...
+# Subtest: audio confirmation does not accumulate unheld tokens
+ok 75 - audio confirmation does not accumulate unheld tokens
+  ---
+  duration_ms: 0.082204
+  type: 'test'
+  ...
+# Subtest: player corrections are independent, bounded, and additive to global correction
+ok 76 - player corrections are independent, bounded, and additive to global correction
+  ---
+  duration_ms: 0.172901
+  type: 'test'
+  ...
+# Subtest: correction uses wall-clock milliseconds at every practice speed
+ok 77 - correction uses wall-clock milliseconds at every practice speed
+  ---
+  duration_ms: 0.210938
+  type: 'test'
+  ...
+# Subtest: audio players never match MIDI device/channel routes
+ok 78 - audio players never match MIDI device/channel routes
+  ---
+  duration_ms: 0.674988
+  type: 'test'
+  ...
+# Subtest: same physical stream may use independent channels, never one shared channel
+ok 79 - same physical stream may use independent channels, never one shared channel
+  ---
+  duration_ms: 0.31198
+  type: 'test'
+  ...
+# Subtest: missing devices are blocked before capture; disabled audio parts are ignored
+ok 80 - missing devices are blocked before capture; disabled audio parts are ignored
+  ---
+  duration_ms: 0.088043
+  type: 'test'
+  ...
+# Subtest: monophonic validation song has all four parts and playable string charts
+ok 81 - monophonic validation song has all four parts and playable string charts
+  ---
+  duration_ms: 0.910923
+  type: 'test'
+  ...
+# Subtest: polyphonic and out-of-range string charts fail with an explanation
+ok 82 - polyphonic and out-of-range string charts fail with an explanation
+  ---
+  duration_ms: 0.135374
+  type: 'test'
+  ...
+# Subtest: standard tuning hints are suggestions, including open strings and outside range
+ok 83 - standard tuning hints are suggestions, including open strings and outside range
+  ---
+  duration_ms: 0.169836
+  type: 'test'
+  ...
+# Subtest: short live windows recognize synthesized guitar and bass at three sample rates
+ok 84 - short live windows recognize synthesized guitar and bass at three sample rates
+  ---
+  duration_ms: 21.247865
+  type: 'test'
+  ...
+# Subtest: live session forwards onsets and stops forwarding after stop
+ok 85 - live session forwards onsets and stops forwarding after stop
+  ---
+  duration_ms: 0.658864
+  type: 'test'
+  ...
+# Subtest: starting with duplicate channels never calls capture
+ok 86 - starting with duplicate channels never calls capture
+  ---
+  duration_ms: 0.547795
+  type: 'test'
+  ...
+# Subtest: cancelled pending session cannot open the second player
+ok 87 - cancelled pending session cannot open the second player
+  ---
+  duration_ms: 0.862
+  type: 'test'
+  ...
+# Subtest: long analysis stalls request pause rather than backfilling scores
+ok 88 - long analysis stalls request pause rather than backfilling scores
+  ---
+  duration_ms: 0.176255
+  type: 'test'
+  ...
+# Subtest: malformed pitch confidence and out-of-MIDI-range observations are rejected
+ok 89 - malformed pitch confidence and out-of-MIDI-range observations are rejected
+  ---
+  duration_ms: 0.148454
+  type: 'test'
+  ...
+# Subtest: blank charts contain four empty instrument parts
+ok 90 - blank charts contain four empty instrument parts
+  ---
+  duration_ms: 3.111601
+  type: 'test'
+  ...
+# Subtest: chart serialization roundtrips notes and metadata
+ok 91 - chart serialization roundtrips notes and metadata
+  ---
+  duration_ms: 1.881336
+  type: 'test'
+  ...
+# Subtest: JSON rejects foreign schemas
+ok 92 - JSON rejects foreign schemas
+  ---
+  duration_ms: 0.370359
+  type: 'test'
+  ...
+# Subtest: JSON rejects invalid text
+ok 93 - JSON rejects invalid text
+  ---
+  duration_ms: 0.126621
+  type: 'test'
+  ...
+# Subtest: JSON rejects unsupported schema versions
+ok 94 - JSON rejects unsupported schema versions
+  ---
+  duration_ms: 0.145529
+  type: 'test'
+  ...
+# Subtest: JSON input is size limited
+ok 95 - JSON input is size limited
+  ---
+  duration_ms: 0.147973
+  type: 'test'
+  ...
+# Subtest: untrusted extras are not retained
+ok 96 - untrusted extras are not retained
+  ---
+  duration_ms: 0.128364
+  type: 'test'
+  ...
+# Subtest: unsafe ID rejected before interpolation
+ok 97 - unsafe ID rejected before interpolation
+  ---
+  duration_ms: 0.19904
+  type: 'test'
+  ...
+# Subtest: metadata lengths are bounded but not interpreted
+ok 98 - metadata lengths are bounded but not interpreted
+  ---
+  duration_ms: 0.283578
+  type: 'test'
+  ...
+# Subtest: invalid note pitch NaN rejected
+ok 99 - invalid note pitch NaN rejected
+  ---
+  duration_ms: 0.389898
+  type: 'test'
+  ...
+# Subtest: invalid note pitch Infinity rejected
+ok 100 - invalid note pitch Infinity rejected
+  ---
+  duration_ms: 0.158249
+  type: 'test'
+  ...
+# Subtest: invalid note pitch -1 rejected
+ok 101 - invalid note pitch -1 rejected
+  ---
+  duration_ms: 0.132661
+  type: 'test'
+  ...
+# Subtest: invalid note pitch 128 rejected
+ok 102 - invalid note pitch 128 rejected
+  ---
+  duration_ms: 0.131468
+  type: 'test'
+  ...
+# Subtest: invalid note pitch 60.5 rejected
+ok 103 - invalid note pitch 60.5 rejected
+  ---
+  duration_ms: 0.074312
+  type: 'test'
+  ...
+# Subtest: negative notes rejected
+ok 104 - negative notes rejected
+  ---
+  duration_ms: 0.112339
+  type: 'test'
+  ...
+# Subtest: notes beyond song end rejected, not silently moved
+ok 105 - notes beyond song end rejected, not silently moved
+  ---
+  duration_ms: 0.163206
+  type: 'test'
+  ...
+# Subtest: unsupported drum pitches rejected
+ok 106 - unsupported drum pitches rejected
+  ---
+  duration_ms: 0.149365
+  type: 'test'
+  ...
+# Subtest: drum aliases preserved
+ok 107 - drum aliases preserved
+  ---
+  duration_ms: 0.113421
+  type: 'test'
+  ...
+# Subtest: missing and duplicate instrument parts rejected
+ok 108 - missing and duplicate instrument parts rejected
+  ---
+  duration_ms: 0.178279
+  type: 'test'
+  ...
+# Subtest: duplicate time/pitch is deduplicated
+ok 109 - duplicate time/pitch is deduplicated
+  ---
+  duration_ms: 3.825718
+  type: 'test'
+  ...
+# Subtest: notes are sorted after edits
+ok 110 - notes are sorted after edits
+  ---
+  duration_ms: 0.256297
+  type: 'test'
+  ...
+# Subtest: an invalid edit does not mutate the original
+ok 111 - an invalid edit does not mutate the original
+  ---
+  duration_ms: 0.255686
+  type: 'test'
+  ...
+# Subtest: delete updates only selected part
+ok 112 - delete updates only selected part
+  ---
+  duration_ms: 0.194162
+  type: 'test'
+  ...
+# Subtest: constant grid supports a first beat offset
+ok 113 - constant grid supports a first beat offset
+  ---
+  duration_ms: 0.217498
+  type: 'test'
+  ...
+# Subtest: snap supports half beats and off-grid editing
+ok 114 - snap supports half beats and off-grid editing
+  ---
+  duration_ms: 0.217798
+  type: 'test'
+  ...
+# Subtest: snap follows an imported changing-tempo beat map
+ok 115 - snap follows an imported changing-tempo beat map
+  ---
+  duration_ms: 0.161995
+  type: 'test'
+  ...
+# Subtest: unsorted beat/tempo maps are rejected
+ok 116 - unsorted beat/tempo maps are rejected
+  ---
+  duration_ms: 0.30486
+  type: 'test'
+  ...
+# Subtest: MIDI track suggestions identify guitar bass and drums
+ok 117 - MIDI track suggestions identify guitar bass and drums
+  ---
+  duration_ms: 3.119193
+  type: 'test'
+  ...
+# Subtest: MIDI supplies exact note times, pitches and tails
+ok 118 - MIDI supplies exact note times, pitches and tails
+  ---
+  duration_ms: 2.024292
+  type: 'test'
+  ...
+# Subtest: track assignment can skip or merge parts
+ok 119 - track assignment can skip or merge parts
+  ---
+  duration_ms: 0.293091
+  type: 'test'
+  ...
+# Subtest: unsupported drum mappings generate an explicit warning
+ok 120 - unsupported drum mappings generate an explicit warning
+  ---
+  duration_ms: 0.247644
+  type: 'test'
+  ...
+# Subtest: full density preserves chord voicings
+ok 121 - full density preserves chord voicings
+  ---
+  duration_ms: 0.09948
+  type: 'test'
+  ...
+# Subtest: single-note reduction keeps upper guitar and lower bass voices
+ok 122 - single-note reduction keeps upper guitar and lower bass voices
+  ---
+  duration_ms: 0.191699
+  type: 'test'
+  ...
+# Subtest: single-note MIDI conversion produces playable live-string charts
+ok 123 - single-note MIDI conversion produces playable live-string charts
+  ---
+  duration_ms: 0.555949
+  type: 'test'
+  ...
+# Subtest: audio practice generator is explicitly marked practice
+ok 124 - audio practice generator is explicitly marked practice
+  ---
+  duration_ms: 0.648257
+  type: 'test'
+  ...
+# Subtest: generator creates four independent, live-playable parts
+ok 125 - generator creates four independent, live-playable parts
+  ---
+  duration_ms: 0.267023
+  type: 'test'
+  ...
+# Subtest: generator clips notes at end and honors first beat
+ok 126 - generator clips notes at end and honors first beat
+  ---
+  duration_ms: 0.212961
+  type: 'test'
+  ...
+# Subtest: generator preserves unselected instrument notes
+ok 127 - generator preserves unselected instrument notes
+  ---
+  duration_ms: 0.667547
+  type: 'test'
+  ...
+# Subtest: empty and invalid generation selections rejected
+ok 128 - empty and invalid generation selections rejected
+  ---
+  duration_ms: 0.273052
+  type: 'test'
+  ...
+# Subtest: practice density changes note count
+ok 129 - practice density changes note count
+  ---
+  duration_ms: 0.266632
+  type: 'test'
+  ...
+# Subtest: snap part preserves other parts and bounds
+ok 130 - snap part preserves other parts and bounds
+  ---
+  duration_ms: 0.251529
+  type: 'test'
+  ...
+# Subtest: undo and redo restore exact chart data
+ok 131 - undo and redo restore exact chart data
+  ---
+  duration_ms: 0.320583
+  type: 'test'
+  ...
+# Subtest: editing after undo clears redo stack
+ok 132 - editing after undo clears redo stack
+  ---
+  duration_ms: 0.202736
+  type: 'test'
+  ...
+# Subtest: undo memory is bounded to 20 states
+ok 133 - undo memory is bounded to 20 states
+  ---
+  duration_ms: 0.448726
+  type: 'test'
+  ...
+# Subtest: chart revision changes high-score identity
+ok 134 - chart revision changes high-score identity
+  ---
+  duration_ms: 0.394835
+  type: 'test'
+  ...
+# Subtest: song conversion routes each part into actual gameplay highways
+ok 135 - song conversion routes each part into actual gameplay highways
+  ---
+  duration_ms: 1.289353
+  type: 'test'
+  ...
+# Subtest: library reports missing browser storage rather than claiming success
+ok 136 - library reports missing browser storage rather than claiming success
+  ---
+  duration_ms: 0.330038
+  type: 'test'
+  ...
+1..136
+# tests 136
+# suites 0
+# pass 136
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 203.801168
+
+RUN /opt/pyvenv/bin/python tests/browser.test.py
+PASS ready state and four original songs
+PASS permission requested with SysEx disabled
+PASS dedicated input selection accepts any channel
+PASS simultaneous MIDI players score independently at the audible beat
+PASS wrong device does not cross-score keyboard part
+PASS Note On velocity zero is a release, not another hit
+PASS CC64 sustain holds a released note to completion
+PASS pause freezes the song clock
+PASS resume restarts with a count-in
+PASS device disconnection pauses the band
+PASS MIDI Learn binds the physical note and detected channel
+PASS computer Space key scores the kick lane
+PASS MIDI-file import exposes all four track/channel parts
+PASS imported song has a stable content-derived ID
+PASS invalid file shows a readable error without crashing
+PASS four-player lineup renders four independent input groups
+PASS mobile layout has no horizontal document overflow
+PASS autoplay demo advances both parts without misses
+PASS no browser JavaScript errors
+{
+  "checks": 19,
+  "passed": [
+    "ready state and four original songs",
+    "permission requested with SysEx disabled",
+    "dedicated input selection accepts any channel",
+    "simultaneous MIDI players score independently at the audible beat",
+    "wrong device does not cross-score keyboard part",
+    "Note On velocity zero is a release, not another hit",
+    "CC64 sustain holds a released note to completion",
+    "pause freezes the song clock",
+    "resume restarts with a count-in",
+    "device disconnection pauses the band",
+    "MIDI Learn binds the physical note and detected channel",
+    "computer Space key scores the kick lane",
+    "MIDI-file import exposes all four track/channel parts",
+    "imported song has a stable content-derived ID",
+    "invalid file shows a readable error without crashing",
+    "four-player lineup renders four independent input groups",
+    "mobile layout has no horizontal document overflow",
+    "autoplay demo advances both parts without misses",
+    "no browser JavaScript errors"
+  ],
+  "javascript_errors": []
+}
+
+RUN /opt/pyvenv/bin/python tests/edge.test.py
+PASS actual keyboard chord and sustain performance reaches results
+PASS eligible player high score is saved
+PASS completed autoplay is explicitly unranked
+PASS invalid loop bounds are rejected before playback
+PASS practice loops reset for another pass
+PASS calibration starts a timed tap session
+PASS calibration cancellation returns safely
+PASS synth voices clean up after stop
+PASS denied MIDI permission produces actionable fallback
+PASS insecure contexts show local-launch instructions
+PASS no JavaScript errors during completion and error paths
+{
+  "checks": 11,
+  "passed": [
+    "actual keyboard chord and sustain performance reaches results",
+    "eligible player high score is saved",
+    "completed autoplay is explicitly unranked",
+    "invalid loop bounds are rejected before playback",
+    "practice loops reset for another pass",
+    "calibration starts a timed tap session",
+    "calibration cancellation returns safely",
+    "synth voices clean up after stop",
+    "denied MIDI permission produces actionable fallback",
+    "insecure contexts show local-launch instructions",
+    "no JavaScript errors during completion and error paths"
+  ],
+  "javascript_errors": []
+}
+
+RUN /opt/pyvenv/bin/python tests/soundcheck.browser.py
+PASS inlined source build loads without requesting audio access
+PASS opening soundcheck does not start capture
+PASS discovery reveals device labels and stops temporary capture
+PASS closing during device discovery does not leave a late capture active
+PASS same-device same-channel assignments show a warning
+PASS separate channel selections clear the duplication warning
+PASS real Web Audio channels independently detect A2 guitar and E1 bass
+PASS two soundchecks share one device capture
+PASS capture requests have no video and disable speech processing
+PASS signal meters are populated from captured samples
+PASS audio diagnostics cannot increment rhythm-game scores
+PASS downloaded report identifies labels and per-role channels
+PASS device report excludes private IDs and audio samples
+PASS stopping one role preserves the other shared capture
+PASS closing soundcheck releases its last audio track
+PASS reopening retains routes but never auto-starts capture
+PASS mono input cannot silently satisfy a stereo-channel request
+PASS choosing the actual mono channel recovers cleanly
+PASS stop-all releases active captures
+PASS denied permission is actionable without breaking the game
+PASS closing while capture is pending also stops a late-arriving stream
+PASS unplug notification stops both roles sharing the removed input
+PASS hiding the tab stops soundcheck capture
+PASS small-screen soundcheck has no horizontal overflow
+PASS MIDI routing remains accessible and soundcheck closes
+PASS no external network requests were made
+PASS no JavaScript errors on success, cancellation or error paths
+PASS self-contained artifact contains the new soundcheck and capture remains opt-in
+{
+  "checks": 28,
+  "passed": [
+    "inlined source build loads without requesting audio access",
+    "opening soundcheck does not start capture",
+    "discovery reveals device labels and stops temporary capture",
+    "closing during device discovery does not leave a late capture active",
+    "same-device same-channel assignments show a warning",
+    "separate channel selections clear the duplication warning",
+    "real Web Audio channels independently detect A2 guitar and E1 bass",
+    "two soundchecks share one device capture",
+    "capture requests have no video and disable speech processing",
+    "signal meters are populated from captured samples",
+    "audio diagnostics cannot increment rhythm-game scores",
+    "downloaded report identifies labels and per-role channels",
+    "device report excludes private IDs and audio samples",
+    "stopping one role preserves the other shared capture",
+    "closing soundcheck releases its last audio track",
+    "reopening retains routes but never auto-starts capture",
+    "mono input cannot silently satisfy a stereo-channel request",
+    "choosing the actual mono channel recovers cleanly",
+    "stop-all releases active captures",
+    "denied permission is actionable without breaking the game",
+    "closing while capture is pending also stops a late-arriving stream",
+    "unplug notification stops both roles sharing the removed input",
+    "hiding the tab stops soundcheck capture",
+    "small-screen soundcheck has no horizontal overflow",
+    "MIDI routing remains accessible and soundcheck closes",
+    "no external network requests were made",
+    "no JavaScript errors on success, cancellation or error paths",
+    "self-contained artifact contains the new soundcheck and capture remains opt-in"
+  ],
+  "javascript_errors": [],
+  "hardware": "simulated input hardware; real browser audio graph"
+}
+
+RUN /opt/pyvenv/bin/python tests/strings.browser.py
+PASS v0.3 loads with four tracks and no capture permission request
+PASS audio routing controls preserve MIDI drums and keyboard
+PASS soundcheck closure stops diagnostic capture
+PASS live guitar and bass disable on-screen score shortcuts
+PASS two audio players share one real stream with two analysers
+PASS physical-input path simulation scores all four instruments independently
+PASS live audio status shows detected notes and standard-tuning hints
+PASS wrong guitar octave is rejected, while bass still scores its own channel
+PASS early guitar release breaks a sustain instead of granting the tail
+PASS clean bass notes earn confirmed sustain bonuses
+PASS pause freezes time and releases the shared capture
+PASS resume reacquires audio with a new count-in
+PASS an ended audio track pauses the whole band and closes both routes
+PASS per-player timing is independent and saved locally
+PASS same-channel conflict blocks gameplay before capture
+PASS permission denial leaves no partial band or live streams
+PASS unknown stereo channel count is not represented as verified separation
+PASS mono channel two fails safely and also closes the first player
+PASS changing songs cancels startup and releases late permission streams
+PASS hidden-tab interruption stops gameplay capture
+PASS autoplay never opens an audio input even for audio-mode players
+PASS Use live guitar button selects gameplay mode and closes soundcheck without capture
+PASS one ringing captured note cannot hit two identical chart notes
+PASS two separate captured plucks score the repeated note twice
+PASS practice-loop restart uses fresh capture without accumulating streams
+PASS live status remains readable without mobile horizontal overflow
+PASS no external network requests or JavaScript page errors
+{
+  "checks": 27,
+  "passed": [
+    "v0.3 loads with four tracks and no capture permission request",
+    "audio routing controls preserve MIDI drums and keyboard",
+    "soundcheck closure stops diagnostic capture",
+    "live guitar and bass disable on-screen score shortcuts",
+    "two audio players share one real stream with two analysers",
+    "physical-input path simulation scores all four instruments independently",
+    "live audio status shows detected notes and standard-tuning hints",
+    "wrong guitar octave is rejected, while bass still scores its own channel",
+    "early guitar release breaks a sustain instead of granting the tail",
+    "clean bass notes earn confirmed sustain bonuses",
+    "pause freezes time and releases the shared capture",
+    "resume reacquires audio with a new count-in",
+    "an ended audio track pauses the whole band and closes both routes",
+    "per-player timing is independent and saved locally",
+    "same-channel conflict blocks gameplay before capture",
+    "permission denial leaves no partial band or live streams",
+    "unknown stereo channel count is not represented as verified separation",
+    "mono channel two fails safely and also closes the first player",
+    "changing songs cancels startup and releases late permission streams",
+    "hidden-tab interruption stops gameplay capture",
+    "autoplay never opens an audio input even for audio-mode players",
+    "Use live guitar button selects gameplay mode and closes soundcheck without capture",
+    "one ringing captured note cannot hit two identical chart notes",
+    "two separate captured plucks score the repeated note twice",
+    "practice-loop restart uses fresh capture without accumulating streams",
+    "live status remains readable without mobile horizontal overflow",
+    "no external network requests or JavaScript page errors"
+  ],
+  "javascript_errors": [],
+  "hardware": "simulated devices; actual browser capture graphs"
+}
+
+RUN /opt/pyvenv/bin/python tests/workshop.browser.py
+PASS workshop opens without instrument capture
+PASS MIDI import exposes four track assignments
+PASS MIDI assignments identify drums keys guitar bass
+PASS MIDI builds all four editable highways
+PASS MIDI song tempo and note pitches retained
+PASS form adds a note with exact timing and pitch
+PASS selected notes can change timing and sustain
+PASS undo restores the previous note edit
+PASS redo restores the updated note
+PASS delete removes only the selected note
+PASS canvas adds a snapped drum-lane note
+PASS duration edits cannot silently truncate chart notes
+PASS invalid chart import leaves the current draft intact
+PASS MP3 import decodes a real MPEG audio fixture
+PASS WAV import uses actual Web Audio decoding
+PASS audio import does not fabricate transcribed notes
+PASS beat practice creates four parts with an explicit scope label
+PASS first-beat offset aligns generated notes to the chosen grid
+PASS preview plays through the real audio transport
+PASS playhead tap authors a note without stopping preview
+PASS preview stop releases playback
+PASS save commits chart and backing blob to library API
+PASS failed storage transaction is reported, never claimed saved
+PASS download exports a validated portable chart without audio bytes
+PASS use highways selects all four nonempty parts in gameplay
+PASS backing audio accompanies the chart into gameplay
+PASS generated highway demo scores every player with no misses
+PASS opening editor stops the game and input capture
+PASS library reopen restores chart and its stored audio
+PASS chart-only import asks for backing audio instead of inventing it
+PASS reattaching audio preserves all authored notes
+PASS untrusted song names render as text in library
+PASS workshop remains within narrow-screen horizontal bounds
+PASS closing workshop stops preview immediately
+PASS closing during pending audio decode discards late import
+PASS library deletion removes song and stored audio through explicit action
+PASS workshop never acquires real microphone or instrument input
+PASS no JavaScript errors across workshop workflows
+{
+  "checks": 38,
+  "passed": [
+    "workshop opens without instrument capture",
+    "MIDI import exposes four track assignments",
+    "MIDI assignments identify drums keys guitar bass",
+    "MIDI builds all four editable highways",
+    "MIDI song tempo and note pitches retained",
+    "form adds a note with exact timing and pitch",
+    "selected notes can change timing and sustain",
+    "undo restores the previous note edit",
+    "redo restores the updated note",
+    "delete removes only the selected note",
+    "canvas adds a snapped drum-lane note",
+    "duration edits cannot silently truncate chart notes",
+    "invalid chart import leaves the current draft intact",
+    "MP3 import decodes a real MPEG audio fixture",
+    "WAV import uses actual Web Audio decoding",
+    "audio import does not fabricate transcribed notes",
+    "beat practice creates four parts with an explicit scope label",
+    "first-beat offset aligns generated notes to the chosen grid",
+    "preview plays through the real audio transport",
+    "playhead tap authors a note without stopping preview",
+    "preview stop releases playback",
+    "save commits chart and backing blob to library API",
+    "failed storage transaction is reported, never claimed saved",
+    "download exports a validated portable chart without audio bytes",
+    "use highways selects all four nonempty parts in gameplay",
+    "backing audio accompanies the chart into gameplay",
+    "generated highway demo scores every player with no misses",
+    "opening editor stops the game and input capture",
+    "library reopen restores chart and its stored audio",
+    "chart-only import asks for backing audio instead of inventing it",
+    "reattaching audio preserves all authored notes",
+    "untrusted song names render as text in library",
+    "workshop remains within narrow-screen horizontal bounds",
+    "closing workshop stops preview immediately",
+    "closing during pending audio decode discards late import",
+    "library deletion removes song and stored audio through explicit action",
+    "workshop never acquires real microphone or instrument input",
+    "no JavaScript errors across workshop workflows"
+  ],
+  "javascript_errors": [],
+  "storage": "simulated IndexedDB; actual Web Audio decoding and transport"
+}
+RUNNER_EXIT=0

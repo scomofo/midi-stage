@@ -1,83 +1,91 @@
-# MIDI Stage v0.3 — Live Strings validation
+# MIDI Stage v0.4 — Song Workshop validation
 
-## Executed result
+## Local result
 
-**174 automated checks passed; zero JavaScript page errors in the browser suites.**
-Run date: September 6, 2026. Command: `python tests/run.py --browser` (exit 0).
-Raw output: [`tests/v0.3-validation.txt`](tests/v0.3-validation.txt).
+**259 automated checks passed, with zero JavaScript page errors in the browser
+suites.** Command: `python tests/run.py --browser`. Raw output is retained in
+`tests/v0.4-validation.txt`.
 
 | Suite | Passed | Method |
 | --- | ---: | --- |
-| Chart, MIDI routing and score core | 30 | Node test runner |
-| Audio input and pitch detection | 22 | Synthetic samples and capture mocks |
-| Live-string tracker, verified holds, routing and timing | 37 | Node deterministic unit tests |
-| Existing browser gameplay | 19 | In-memory Chromium + simulated MIDI |
+| Existing chart/MIDI/scoring core | 30 | Node |
+| Existing audio input and pitch detection | 22 | Synthetic samples and mocks |
+| Existing live-string tracker and scoring | 37 | Node |
+| New workshop model, validation and editor operations | 47 | Node |
+| Existing browser gameplay | 19 | In-memory Chromium |
 | Existing browser edge cases | 11 | In-memory Chromium |
-| Soundcheck browser integration | 28 | Generated browser MediaStreams |
-| Live-string browser integration | 27 | Generated two-channel MediaStreams + simulated MIDI |
-| **Total** | **174** | **All suites run against v0.3** |
+| Existing soundcheck integration | 28 | Generated browser MediaStreams |
+| Existing live-string integration | 27 | Generated audio + simulated MIDI |
+| New workshop integration | 38 | In-memory Chromium, real audio decoding, simulated IndexedDB |
+| **Local total** | **259** | **136 unit + 123 browser checks** |
 
-Environment: Node 22.16.0, Python 3.13.5, Playwright 1.57.0, Chromium 144.0.7559.96
-on Linux. Browser tests are software simulations, not physical-device tests.
+## Workshop coverage
 
-## What was exercised
+MIDI import is exercised through an actual four-track MIDI fixture and the source
+track assignment controls, preserving tempo and pitch through editable highways.
+Unit tests cover route suggestions, merged tracks, supported drum aliases, skipped
+percussion warnings, density reduction and explicit monophonic reduction. The
+model rejects malformed, unsupported, over-limit and out-of-range projects.
 
-The new browser suite sends generated audio through the application's actual
-MediaStream source, channel splitter, analyser, pitch detector, note tracker and
-gameplay judge. The four-player test independently scores MIDI drums and keys,
-live-audio guitar, and live-audio bass. It does not inject precomputed pitch or hit
-messages into the audio scoring path.
+Real MP3 and WAV files are decoded by Chromium's Web Audio implementation. Audio
+imports start with empty note parts, not fabricated transcriptions. The practice
+builder produces four independently editable exercise highways at the selected
+BPM/first beat, with its non-transcription label intact. Tests author and edit
+notes by form, canvas and live playhead; exercise sustain, delete, quantize,
+undo/redo; and reject duration changes that would truncate notes.
 
-Tests reject wrong octaves and extras, break early guitar releases, award confirmed
-bass sustains, and distinguish one continuously ringing note from two separate
-plucks. A steady tone cannot earn two repeated chart hits. Other checks cover
-confidence thresholds, pitch changes, quiet/noisy/clipped observations, adaptive
-analysis windows, finite inputs, onset expiration, independent timing corrections,
-exact-pitch matching, monophonic chart validation, and standard-tuning hints.
+The browser suite previews through the actual playback transport, saves chart and
+optional audio Blob, exports a real JSON download, reimports chart-only JSON,
+reattaches backing, publishes all four parts to the game, and completes an autoplay
+session through the existing gameplay judge. Save failure is simulated after the
+request succeeds but before transaction commit to verify that failure is surfaced.
+Untrusted titles render as text. Desktop/narrow layouts are checked and rendered.
+Closing stops preview immediately, and late decode completion cannot replace the
+draft after closing. Workshop import/edit/preview makes no capture requests.
 
-Capture lifecycle checks include shared-device/separate-channel routes, duplicate
-channel rejection, unknown stereo metadata, mono/channel-two rejection, permission
-denial, mid-start song changes, delayed permission, pause/resume, loop restart,
-device interruption, hidden tabs and cleanup. Autoplay and merely opening setup
-never start live gameplay capture. Live audio mode excludes MIDI/computer-key
-shortcuts from that player's score. Soundcheck analysis remains separate.
+## Standalone build
 
-The original gameplay regressions still exercise MIDI Learn, isolated device and
-channel routing, keyboard chords, CC64 sustain, MIDI import, count-in, practice
-loops, eligible score saving, demo exclusion, calibration and error handling.
-Desktop and narrow layouts were rendered; the new live-input screenshots label
-simulated inputs as TEST. No external page requests were observed in browser tests.
+`python build.py` rebuilds the complete HTML from the modular source.
+SHA-256 of `MIDI-Stage.html`:
 
-The standalone HTML was rebuilt from source. SHA-256:
-`7c89c43936c7f3f429bda90eeb87c7a4907f6606cd1130e89adbfce907952d03`.
-The new First Rehearsal MIDI export was also parsed back into four parts.
+`0cee9841b258885b808edcd1ca4efed5aea754fe48911caa942fe005fbd11156`
 
-## Additional Mac verification
+## GitHub-hosted storage verification
 
-The 89 Node unit checks were rerun successfully on the authorized Mac with Node
-20.20.2. Python 3.9.6 rebuilt the standalone HTML with the same SHA-256 shown above.
-This is build/unit verification only; no microphone or MIDI hardware was acquired.
+CI additionally requests `--storage`, which runs seven checks using a fresh
+Chromium profile and **real IndexedDB/Blob storage**. The test closes Chromium,
+restarts it on the same temporary profile, then verifies the saved chart, decoded
+backing, audio alignment, editable arrangement and deletion. The intended hosted
+total is **266**; consult the PR's checks for the actual completed run status.
+This is separate from the 259 completed local checks and never uses the user's
+browser profile.
+
+## Mac build and unit verification
+
+All **136 Node unit checks passed** again on the authorized Mac with Node
+20.20.2. Python 3.9.6 rebuilt the same standalone HTML SHA-256 shown above.
+This verified build reproducibility and unit behavior, not physical instruments.
 
 ## Boundaries
 
-Device enumeration, permissions, secure-context detection, MIDI messages and
-local storage are mocked in relevant suites. Audio streams use real browser audio
-graphs driven by synthetic oscillators, not OS-enumerated instruments. Browser
-navigation to a localhost server is restricted in this execution environment;
-integration fixtures inline the actual source rather than bypassing that policy.
-This does not test the user's OS permission UI, drivers or real localhost workflow.
+The authoring environment's browser administrator policy blocks file-origin and
+localhost navigation. The policy was not altered or bypassed. Local integration
+uses in-memory documents. Its IndexedDB request/transaction implementation is
+simulated; the real-persistence suite is reserved for an environment permitting
+normal file navigation, such as GitHub-hosted CI.
 
-Not verified: Scott's interface make/model, jack mapping, physical channel
-separation, MIDI controllers, actual guitar/bass attack reliability, gain, noise,
-crosstalk, real input/output latency, or sustained four-player hardware performance.
-Synthetic tests do not establish general chord/noise/effect rejection accuracy.
+Existing hardware suites simulate devices, permission responses, MIDI messages
+and input signals. Actual guitar/bass pickups, the audio interface, drum module,
+88-key keyboard, OS permission dialogs, drivers and physical latency remain
+unverified. No real instrument recording or capture was performed for this work.
+MP3/WAV coverage does not establish every codec, damaged file or browser variant.
+Long-session endurance, exhaustive accessibility and cross-browser certification
+are not claimed. The native launchers have not been retested on Windows.
 
-Not implemented: full guitar-chord recognition; automatic live-audio latency
-calibration; full 88-key piano-roll presentation; vocals; online multiplayer;
-native installers; commercial song licensing. Per-player correction is manual;
-the existing global tap calibration uses MIDI/button taps. Long endurance,
-cross-browser support and formal accessibility certification remain unverified.
+Audio-to-four-instrument transcription, stem separation, streaming URL import,
+automatic tempo inference and full guitar-chord recognition are not implemented.
+Audio-generated highways are beat-practice exercises, not original-song notes.
+JSON exports omit audio; preserve source audio files separately. Browser storage
+can be cleared and is not a substitute for exported backups.
 
-The GitHub Actions workflow is included, but this local result is not itself an
-Actions result. Consult the PR checks for the hosted run's status. Earlier v0.2
-reports remain in `docs/V0.2_TEST_REPORT.md` and existing historical test logs.
+Historical v0.2/v0.3 reports are retained in `docs/` and `tests/`.
