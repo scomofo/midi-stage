@@ -15,7 +15,10 @@
     return validate({schema:SCHEMA,version:VERSION,id:id(),title,bpm,duration,firstBeat:0,audioOffset:0,audioName:'',origin:'manual',parts:C.TYPES.map(type=>({type,notes:[]})),tempoMap:[],beats:[]});
   }
   function validate(raw){
-    if(!raw||typeof raw!=='object'||raw.schema!==SCHEMA||raw.version!==VERSION)throw Error('Use a MIDI Stage chart exported by Song Workshop (version 1).');
+    if(!raw||typeof raw!=='object'||raw.schema!==SCHEMA||![1,2].includes(raw.version))throw Error('Use a MIDI Stage chart exported by Song Workshop (version 1 or 2).');
+    if(raw.matching!==undefined&&raw.matching!=='rhythm')throw Error('Unsupported chart matching mode.');
+    const rhythm=raw.version===2&&raw.matching==='rhythm';
+    if(raw.version===2&&!rhythm||raw.matching==='rhythm'&&!rhythm)throw Error('Rhythm charts require version 2 and rhythm matching.');
     const duration=number(raw.duration,.25,MAX_SECONDS,'Song duration');
     const bpm=number(raw.bpm,20,400,'Tempo'),firstBeat=number(raw.firstBeat??0,0,duration,'First beat');
     const audioOffset=number(raw.audioOffset??0,-120,120,'Audio offset');
@@ -39,7 +42,7 @@
     let prev=-1;const tempos=tempoMap.map(t=>{const time=number(t.time,0,duration,'Tempo time');if(time<=prev)throw Error('Tempo map must be sorted with unique times.');prev=time;return {time,bpm:number(t.bpm,.01,6e7,'MIDI tempo')};});
     const inputBeats=raw.beats??[];if(!Array.isArray(inputBeats)||inputBeats.length>20000)throw Error('Too many beat markers.');
     prev=-1;const beats=inputBeats.map(b=>{const time=number(b.time,0,duration+.00001,'Beat time');if(time<=prev)throw Error('Beat markers must be sorted with unique times.');prev=time;return {time,bar:!!b.bar};});
-    return {schema:SCHEMA,version:VERSION,id:raw.id,title:text(raw.title,'Untitled session').trim()||'Untitled session',bpm,duration,firstBeat,audioOffset,audioName:text(raw.audioName,''),origin:['midi','practice','manual'].includes(raw.origin)?raw.origin:'manual',parts,tempoMap:tempos,beats};
+    return {schema:SCHEMA,version:rhythm?2:VERSION,...(rhythm?{matching:'rhythm'}:{}),id:raw.id,title:text(raw.title,'Untitled session').trim()||'Untitled session',bpm,duration,firstBeat,audioOffset,audioName:text(raw.audioName,''),origin:rhythm?'audio-rhythm':['midi','practice','manual'].includes(raw.origin)?raw.origin:'manual',parts,tempoMap:tempos,beats};
   }
   function parse(input){if(typeof input!=='string'||input.length>MAX_JSON)throw Error('Chart JSON must be smaller than 12 MB.');let raw;try{raw=JSON.parse(input);}catch(_){throw Error('The chart file is not valid JSON.');}return validate(raw);}
   function serialize(project){return JSON.stringify(validate(project),null,2);}
@@ -88,12 +91,14 @@
     return {project:validate(project),warnings};
   }
   function fromSong(song,players=[]){
+    if(song.chartProject)return validate(song.chartProject);
     const routes={};for(const p of song.parts){const assigned=players.find(x=>x.source===p.id);routes[p.id]=C.TYPES.includes(p.type)?p.type:(assigned?.type||suggestRoutes(song)[p.id]);}
-    return fromMIDI(song,routes).project;
+    const p=fromMIDI(song,routes).project;return song.rhythmOnly?validate({...p,version:2,matching:'rhythm'}):p;
   }
   function practice(project,{roles=['drums'],density='medium',roots={keys:60,guitar:40,bass:28}}={}){
     const p=validate(project);if(!Array.isArray(roles)||!roles.length||roles.some(r=>!C.TYPES.includes(r)))throw Error('Select at least one instrument to generate.');
     if(!['easy','medium','full'].includes(density))throw Error('Unknown chart density.');
+    if(p.matching==='rhythm'&&p.parts.some(part=>part.notes.length&&!roles.includes(part.type)))throw Error('Select every populated instrument before converting a rhythm chart to pitch exercises. This prevents placeholder notes in the other parts being judged as real pitches.');
     const beat=60/p.bpm;
     for(const type of roles){const notes=[],root=type==='drums'?36:integer(roots[type]??{keys:60,guitar:40,bass:28}[type],0,127,'Practice pitch');
       const add=(b,pitch,length=.12)=>{const time=p.firstBeat+b*beat,duration=Math.min(length*beat,p.duration-time);if(time<p.duration&&duration>=.02)notes.push({time,duration,pitch,velocity:100});};
@@ -104,7 +109,13 @@
       }
       p.parts.find(x=>x.type===type).notes=notes;
     }
-    p.origin='practice';p.tempoMap=[];p.beats=[];return validate(p);
+    p.origin='practice';p.version=1;delete p.matching;p.tempoMap=[];p.beats=[];return validate(p);
+  }
+  function fromAudioAnalysis(project,analysis,options={}){
+    const p=validate(project),A=typeof module==='object'&&module.exports?require('./song-analysis.js'):globalThis.StageSongAnalysis;
+    const bpm=options.bpm??analysis.bpm,firstBeat=options.firstBeat??analysis.firstBeat;
+    const parts=A.eventsFor(analysis,{...options,bpm,firstBeat});
+    return validate({...p,version:2,matching:'rhythm',origin:'audio-rhythm',bpm,firstBeat,parts,tempoMap:[],beats:[],audioOffset:0});
   }
   function revise(project,type,index,note){
     const p=clone(project),part=p.parts.find(p=>p.type===type);if(!part)throw Error('Choose an instrument.');
@@ -114,7 +125,7 @@
   }
   function quantize(project,type,division){const p=clone(project),part=p.parts.find(p=>p.type===type);if(!part)throw Error('Choose an instrument.');part.notes=part.notes.map(n=>{const time=snap(n.time,p,division);return {...n,time,duration:Math.min(n.duration,p.duration-time)};});return validate(p);}
   function hash(project){const data=JSON.stringify(validate(project));let h=2166136261;for(let i=0;i<data.length;i++){h^=data.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(16);}
-  function toSong(project){const p=validate(project);return {id:`workshop-${p.id}-${hash(p)}`,libraryId:p.id,chartProject:p,workshop:true,name:p.title,subtitle:p.origin==='practice'?'Beat practice — not a transcription':'Your authored arrangement',tag:p.origin==='practice'?'BEAT PRACTICE':'CUSTOM HIGHWAYS',original:false,bpm:p.bpm,duration:p.duration,backingOffset:p.audioOffset,audioName:p.audioName,tempoMap:p.tempoMap.length?p.tempoMap:[{time:0,bpm:p.bpm}],beats:grid(p),sections:[{time:0,name:p.origin==='practice'?'PRACTICE CHART':'YOUR ARRANGEMENT'}],parts:p.parts.map((part,i)=>({id:part.type,type:part.type,name:C.LABELS[part.type],channel:part.type==='drums'?10:i,notes:clone(part.notes)}))};}
+  function toSong(project){const p=validate(project);return {id:`workshop-${p.id}-${hash(p)}`,libraryId:p.id,chartProject:p,workshop:true,rhythmOnly:p.matching==='rhythm',name:p.title,subtitle:p.matching==='rhythm'?'Audio rhythm — any note / pad':p.origin==='practice'?'Beat practice — not a transcription':'Your authored arrangement',tag:p.matching==='rhythm'?'RHYTHM ONLY · NOT NOTE TRANSCRIPTION':p.origin==='practice'?'BEAT PRACTICE':'CUSTOM HIGHWAYS',original:false,bpm:p.bpm,duration:p.duration,backingOffset:p.audioOffset,audioName:p.audioName,tempoMap:p.tempoMap.length?p.tempoMap:[{time:0,bpm:p.bpm}],beats:grid(p),sections:[{time:0,name:p.origin==='practice'?'PRACTICE CHART':'YOUR ARRANGEMENT'}],parts:p.parts.map((part,i)=>({id:part.type,type:part.type,name:C.LABELS[part.type],channel:part.type==='drums'?10:i,notes:clone(part.notes)}))};}
   function counts(project){return Object.fromEntries(project.parts.map(p=>[p.type,p.notes.length]));}
   class History{
     constructor(project){this.current=validate(project);this.past=[];this.future=[];}
@@ -136,5 +147,5 @@
     async get(key){const row=await this.transaction('readonly',s=>s.get(key));if(!row)return null;return {project:validate(row.project),blob:row.blob instanceof Blob?row.blob:null};}
     async remove(key){await this.transaction('readwrite',s=>s.delete(key));}
   }
-  return {SCHEMA,VERSION,MAX_NOTES,MAX_SECONDS,MAX_JSON,empty,validate,parse,serialize,grid,snap,suggestRoutes,monophonic,thin,fromMIDI,fromSong,practice,revise,quantize,toSong,counts,History,Library,clone};
+  return {SCHEMA,VERSION,MAX_NOTES,MAX_SECONDS,MAX_JSON,empty,validate,parse,serialize,grid,snap,suggestRoutes,monophonic,thin,fromMIDI,fromSong,practice,fromAudioAnalysis,revise,quantize,toSong,counts,History,Library,clone};
 });

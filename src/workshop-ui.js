@@ -8,9 +8,13 @@
   const markup=`
   <dialog id="workshopDialog" class="workshop-dialog" aria-labelledby="workshopTitle">
     <div class="dialog-heading"><div><div class="eyebrow">SONG WORKSHOP / LOCAL FILES → PLAYABLE HIGHWAYS</div><h2 id="workshopTitle">Make it your setlist.</h2></div><button id="wsClose" class="icon-button" aria-label="Close Song Workshop">×</button></div>
-    <p class="ws-intro">MIDI supplies exact notes. Audio supplies the backing track. Build, edit, rehearse, then take it to the stage.</p>
-    <div class="ws-import" id="wsDrop"><div><strong>Start with a song</strong><span>Drop MIDI, MP3, WAV or an exported chart here.</span></div><button id="wsImport" class="button primary">＋ Import song / chart</button><button id="wsEditCurrent" class="button secondary">Edit selected song</button><button id="wsNew" class="button ghost">New blank chart</button><input id="wsFile" type="file" accept=".mid,.midi,.json,.mp3,.wav,.ogg,.flac,.m4a,audio/*" hidden><input id="wsAudioFile" type="file" accept="audio/*,.mp3,.wav,.ogg,.flac,.m4a" hidden></div>
+    <p class="ws-intro">Drop a song. Find its groove. Play. MP3 highways score rhythm; MIDI highways can score the actual notes.</p>
+    <section class="ws-quick-options" aria-label="Quick import settings"><div><strong>Your instruments</strong><div id="wsQuickRoles" class="ws-roles">${C.TYPES.map(type=>`<label class="check"><input type="checkbox" value="${type}" ${type==='drums'?'checked':''}> ${LABELS[type]}</label>`).join('')}</div></div><label>Highway difficulty<select id="wsQuickDensity"><option value="easy">Easy / room to breathe</option><option value="medium" selected>Normal / find the groove</option><option value="full">Busy / more attacks</option></select></label><button id="wsFullBand" class="button secondary small">Full band</button><label class="check"><input id="wsAuto" type="checkbox" checked> Automatically build from MP3 / audio</label></section>
+    <div class="ws-import" id="wsDrop"><div><strong>Drop your MP3 here</strong><span>Or choose WAV, MIDI, or a saved chart. Local files only.</span></div><button id="wsImport" class="button primary">＋ Import song / chart</button><button id="wsEditCurrent" class="button secondary">Edit selected song</button><button id="wsNew" class="button ghost">New blank chart</button><input id="wsFile" type="file" accept=".mid,.midi,.json,.mp3,.wav,.ogg,.flac,.m4a,audio/*" hidden><input id="wsAudioFile" type="file" accept="audio/*,.mp3,.wav,.ogg,.flac,.m4a" hidden></div>
     <p id="wsStatus" class="ws-status" role="status">Import a song or start a blank arrangement. Your work stays on this computer.</p>
+    <section id="wsAnalysisProgress" class="ws-analysis-progress" aria-label="Song analysis" hidden><div><strong id="wsAnalysisLabel">Reading audio…</strong><button id="wsCancelAnalysis" class="button secondary small">Cancel</button></div><progress id="wsProgress" max="100" value="0" aria-label="Audio analysis progress"></progress><small>Your audio stays here. No account, server upload or model download.</small></section>
+    <section id="wsQuickReady" class="ws-quick-ready" hidden aria-labelledby="wsQuickTitle"><div class="ws-quick-heading"><div><div class="eyebrow">AUDIO → RHYTHM HIGHWAY</div><h3 id="wsQuickTitle">Your highway is ready.</h3><p id="wsQuickSummary"></p></div><span id="wsPulseBadge" class="ws-pulse-badge"></span></div><p id="wsQuickScope" class="ws-quick-scope"><strong>Rhythm only:</strong> hit any pad or play any clean single note at each marker. This does not identify the song’s individual instrument notes.</p><div class="ws-quick-visual"><canvas id="wsQuickCanvas" width="920" height="184" role="img" aria-label="Generated rhythm markers and waveform, first twelve seconds"></canvas><p class="ws-small" id="wsQuickWindow">First twelve seconds · markers show timing, not instrument pitches</p></div><div class="ws-quick-controls"><label>Estimated pulse (BPM)<input id="wsQuickTempo" type="number" min="20" max="400" step="0.1" value="120"></label><button id="wsHalfTempo" class="button ghost small">½ tempo</button><button id="wsDoubleTempo" class="button ghost small">2× tempo</button><button id="wsQuickTap" class="button secondary small">Tap BPM</button><button id="wsQuickRebuild" class="button secondary small">Rebuild with these settings</button></div><p id="wsQuickHelp" class="ws-small"></p><div class="ws-actions"><button id="wsQuickPreview" class="button secondary">▶ Preview 12 seconds</button><button id="wsQuickStop" class="button ghost">■ Stop preview</button><label class="check"><input id="wsQuickSave" type="checkbox" checked> Save song &amp; audio locally</label><button id="wsQuickPlay" class="button primary">Play now →</button></div></section>
+    <details id="wsAdvanced" class="ws-advanced"><summary>Advanced editor · exact timing, MIDI tracks, note editing &amp; library</summary>
     <div class="ws-layout"><aside class="ws-inspector">
       <h3>01 / Song &amp; timing</h3>
       <label>Song title<input id="wsName" maxlength="160" value="Untitled session"></label>
@@ -35,35 +39,36 @@
       <div id="wsReview" class="ws-review"></div>
       <section class="ws-library"><div class="ws-editor-heading"><h3>Your local songs</h3><button id="wsRefresh" class="button ghost small">Refresh library</button></div><div id="wsLibrary">No saved songs yet.</div><p class="ws-small">Browser storage can be cleared. Export a chart backup; JSON exports contain notes and timing, not the audio file.</p></section>
     </section></div>
+    </details>
     <div class="dialog-footer ws-footer"><span id="wsSaveState">Unsaved draft · no audio uploads</span><div><button id="wsExport" class="button secondary">Export chart JSON</button><button id="wsSave" class="button secondary">Save to library</button><button id="wsPlay" class="button primary">Use highways in game →</button></div></div>
   </dialog>`;
   class Controller{
-    constructor({beforeOpen=()=>{},getSelected=()=>null,onPublish=()=>{},onLibrary=()=>{},onDelete=()=>{}}={}){
-      this.beforeOpen=beforeOpen;this.getSelected=getSelected;this.onPublish=onPublish;this.onLibrary=onLibrary;this.onDelete=onDelete;
+    constructor({beforeOpen=()=>{},getSelected=()=>null,onPublish=()=>{},onLibrary=()=>{},onDelete=()=>{},onPlay=()=>{}}={}){
+      this.onPlay=onPlay;this.analysis=null;this.analysisJob=null;this.analysisBackend=null;this.lastAuto=null;this.quickTaps=[];this.beforeOpen=beforeOpen;this.getSelected=getSelected;this.onPublish=onPublish;this.onLibrary=onLibrary;this.onDelete=onDelete;
       document.body.insertAdjacentHTML('beforeend',markup);this.dialog=$('workshopDialog');this.library=new W.Library();this.history=new W.History(W.empty());this.role='drums';this.selected=null;this.viewStart=0;this.span=8;this.buffer=null;this.blob=null;this.midi=null;this.routes={};this.wave=[];this.taps=[];this.generation=0;this.busy=false;this.preview=new StageAudio.AudioEngine();this.previewEnd=0;this.raf=0;this.dirty=true;
-      this.bind();this.render();this.refreshLibrary().catch(e=>this.status(e.message));
+      this.bind();this.bindQuick();this.render();this.refreshLibrary().catch(e=>this.status(e.message));
     }
     get project(){return this.history.current;}
     status(message){$('wsStatus').textContent=message;}
     open(){if(this.beforeOpen()===false)return;this.dialog.showModal();this.render();}
     commit(project){this.stop();this.history.set(project);this.selected=null;this.dirty=true;this.render();}
-    replace(project,buffer=null,blob=null){this.stop();this.history=new W.History(project);this.selected=null;this.viewStart=0;this.buffer=buffer;this.blob=blob;this.dirty=true;this.makeWave();this.fitPitch();this.render();}
-    async task(action){if(this.busy)return;const ticket=this.generation;this.busy=true;this.renderBusy();try{await action(ticket);}catch(e){if(ticket===this.generation)this.status(e.message||'That action could not be completed.');}finally{this.busy=false;this.renderBusy();}}
+    replace(project,buffer=null,blob=null){this.stop();this.analysis=null;this.lastAuto=null;this.history=new W.History(project);this.selected=null;this.viewStart=0;this.buffer=buffer;this.blob=blob;this.dirty=true;this.makeWave();this.fitPitch();this.render();}
+    async task(action){if(this.busy)return;const ticket=++this.generation;this.busy=true;this.renderBusy();try{await action(ticket);}catch(e){if(ticket===this.generation)this.status(e.message||'That action could not be completed.');}finally{if(ticket===this.generation){this.busy=false;this.renderBusy();}}}
     valid(ticket){return ticket===this.generation&&this.dialog.open;}
-    renderBusy(){this.dialog.querySelectorAll('input,select').forEach(el=>{el.disabled=this.busy;});$('wsLow').disabled=this.busy||this.role==='drums';this.dialog.querySelectorAll('button').forEach(b=>{if(b.id!=='wsClose')b.disabled=this.busy;});if(!this.busy){$('wsUpdate').disabled=$('wsDelete').disabled=this.selected===null;$('wsUndo').disabled=!this.history.past.length;$('wsRedo').disabled=!this.history.future.length;$('wsStop').disabled=$('wsTapNote').disabled=!this.preview.running;}}
+    renderBusy(){this.dialog.querySelectorAll('input,select').forEach(el=>{el.disabled=this.busy;});$('wsLow').disabled=this.busy||this.role==='drums';this.dialog.querySelectorAll('button').forEach(b=>{if(!['wsClose','wsCancelAnalysis'].includes(b.id))b.disabled=this.busy;});if(!this.busy){$('wsUpdate').disabled=$('wsDelete').disabled=this.selected===null;$('wsUndo').disabled=!this.history.past.length;$('wsRedo').disabled=!this.history.future.length;$('wsStop').disabled=$('wsTapNote').disabled=!this.preview.running;$('wsQuickStop').disabled=!this.preview.running;$('wsQuickPlay').disabled=!this.project.parts.some(p=>p.notes.length);}}
     bind(){
-      $('wsClose').onclick=()=>{this.generation++;this.stop();this.dialog.close();};this.dialog.addEventListener('cancel',()=>{this.generation++;this.stop();});this.dialog.addEventListener('close',()=>{this.generation++;this.stop();});
-      document.addEventListener('visibilitychange',()=>{if(document.hidden){this.stop();this.generation++;}});
-      window.addEventListener('beforeunload',()=>this.stop());
+      $('wsClose').onclick=()=>{this.cancelWork();this.stop();this.dialog.close();};this.dialog.addEventListener('cancel',()=>{this.cancelWork();this.stop();});this.dialog.addEventListener('close',()=>{this.cancelWork();this.stop();});
+      document.addEventListener('visibilitychange',()=>{if(document.hidden){this.cancelWork();this.stop();}});
+      window.addEventListener('beforeunload',()=>{this.cancelWork();this.stop();});
       $('wsImport').onclick=()=>$('wsFile').click();$('wsFile').onchange=()=>{const f=$('wsFile').files[0];if(f)this.task(t=>this.importFile(f,t));$('wsFile').value='';};
       $('wsAttach').onclick=()=>$('wsAudioFile').click();$('wsAudioFile').onchange=()=>{const f=$('wsAudioFile').files[0];if(f)this.task(t=>this.importAudio(f,t,true));$('wsAudioFile').value='';};
       $('wsDrop').ondragover=e=>{e.preventDefault();$('wsDrop').classList.add('dragging');};$('wsDrop').ondragleave=()=>$('wsDrop').classList.remove('dragging');$('wsDrop').ondrop=e=>{e.preventDefault();$('wsDrop').classList.remove('dragging');if(e.dataTransfer.files.length!==1)return this.status('Drop one MIDI, audio or chart file at a time.');this.task(t=>this.importFile(e.dataTransfer.files[0],t));};
       // Keep a file dropped elsewhere in the modal from navigating away.
       this.dialog.addEventListener('dragover',e=>e.preventDefault());this.dialog.addEventListener('drop',e=>e.preventDefault());
-      $('wsNew').onclick=()=>{if(!this.discard())return;this.midi=null;this.replace(W.empty());this.status('Blank chart ready. Set the tempo and duration, then add notes.');};
+      $('wsNew').onclick=()=>{if(!this.discard())return;this.midi=null;$('wsAdvanced').open=true;this.replace(W.empty());this.status('Blank chart ready. Set the tempo and duration, then add notes.');};
       $('wsEditCurrent').onclick=()=>this.task(async ticket=>{if(!this.discard())return;const selection=this.getSelected();if(!selection?.song)return;let project,blob=null,buffer=selection.buffer||null;
         if(selection.song.workshop){const row=await this.library.get(selection.song.libraryId).catch(()=>null);project=selection.project||row?.project||W.fromSong(selection.song,selection.players);blob=row?.blob||null;}else project=W.fromSong(selection.song,selection.players);
-        if(!this.valid(ticket))return;project.audioOffset=selection.audioOffset||0;project.audioName=selection.bufferName||project.audioName;this.midi=null;this.replace(project,buffer,blob);this.status('Editing a copy of the selected arrangement. Original songs are not overwritten.');});
+        if(!this.valid(ticket))return;project.audioOffset=selection.audioOffset||0;project.audioName=selection.bufferName||project.audioName;this.midi=null;$('wsAdvanced').open=true;this.replace(project,buffer,blob);this.status('Editing a copy of the selected arrangement. Original songs are not overwritten.');});
       $('wsTiming').onclick=()=>this.attempt(()=>this.applyTiming());
       $('wsName').onchange=()=>this.attempt(()=>this.commit({...this.project,title:$('wsName').value}));
       $('wsTap').onclick=()=>{const now=performance.now();if(this.taps.length&&now-this.taps.at(-1)>3000)this.taps=[];this.taps.push(now);this.taps=this.taps.slice(-9);if(this.taps.length>=3){const gaps=this.taps.slice(1).map((t,i)=>t-this.taps[i]);$('wsBpm').value=C.clamp(Math.round(60000/C.median(gaps)*10)/10,20,400);this.status('Tapped tempo shown. Apply timing to update the grid; existing notes stay in place.');}};
@@ -99,21 +104,83 @@
       if(!this.discard())return;this.stop();this.status(`Reading ${file.name} locally…`);
       if(/\.midi?$/i.test(file.name)){
         if(file.size>8*1024*1024)throw Error('MIDI files must be smaller than 8 MB.');const song=C.parseMIDI(await file.arrayBuffer(),file.name);if(!this.valid(ticket))return;
-        const project=W.empty({title:song.name,duration:song.duration,bpm:C.clamp(song.bpm,20,400)});this.midi=song;this.routes=W.suggestRoutes(song);this.replace(project);this.status(`Loaded ${song.parts.length} MIDI tracks. Assign them to instruments, then choose Build highways from MIDI.`);
+        const project=W.empty({title:song.name,duration:song.duration,bpm:C.clamp(song.bpm,20,400)});this.midi=song;$('wsAdvanced').open=true;this.routes=W.suggestRoutes(song);this.replace(project);this.status(`Loaded ${song.parts.length} MIDI tracks. Assign them to instruments, then choose Build highways from MIDI.`);
       }else if(/\.json$/i.test(file.name)){
-        if(file.size>W.MAX_JSON)throw Error('Chart JSON must be smaller than 12 MB.');const project=W.parse(await file.text());if(!this.valid(ticket))return;this.midi=null;this.replace(project);this.status(project.audioName?`Chart imported. Attach “${project.audioName}” to restore the backing audio.`:'Chart imported with all four highways.');
+        if(file.size>W.MAX_JSON)throw Error('Chart JSON must be smaller than 12 MB.');const project=W.parse(await file.text());if(!this.valid(ticket))return;this.midi=null;$('wsAdvanced').open=true;this.replace(project);this.status(project.audioName?`Chart imported. Attach “${project.audioName}” to restore the backing audio.`:'Chart imported with all four highways.');
       }else await this.importAudio(file,ticket,false);
     }
     async decode(file){
       if(!file.size||file.size>80*1024*1024)throw Error('Choose a nonempty audio file smaller than 80 MB.');
-      await this.preview.init();let buffer;try{buffer=await this.preview.ctx.decodeAudioData(await file.arrayBuffer());}catch(_){throw Error('This audio could not be decoded. Try an unprotected MP3 or WAV file. Streaming links are not supported.');}
+      await this.preview.init({resume:false});let buffer;try{buffer=await this.preview.ctx.decodeAudioData(await file.arrayBuffer());}catch(_){throw Error('This audio could not be decoded. Try an unprotected MP3 or WAV file. Streaming links are not supported.');}
       if(buffer.duration<.25||buffer.duration>600||buffer.length*buffer.numberOfChannels*4>256*1024*1024)throw Error('Audio must be 0.25–600 seconds and under 256 MB when decoded. Export a shorter section.');return buffer;
     }
     async importAudio(file,ticket,attach){
-      this.stop();this.status('Decoding local audio…');const buffer=await this.decode(file);if(!this.valid(ticket))return;
+      this.stop();$('wsAnalysisProgress').hidden=false;$('wsProgress').value=3;$('wsAnalysisLabel').textContent='Decoding local audio…';this.status('Decoding local audio…');
+      try{const buffer=await this.decode(file);if(!this.valid(ticket))return;
       const project=attach?W.clone(this.project):W.empty({title:file.name.replace(/\.[^.]+$/,''),duration:buffer.duration});
       project.audioName=file.name;project.duration=attach?Math.max(project.duration,buffer.duration+project.audioOffset):buffer.duration;
-      if(!attach)this.midi=null;this.replace(project,buffer,file);this.status(attach?'Backing audio attached. Adjust Audio starts at to align it with the chart.':'Audio loaded. Set BPM and First beat, then generate a beat-practice chart or place notes manually. Audio is not automatically transcribed.');
+      if(!attach&&$('wsAuto').checked){
+        let analysis;
+        try{analysis=await this.analyzeBuffer(buffer,ticket);}catch(e){if(e.name==='AbortError')return;throw e;}
+        if(!this.valid(ticket))return;
+        const options=this.quickOptions();let ready=project;
+        if(analysis.bpm)ready=W.fromAudioAnalysis(project,analysis,options);
+        this.midi=null;this.replace(ready,buffer,file);this.analysis=analysis;this.lastAuto=W.serialize(ready);$('wsAdvanced').open=false;
+        this.render();this.status(analysis.bpm?'Rhythm highway ready. Preview, then Play now. No instrument pitches were transcribed.':'Audio loaded, but the pulse is uncertain. Tap BPM to build a rhythm highway or open the advanced editor.');
+      }else{if(!attach)this.midi=null;$('wsAdvanced').open=true;this.replace(project,buffer,file);this.status(attach?'Backing audio attached. Existing notes are unchanged.':'Audio loaded. Set BPM and First beat, then generate a beat-practice chart or place notes manually. Audio is not automatically transcribed.');}
+      }finally{if(ticket===this.generation)$('wsAnalysisProgress').hidden=true;}
+    }
+
+    cancelWork(){
+      this.generation++;this.analysisJob?.cancel();this.analysisJob=null;this.busy=false;
+      $('wsAnalysisProgress').hidden=true;this.renderBusy();
+    }
+    quickOptions(){return {roles:[...$('wsQuickRoles').querySelectorAll('input:checked')].map(e=>e.value),density:$('wsQuickDensity').value};}
+    async analyzeBuffer(buffer,ticket){
+      if(!this.quickOptions().roles.length)throw Error('Choose at least one instrument above, then import your song.');
+      const job=new StageSongAnalysis.Job();this.analysisJob=job;$('wsAnalysisProgress').hidden=false;
+      try{return await job.run(buffer,(fraction,label)=>{if(!this.valid(ticket))return;$('wsProgress').value=Math.round(fraction*100);$('wsAnalysisLabel').textContent=label;});}
+      finally{if(this.analysisJob===job)this.analysisJob=null;if(ticket===this.generation){this.analysisBackend=job.backend;$('wsAnalysisProgress').hidden=true;}}
+    }
+    renderQuick(){
+      const p=this.project,total=p.parts.reduce((s,t)=>s+t.notes.length,0),ready=!!this.buffer&&!this.midi;
+      $('wsQuickReady').hidden=!ready;if(!ready)return;this.drawQuick();
+      const rhythm=p.matching==='rhythm';$('wsQuickScope').textContent=rhythm?'Rhythm only: hit any pad or play any clean single note at each marker. This does not identify the song’s individual instrument notes.':total?'Imported arrangement: this chart retains note-pitch / drum-lane matching. Rebuild replaces it with rhythm-only markers after confirmation.':'No rhythm chart yet. Enter or tap a tempo, then rebuild. The resulting markers score timing, not the song’s individual instrument notes.';$('wsPlay').textContent=rhythm?'Load without starting →':'Use highways in game →';
+      $('wsQuickTitle').textContent=rhythm&&total?'Your rhythm highway is ready.':this.analysis&&!this.analysis.bpm?'Tap the pulse to finish.':'Backing audio is ready.';
+      $('wsQuickSummary').textContent=`${p.title} · ${time(p.duration)} · ${total} markers · ${p.parts.filter(t=>t.notes.length).length} instrument highways`;
+      $('wsPulseBadge').textContent=this.analysis?.manual?'Manual pulse':this.analysis?({high:'Strong pulse estimate',medium:'Check the pulse',low:'Needs a tempo'}[this.analysis.confidence]):rhythm?'Saved rhythm chart':'Editable arrangement';
+      $('wsPulseBadge').dataset.confidence=this.analysis?.confidence||'medium';
+      $('wsQuickTempo').value=this.analysis?.bpm||p.bpm;
+      $('wsQuickHelp').textContent=this.analysis?.warnings.join(' ')||'Preview the alignment. Rebuild analyzes the attached audio only when needed; MIDI and hand-authored notes are not automatic transcriptions.';
+    }
+    async rebuildQuick(ticket,{grid=false}={}){
+      if(!this.buffer)throw Error('Import or attach your audio first.');
+      if(this.project.parts.some(p=>p.notes.length)&&W.serialize(this.project)!==this.lastAuto&&!confirm('Replace this edited arrangement with rhythm-only highways? Undo remains available.'))return;
+      const bpm=Number($('wsQuickTempo').value),options=this.quickOptions();
+      let analysis=this.analysis;
+      if(!analysis)analysis=await this.analyzeBuffer(this.buffer,ticket);
+      if(!this.valid(ticket))return;
+      const firstBeat=Math.min(analysis.firstBeat,this.project.duration-.02);
+      const useGrid=grid||analysis.manualGrid||!analysis.bpm;
+      const next=W.fromAudioAnalysis(this.project,analysis,{...options,bpm,firstBeat,useGrid});
+      this.analysis={...analysis,bpm,manual:analysis.manual||Math.abs((analysis.bpm||0)-bpm)>.01,manualGrid:useGrid};this.commit(next);this.lastAuto=W.serialize(next);$('wsAdvanced').open=false;
+      this.status(useGrid?'Manual-tempo rhythm chart rebuilt on active audio sections. Preview to check alignment.':'Rhythm chart rebuilt from detected attacks. Preview, then Play now.');
+    }
+    bindQuick(){
+      $('wsFullBand').onclick=()=>{$('wsQuickRoles').querySelectorAll('input').forEach(e=>e.checked=true);this.status('Full band selected. Import a song or rebuild to use all four instruments.');};
+      $('wsCancelAnalysis').onclick=()=>{this.cancelWork();this.status('Import cancelled. Your previous chart has been kept.');};
+      $('wsQuickRebuild').onclick=()=>this.task(t=>this.rebuildQuick(t));
+      for(const [id,factor] of [['wsHalfTempo',.5],['wsDoubleTempo',2]])$(id).onclick=()=>{const bpm=Number($('wsQuickTempo').value)*factor;if(bpm<20||bpm>400)return this.status('Tempo must stay between 20 and 400 BPM.');$('wsQuickTempo').value=Math.round(bpm*100)/100;this.task(t=>this.rebuildQuick(t));};
+      $('wsQuickTap').onclick=()=>{const now=performance.now();if(now-(this.quickTaps.at(-1)||0)>3000)this.quickTaps=[];this.quickTaps.push(now);this.quickTaps=this.quickTaps.slice(-9);if(this.quickTaps.length<3){this.status('Keep tapping in time with the song.');return;}const gaps=this.quickTaps.slice(1).map((t,i)=>t-this.quickTaps[i]);$('wsQuickTempo').value=C.clamp(Math.round(60000/C.median(gaps)*10)/10,20,400);this.status('Tapped tempo ready. Choose Rebuild with these settings, then preview.');};
+      $('wsQuickPreview').onclick=()=>this.task(t=>{this.viewStart=this.project.firstBeat;return this.startPreview(t,12);});
+      $('wsQuickStop').onclick=()=>this.stop();
+      $('wsQuickPlay').onclick=()=>this.task(async ticket=>{
+        const p=W.validate(this.project);if(!p.parts.some(part=>part.notes.length))throw Error('Tap a tempo and build a highway first.');
+        this.stop();let warning='';
+        if($('wsQuickSave').checked){try{await this.library.save(p,this.blob);if(!this.valid(ticket))return;this.dirty=false;await this.refreshLibrary();}catch(e){warning=`Playing without a saved library copy: ${e.message} Export the chart to keep it.`;}}
+        if(!this.valid(ticket))return;
+        this.onPublish(p,this.buffer);this.dialog.close();this.onPlay(warning);
+      });
     }
     async save(ticket){
       this.stop();const project=W.validate({...this.project,title:$('wsName').value});this.status('Saving to this browser…');
@@ -138,8 +205,8 @@
       $('wsPitch').innerHTML=this.role==='drums'?C.DRUMS.map(d=>`<option value="${d.pitch}">${d.name} · ${d.pitch}</option>`).join(''):Array.from({length:128},(_,n)=>`<option value="${n}">${C.noteName(n)} · ${n}</option>`).join('');$('wsPitch').value=this.role==='drums'?(C.DRUMS.find(d=>d.notes.includes(oldPitch))?.pitch||36):oldPitch;
       $('wsSaveState').textContent=this.dirty?'Unsaved changes · no audio uploads':'Saved in this browser · local only';
       const warnings=[];for(const part of p.parts.filter(p=>p.type==='guitar'||p.type==='bass')){if(part.notes.length){const error=root.StageStrings.chartError(part.notes,part.type);if(error)warnings.push(error);}}
-      $('wsReview').textContent=`${Object.values(totals).reduce((a,b)=>a+b,0)} notes across ${Object.values(totals).filter(Boolean).length} highways. ${p.origin==='practice'?'Beat-practice exercise, not a transcription. ':''}${warnings.join(' ')}`;
-      this.renderNotes();this.draw();this.renderBusy();
+      $('wsReview').textContent=`${Object.values(totals).reduce((a,b)=>a+b,0)} notes across ${Object.values(totals).filter(Boolean).length} highways. ${p.matching==='rhythm'?'Rhythm only: any note or pad; pitch values are placeholders, not transcribed notes. ':p.origin==='practice'?'Beat-practice exercise, not a transcription. ':''}${warnings.join(' ')}`;
+      this.renderNotes();this.draw();this.renderQuick();this.renderBusy();
     }
     renderNotes(){const notes=this.project.parts.find(p=>p.type===this.role).notes;const visible=notes.map((n,i)=>({n,i})).filter(({n})=>n.time>=this.viewStart&&n.time<this.viewStart+this.span).slice(0,200);$('wsNoteList').innerHTML='<option value="">Select a note to edit</option>'+visible.map(({n,i})=>`<option value="${i}" ${this.selected===i?'selected':''}>${n.time.toFixed(3)}s · ${C.noteName(n.pitch)} / ${n.pitch} · ${n.duration.toFixed(2)}s</option>`).join('');}
     selectNote(index){const n=this.project.parts.find(p=>p.type===this.role).notes[index];if(!n)return;this.selected=index;$('wsNoteTime').value=n.time.toFixed(3);$('wsLength').value=n.duration.toFixed(3);$('wsVelocity').value=n.velocity;
@@ -152,7 +219,23 @@
       const t=W.snap(this.viewStart+(x-86)/742*this.span,this.project,Number($('wsSnap').value)),duration=Math.min(Number($('wsLength').value)||.1,this.project.duration-t);this.commit(W.revise(this.project,this.role,null,{time:t,pitch:row.pitch,duration,velocity:Number($('wsVelocity').value)||100}));$('wsNoteTime').value=t.toFixed(3);$('wsPitch').value=row.pitch;
     }
     makeWave(){this.wave=[];if(!this.buffer)return;const samples=this.buffer.getChannelData(0),step=Math.max(1,Math.ceil(samples.length/2000));for(let i=0;i<samples.length;i+=step){let peak=0;for(let j=i;j<Math.min(samples.length,i+step);j+=Math.max(1,Math.floor(step/32)))peak=Math.max(peak,Math.abs(samples[j]));this.wave.push(peak);}}
+    drawQuick(){
+      if(!$('wsQuickCanvas')||!this.buffer)return;
+      const cv=$('wsQuickCanvas'),ctx=cv.getContext('2d'),p=this.project,w=cv.width,h=cv.height;
+      const from=p.firstBeat,span=Math.max(.25,Math.min(12,p.duration-from)),left=80,right=w-16,width=right-left;
+      const x=t=>left+(t-from)/span*width,parts=p.parts.filter(part=>part.notes.length);
+      ctx.clearRect(0,0,w,h);ctx.fillStyle='#0a1822';ctx.fillRect(0,0,w,h);
+      ctx.font='12px system-ui';ctx.textBaseline='middle';ctx.fillStyle='#9bb8c6';ctx.fillText('AUDIO',8,24);
+      ctx.fillStyle='#3c7f78';for(let i=0;i<this.wave.length;i++){const t=i/this.wave.length*this.buffer.duration+p.audioOffset,px=x(t);if(px<left||px>right)continue;const a=this.wave[i]*18;ctx.fillRect(px,24-a,Math.max(1,this.buffer.duration/this.wave.length/span*width),a*2);}
+      const row=Math.min(28,112/Math.max(1,parts.length)),colors={drums:'#f66b84',keys:'#f6c273',guitar:'#61d9c3',bass:'#69aaff'};
+      parts.forEach((part,i)=>{const y=55+i*row;ctx.fillStyle='#a9c4ce';ctx.fillText(LABELS[part.type],8,y+row/2);ctx.fillStyle='#243746';ctx.fillRect(left,y+row/2,right-left,1);ctx.fillStyle=colors[part.type];for(const n of part.notes){const px=x(n.time);if(px<left||px>right)continue;ctx.fillRect(px-2,y+4,4,row-7);}});
+      if(!parts.length){ctx.fillStyle='#b7cbd1';ctx.fillText('Tap a tempo to build your rhythm markers.',left,94);}
+      const position=this.preview.running?this.preview.songAt():from;if(position>=from&&position<=from+span){ctx.strokeStyle='#f3fbf7';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x(position),4);ctx.lineTo(x(position),h-20);ctx.stroke();}
+      ctx.fillStyle='#91b1bc';ctx.fillText(time(from),left,h-9);ctx.fillText(time(from+span),right-44,h-9);
+      $('wsQuickWindow').textContent=`${time(from)} – ${time(from+span)} · ${this.preview.running?'Playing preview':'Preview window'} · markers show timing, not instrument pitches`;
+    }
     draw(){
+      this.drawQuick();
       const cv=$('wsCanvas'),ctx=cv.getContext('2d'),w=840,h=382,left=86,width=742,top=76,height=274,p=this.project,rows=this.rows(),rh=height/rows.length;
       const x=t=>left+(t-this.viewStart)/this.span*width;ctx.clearRect(0,0,w,h);ctx.fillStyle='#080f19';ctx.fillRect(0,0,w,h);ctx.font='11px system-ui';ctx.textBaseline='middle';ctx.fillStyle='#91a6bd';ctx.fillText(this.buffer?'BACKING':'BEAT GRID',9,36);
       if(this.buffer&&this.wave.length){ctx.fillStyle='#367c7e';for(let i=0;i<this.wave.length;i++){const t=i/this.wave.length*this.buffer.duration+p.audioOffset,px=x(t);if(px<left||px>w)continue;const hh=this.wave[i]*26;ctx.fillRect(px,36-hh,Math.max(1,this.buffer.duration/this.wave.length/this.span*width),hh*2);}}
@@ -164,14 +247,14 @@
       if(this.preview.running){const t=this.preview.songAt(),px=x(t);if(px>=left&&px<=w){ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px,8);ctx.lineTo(px,350);ctx.stroke();}$('wsClock').textContent=time(t);}
       $('wsViewLabel').textContent=`${time(this.viewStart)} – ${time(Math.min(p.duration,this.viewStart+this.span))}`;
     }
-    async startPreview(ticket){
+    async startPreview(ticket,limit=null){
       this.stop();const song=W.toSong(this.project);if(song.audioName&&!this.buffer)this.status('Backing audio is missing. Previewing synthesized chart notes only; attach the audio to hear the song.');
-      await this.preview.begin({song,players:[],seek:this.viewStart,end:song.duration,countIn:false,guide:true,demo:true,metronome:$('wsClick').checked,buffer:this.buffer,audioOffset:this.project.audioOffset});
-      if(!this.valid(ticket)){this.stop();return;}this.previewEnd=song.duration;
+      await this.preview.begin({song,players:[],seek:this.viewStart,end:limit?Math.min(song.duration,this.viewStart+limit):song.duration,countIn:false,guide:true,demo:true,metronome:$('wsClick').checked,buffer:this.buffer,audioOffset:this.project.audioOffset});
+      if(!this.valid(ticket)){this.stop();return;}this.previewEnd=limit?Math.min(song.duration,this.viewStart+limit):song.duration;
       const frame=()=>{if(!this.preview.running)return;if(document.hidden||this.preview.ctx.state!=='running'||this.preview.songAt()>=this.previewEnd){this.stop();return;}this.draw();this.raf=requestAnimationFrame(frame);};this.raf=requestAnimationFrame(frame);this.renderBusy();
     }
     tapNote(){const t=this.preview.songAt();if(t<0||t>=this.project.duration)return;const at=W.snap(t,this.project,Number($('wsSnap').value));const note={time:at,pitch:Number($('wsPitch').value),duration:Math.min(Number($('wsLength').value)||.1,this.project.duration-at),velocity:Number($('wsVelocity').value)||100};this.history.set(W.revise(this.project,this.role,null,note));this.dirty=true;this.selected=null;this.renderNotes();this.draw();$('wsSaveState').textContent='Unsaved live edits · restart preview to hear updated synthesized notes';}
-    stop(){cancelAnimationFrame(this.raf);this.preview.stop();$('wsStop').disabled=$('wsTapNote').disabled=true;}
+    stop(){cancelAnimationFrame(this.raf);this.preview.stop();$('wsStop').disabled=$('wsTapNote').disabled=true;$('wsQuickStop').disabled=true;this.drawQuick();}
   }
   W.Controller=Controller;
 })(globalThis);

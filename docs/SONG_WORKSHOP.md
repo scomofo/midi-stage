@@ -1,5 +1,12 @@
 # Song Workshop architecture and scope
 
+## v0.5 addition
+
+The default MP3 path now performs local rhythm analysis. Exact/manual charts remain
+version 1; rhythm-only charts are version 2 with explicit matching metadata. See
+[QUICK_IMPORT.md](QUICK_IMPORT.md) for the additional schema and scoring contract.
+The original v0.4 operations below remain in the advanced editor.
+
 ## Modules
 
 `src/workshop.js` is the pure chart model plus the small IndexedDB adapter. Its

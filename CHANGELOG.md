@@ -1,5 +1,17 @@
 # 0.4.0 — Song Workshop
 
+## 0.5.0 — Quick MP3 Highways
+
+- Automatic local pulse/attack analysis after audio import, progress and cancellation.
+- Compact instruments/difficulty → import → 12-second waveform/marker preview → Play now flow.
+- Explicit rhythm-only scoring for MIDI drums/keys and clean live guitar/bass; no fabricated pitches.
+- Cached regeneration, half/double tempo, tap fallback, silent-gap filtering, and guarded edits.
+- Direct-start with optional chart/audio save; failed saving does not block playing.
+- Version 2 rhythm chart semantics; version 1 MIDI/manual charts remain compatible.
+- Worker execution with bounded fallback and protection against late cancelled imports.
+- Extended numerical, browser, and real-storage regression coverage.
+- Native-engine decision documented; no Godot port or full mixed-song transcription in this release.
+
 - MIDI track-to-instrument assignment and editable highway generation, with optional
   density reduction and explicit single-note guitar/bass reduction.
 - Local audio import, waveform/timing tools and labelled beat-practice generation.

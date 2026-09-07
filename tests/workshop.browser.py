@@ -58,7 +58,7 @@ with sync_playwright() as p:
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.on('dialog',lambda d:d.accept())
     page.set_content(HTML,wait_until='load')
-    page.locator('#openWorkshop').click()
+    page.locator('#openWorkshop').click();page.locator('#wsAuto').uncheck()
     check('workshop opens without instrument capture',snap(page)['open'] and page.evaluate('__captureRequests')==0)
     import_file(page,ROOT/'songs/first-rehearsal.mid')
     check('MIDI import exposes four track assignments',page.locator('[data-ws-track]').count()==4)

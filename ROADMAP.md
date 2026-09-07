@@ -1,5 +1,26 @@
 # MIDI Stage roadmap
 
+## Quick MP3 highway milestone — implemented in v0.5
+
+Import audio → local pulse/attack analysis → preview → direct play is implemented.
+Generated charts explicitly judge rhythm, not the original instrument pitches.
+Physical hardware and a diverse, legally supplied music corpus remain to be tested.
+
+## Higher-fidelity song parts — future implementation
+
+Evaluate instrument separation and transcription as a separate, optional pipeline.
+Require per-instrument precision/recall and timing benchmarks against reference
+MIDI, no invented notes in silence, uncertainty flags, editable outputs, and
+explicit compute/download/privacy requirements. No model or service is included
+in v0.5. Rendering-engine migration does not substitute for transcription.
+
+## Native-engine gate — Godot permitted, not yet adopted
+
+Keep chart/analysis data portable. A native prototype must demonstrate equal or
+better measured timing, MIDI routing, separate guitar/bass audio inputs, local
+imports, cancellation, persistence and accessible UI before replacing the browser
+client. See docs/ENGINE_DECISION.md. No existing PR was merged for this work.
+
 ## Milestone 0.3 — Live strings become playable
 
 Implementation is included in the v0.3 Live Strings PR. Physical-device validation

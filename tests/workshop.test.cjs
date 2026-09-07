@@ -7,7 +7,7 @@ test('blank charts contain four empty instrument parts',()=>{const p=W.empty();a
 test('chart serialization roundtrips notes and metadata',()=>{const p=W.revise(W.empty({title:'My song'}),'keys',null,note());assert.deepEqual(W.parse(W.serialize(p)),p);});
 test('JSON rejects foreign schemas',()=>assert.throws(()=>W.parse('{"version":1}'),/Song Workshop/));
 test('JSON rejects invalid text',()=>assert.throws(()=>W.parse('{'),/valid JSON/));
-test('JSON rejects unsupported schema versions',()=>{const p=W.empty();p.version=2;assert.throws(()=>W.validate(p),/version 1/);});
+test('JSON rejects unsupported schema versions',()=>{const p=W.empty();p.version=99;assert.throws(()=>W.validate(p),/version 1/);});
 test('JSON input is size limited',()=>assert.throws(()=>W.parse(' '.repeat(W.MAX_JSON+1)),/12 MB/));
 test('untrusted extras are not retained',()=>{const p=W.empty();p.audioUrl='https://example.invalid/';p.parts[0].script='x';const clean=W.validate(p);assert.equal(clean.audioUrl,undefined);assert.equal(clean.parts[0].script,undefined);});
 test('unsafe ID rejected before interpolation',()=>{const p=W.empty();p.id='chart-"><img>';assert.throws(()=>W.validate(p),/ID/);});

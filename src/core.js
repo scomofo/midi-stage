@@ -77,11 +77,13 @@
   }
   function sourceFor(song, player) { return song.parts.find(p=>p.id===player.source)||song.parts.find(p=>p.type===player.type)||song.parts[0]; }
   function lanesFor(song,player) {
+    if(song.rhythmOnly)return [{name:'ANY NOTE / PAD',short:'HIT',pitch:{drums:36,keys:60,guitar:40,bass:28}[player.type],pc:0,any:true,color:COLORS[TYPES.indexOf(player.type)]}];
     if(player.type==='drums') return DRUMS.map(d=>({...d,notes:[...d.notes]}));
     const part=sourceFor(song,player), pitches=[...new Set(part.notes.map(n=>pc(n.pitch)))].sort((a,b)=>a-b);
     return pitches.map((p,i)=>{const all=part.notes.filter(n=>pc(n.pitch)===p).map(n=>n.pitch).sort((a,b)=>a-b);const pitch=all[Math.floor(all.length/2)]||60+p;return {name:PC[p],short:PC[p],pitch,pc:p,color:COLORS[i%COLORS.length]};});
   }
   function laneForPitch(pitch,player,lanes) {
+    if(lanes[0]?.any)return Number.isInteger(pitch)&&pitch>=0&&pitch<=127?0:-1;
     if(Object.prototype.hasOwnProperty.call(player.learned,pitch)) return player.learned[pitch];
     return player.type==='drums'?lanes.findIndex(l=>l.notes.includes(pitch)):lanes.findIndex(l=>l.pc===pc(pitch));
   }
