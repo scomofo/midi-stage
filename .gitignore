@@ -141,3 +141,10 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# MIDI Stage local development
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/
+.playwright/

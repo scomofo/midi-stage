@@ -1,0 +1,63 @@
+PASS inlined source build loads without requesting audio access
+PASS opening soundcheck does not start capture
+PASS discovery reveals device labels and stops temporary capture
+PASS closing during device discovery does not leave a late capture active
+PASS same-device same-channel assignments show a warning
+PASS separate channel selections clear the duplication warning
+PASS real Web Audio channels independently detect A2 guitar and E1 bass
+PASS two soundchecks share one device capture
+PASS capture requests have no video and disable speech processing
+PASS signal meters are populated from captured samples
+PASS audio diagnostics cannot increment rhythm-game scores
+PASS downloaded report identifies labels and per-role channels
+PASS device report excludes private IDs and audio samples
+PASS stopping one role preserves the other shared capture
+PASS closing soundcheck releases its last audio track
+PASS reopening retains routes but never auto-starts capture
+PASS mono input cannot silently satisfy a stereo-channel request
+PASS choosing the actual mono channel recovers cleanly
+PASS stop-all releases active captures
+PASS denied permission is actionable without breaking the game
+PASS closing while capture is pending also stops a late-arriving stream
+PASS unplug notification stops both roles sharing the removed input
+PASS hiding the tab stops soundcheck capture
+PASS small-screen soundcheck has no horizontal overflow
+PASS MIDI routing remains accessible and soundcheck closes
+PASS no external network requests were made
+PASS no JavaScript errors on success, cancellation or error paths
+PASS self-contained artifact contains the new soundcheck and capture remains opt-in
+{
+  "checks": 28,
+  "passed": [
+    "inlined source build loads without requesting audio access",
+    "opening soundcheck does not start capture",
+    "discovery reveals device labels and stops temporary capture",
+    "closing during device discovery does not leave a late capture active",
+    "same-device same-channel assignments show a warning",
+    "separate channel selections clear the duplication warning",
+    "real Web Audio channels independently detect A2 guitar and E1 bass",
+    "two soundchecks share one device capture",
+    "capture requests have no video and disable speech processing",
+    "signal meters are populated from captured samples",
+    "audio diagnostics cannot increment rhythm-game scores",
+    "downloaded report identifies labels and per-role channels",
+    "device report excludes private IDs and audio samples",
+    "stopping one role preserves the other shared capture",
+    "closing soundcheck releases its last audio track",
+    "reopening retains routes but never auto-starts capture",
+    "mono input cannot silently satisfy a stereo-channel request",
+    "choosing the actual mono channel recovers cleanly",
+    "stop-all releases active captures",
+    "denied permission is actionable without breaking the game",
+    "closing while capture is pending also stops a late-arriving stream",
+    "unplug notification stops both roles sharing the removed input",
+    "hiding the tab stops soundcheck capture",
+    "small-screen soundcheck has no horizontal overflow",
+    "MIDI routing remains accessible and soundcheck closes",
+    "no external network requests were made",
+    "no JavaScript errors on success, cancellation or error paths",
+    "self-contained artifact contains the new soundcheck and capture remains opt-in"
+  ],
+  "javascript_errors": [],
+  "hardware": "simulated input hardware; real browser audio graph"
+}

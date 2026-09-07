@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a1019"><meta name="description" content="An original rhythm game for real MIDI instruments. Local co-op, note highways, and your own MIDI songs.">
+  <title>MIDI Stage — Your instruments. Your stage.</title>
+  <link rel="stylesheet" href="src/styles.css">
+  <script defer src="src/core.js"></script><script defer src="src/midi.js"></script><script defer src="src/audio.js"></script><script defer src="src/input.js"></script><script defer src="src/soundcheck.js"></script><script defer src="src/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="MIDI Stage home"><span class="brand-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>MIDI<span class="brand-slash"> / </span>STAGE</span><small>REAL INSTRUMENTS. REAL PLAY.</small></a>
+    <div class="header-right"><span class="local-badge"><i></i> LOCAL CO-OP</span><button id="connectMIDI" class="button primary small"><span aria-hidden="true">⌁</span> Connect MIDI</button><button id="settingsTop" class="icon-button" aria-label="Instrument settings">⚙</button></div>
+  </header>
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="eyebrow">THE STAGE IS YOURS</div>
+      <h1>Make some<br><em>real noise.</em></h1>
+      <p class="intro">Your drum kit. Your keys. Your band.<br>Plug in and find your groove.</p>
+      <div class="section-heading"><h2>SETLIST</h2><span id="songCount">03 TRACKS</span></div>
+      <div id="setlist" class="setlist" aria-label="Choose a song"></div>
+      <button id="importButton" class="import-button"><span>＋</span> Import your MIDI <small>.mid</small></button>
+      <input id="midiFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
+      <div class="section-heading band-heading"><h2>YOUR LINEUP</h2><span>1–4 PLAYERS</span></div>
+      <div id="bandPick" class="band-pick" aria-label="Enable player parts"></div>
+      <button id="openSetup" class="setup-link">Instrument setup <span>↗</span></button>
+      <button id="openSoundcheck" class="soundcheck-link"><span>⌁ &nbsp; Audio soundcheck</span><small>NEW</small></button>
+      <div class="input-card"><div><span class="status-dot" id="midiDot"></span><strong id="midiStatus">Keyboard ready</strong></div><p id="lastMIDI">No instruments connected. You can still play.</p><div class="velocity-track"><span id="velocityBar"></span></div></div>
+      <div class="sidebar-foot"><span>●</span> Runs locally. No account. No uploads.</div>
+    </aside>
+    <section class="play-area" aria-label="Rhythm game">
+      <div class="session-heading"><div><div class="eyebrow" id="songTag">ORIGINAL SESSION / SYNTH ROCK</div><h2 id="songTitle">Neon Circuit</h2></div><div class="song-meta"><strong id="bpmLabel">112 <small>BPM</small></strong><span id="durationLabel">01:09</span><span class="no-fail">NO-FAIL PRACTICE</span></div></div>
+      <div class="hud" aria-live="off"><div class="score-stat"><span>SCORE</span><strong id="score">000,000</strong></div><div><span>STREAK</span><strong id="combo">0 <small>NOTES</small></strong></div><div><span>MULTIPLIER</span><strong id="multiplier">1<small>×</small></strong></div><div><span>ACCURACY</span><strong id="accuracy">—<small>%</small></strong></div><div class="best-stat"><span>PERSONAL BEST</span><strong id="best">—</strong></div></div>
+      <div id="stage" class="stage">
+        <div class="stage-top"><span id="stageMode"><i></i> SOLO SESSION</span><span id="sectionName">INTRO</span><button id="fullscreen" aria-label="Toggle full screen" class="fullscreen">⛶</button></div>
+        <canvas id="stageCanvas" role="img" aria-label="Notes travel down each instrument highway. Hit the matching pad when a note reaches the glowing strike line."></canvas>
+        <div id="stageOverlay" class="stage-overlay"><div class="overlay-mark" aria-hidden="true">↘</div><div class="eyebrow">YOUR NEXT SESSION</div><h3>Take the stage.</h3><p>Hit the notes as they cross the line.<br>Start with your keyboard or connect an instrument.</p><button id="overlayStart" class="button primary">▶ &nbsp; Start set <kbd>ENTER</kbd></button><span class="overlay-hint">Solo by default. Add your band on the left.</span></div>
+        <div id="countdown" class="countdown" aria-live="polite"></div>
+        <div class="stage-bottom"><span id="inputMode">COMPUTER KEYBOARD / MIDI</span><span id="speedBadge">1.00× TEMPO</span></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-line"><span id="progressFill"></span></div><div class="progress-labels"><span id="elapsed">00:00</span><span id="runStatus" role="status">Ready when you are.</span><span id="remaining">01:09</span></div></div>
+      <div class="transport"><div class="transport-main"><button id="start" class="button primary">▶ &nbsp; Start set</button><button id="pause" class="button secondary" disabled>Ⅱ &nbsp; Pause</button><button id="restart" class="icon-button" aria-label="Restart song" title="Restart (R)">↺</button></div><button id="demo" class="button ghost">▷ &nbsp; Watch demo</button></div>
+      <div class="session-controls"><label>DIFFICULTY<select id="difficulty"><option value="chill">Chill</option><option value="standard" selected>Standard</option><option value="expert">Expert</option></select></label><label>TEMPO<select id="speed"><option value="0.5">50%</option><option value="0.75">75%</option><option value="1" selected>100%</option><option value="1.25">125%</option></select></label><label class="check"><input type="checkbox" id="guide"> Guide part</label><label class="check"><input type="checkbox" id="metronome"> Click</label><label class="volume-label">VOLUME<input type="range" id="volume" min="0" max="100" value="55" aria-label="Master volume"></label></div>
+      <div id="pads" class="pads" aria-label="Playable input pads"></div>
+      <div class="keyboard-hint"><span><kbd>ENTER</kbd> Start / pause</span><span><kbd>R</kbd> Restart <small>(when not a note)</small></span><span><kbd>ESC</kbd> Pause</span><span>Hold melodic notes to the end of their tails.</span></div>
+      <details class="practice-tools"><summary>Practice tools <span>Loop a section · Add backing audio</span></summary><div class="practice-row"><label class="check"><input type="checkbox" id="loop"> Loop</label><label>From (sec)<input id="loopStart" type="number" min="0" step="0.5" value="0"></label><label>To (sec)<input id="loopEnd" type="number" min="1" step="0.5" value="17.1"></label><button id="audioButton" class="button secondary small">Add backing audio</button><input id="audioFile" type="file" accept="audio/*" hidden><button id="clearAudio" class="button ghost small" hidden>Clear audio</button><label>Audio starts at (sec)<input id="audioOffset" type="number" value="0" step="0.01" min="-120" max="120"></label></div><p id="audioStatus">MIDI tracks are synthesized locally. Optional audio must match your chart; it is not automatically transcribed or aligned.</p></details>
+    </section>
+  </main>
+  <footer><span>MIDI STAGE <b>0.2</b> / PLAYABLE PROTOTYPE</span><span>Original game & music. Not affiliated with Rock Band or Harmonix.</span></footer>
+  <dialog id="setupDialog" class="setup-dialog"><div class="dialog-heading"><div><div class="eyebrow">PLUG IN. MAP IT. PLAY.</div><h2>Your instrument rack</h2></div><button data-close="setupDialog" class="icon-button" aria-label="Close instrument settings">×</button></div><p class="dialog-intro">Assign each player a different device or MIDI channel. Select “Any channel” for a dedicated controller. Settings save on this browser.</p><div id="routeWarning" class="warning" hidden></div><div id="routeSettings"></div><div class="global-settings"><label>Ignore velocities below<input id="minVelocity" type="number" min="1" max="127" value="12"><small>Reject very light / accidental triggers.</small></label><label>Input correction (ms)<input id="inputOffset" type="number" min="-500" max="500" value="0"><small>Positive values compensate late input.</small></label><label class="check"><input id="monitor" type="checkbox" checked> Hear my MIDI notes</label><button id="calibrateButton" class="button secondary">Calibrate timing</button></div><div class="dialog-footer"><span id="learnStatus" role="status">MIDI Learn: click a lane, then play its pad or key.</span><button data-close="setupDialog" class="button primary">Done</button></div></dialog>
+  <dialog id="calibrationDialog" class="calibration-dialog"><div class="dialog-heading"><div><div class="eyebrow">GET IN THE POCKET</div><h2>Timing calibration</h2></div><button data-close="calibrationDialog" class="icon-button" aria-label="Close calibration">×</button></div><p>Listen to the clicks. After the first three, tap your instrument or the button in time for ten beats. This estimates your input/audio correction; it does not measure hardware latency independently.</p><div id="calibrationPulse" class="calibration-pulse">♩</div><strong id="calibrationStatus" role="status">Use the same headphones or speakers you will play with.</strong><div class="calibration-actions"><button id="calibrationStart" class="button primary">Start clicks</button><button id="calibrationTap" class="button secondary" disabled>Tap on the beat <kbd>SPACE</kbd></button></div><p class="muted">Wired audio is recommended. Bluetooth delay and jitter can make timing inconsistent.</p></dialog>
+  <dialog id="resultsDialog" class="results-dialog"><div class="dialog-heading"><div><div class="eyebrow" id="resultEyebrow">SET COMPLETE</div><h2 id="resultTitle">That's your groove.</h2></div><button data-close="resultsDialog" class="icon-button" aria-label="Close results">×</button></div><div id="resultContent"></div><div class="dialog-footer"><button id="resultSetup" class="button secondary">Instrument setup</button><button id="playAgain" class="button primary">↺ &nbsp; Play again</button></div></dialog>
+  <dialog id="soundcheckDialog" class="soundcheck-dialog" aria-labelledby="soundcheckTitle">
+    <div class="dialog-heading"><div><div class="eyebrow">0.2 / KNOW YOUR INPUTS</div><h2 id="soundcheckTitle">Your band, connected.</h2></div><button id="soundClose" class="icon-button" aria-label="Close soundcheck">×</button></div>
+    <p class="sound-intro">No model number needed. Find your interface, choose a channel, then pluck a string to check the signal.</p>
+    <div class="sound-scope"><strong>SOUNDCHECK, NOT AUDIO SCORING</strong><span>This checks live guitar/bass audio. Playing for points still uses MIDI or computer keys. The tuner estimates one note at a time.</span></div>
+    <div class="sound-toolbar"><button id="soundAllow" class="button primary">Allow &amp; find audio inputs</button><button id="soundRefresh" class="button secondary">Refresh</button><button id="soundStop" class="button ghost">Stop all inputs</button></div>
+    <p class="sound-privacy">Your browser calls this “microphone” permission. The brief discovery capture stops immediately after listing devices. Checks are silent; no recordings or uploads.</p>
+    <p id="soundStatus" class="sound-status" role="status">Connect your interface, then allow audio access to reveal the names your browser can see.</p>
+    <div id="soundConflict" class="warning" hidden></div>
+    <div id="soundCards" class="sound-cards"></div>
+    <p class="sound-routing-note">Browser channel numbers may differ from physical jack numbers. Play each instrument alone to confirm the route. A mono input cannot separate guitar and bass; test them one at a time. Generic names such as “USB Audio” are normal.</p>
+    <section class="sound-midi"><div><h3>MIDI drums, keys &amp; MIDI-equipped guitar</h3><p id="soundMidiDevices"></p><small id="soundMidiLast">MIDI gameplay and lane mappings are unchanged.</small></div><button id="soundMIDI" class="button secondary small">MIDI routing</button></section>
+    <div class="dialog-footer sound-footer"><span>Capture stops when you close this panel or hide the tab.</span><div><button id="soundReport" class="button ghost small">Save device report</button><button id="soundDone" class="button primary">Done</button></div></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

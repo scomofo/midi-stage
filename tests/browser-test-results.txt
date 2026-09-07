@@ -1,0 +1,44 @@
+PASS ready state and three original songs
+PASS permission requested with SysEx disabled
+PASS dedicated input selection accepts any channel
+PASS simultaneous MIDI players score independently at the audible beat
+PASS wrong device does not cross-score keyboard part
+PASS Note On velocity zero is a release, not another hit
+PASS CC64 sustain holds a released note to completion
+PASS pause freezes the song clock
+PASS resume restarts with a count-in
+PASS device disconnection pauses the band
+PASS MIDI Learn binds the physical note and detected channel
+PASS computer Space key scores the kick lane
+PASS MIDI-file import exposes all four track/channel parts
+PASS imported song has a stable content-derived ID
+PASS invalid file shows a readable error without crashing
+PASS four-player lineup renders four independent input groups
+PASS mobile layout has no horizontal document overflow
+PASS autoplay demo advances both parts without misses
+PASS no browser JavaScript errors
+{
+  "checks": 19,
+  "passed": [
+    "ready state and three original songs",
+    "permission requested with SysEx disabled",
+    "dedicated input selection accepts any channel",
+    "simultaneous MIDI players score independently at the audible beat",
+    "wrong device does not cross-score keyboard part",
+    "Note On velocity zero is a release, not another hit",
+    "CC64 sustain holds a released note to completion",
+    "pause freezes the song clock",
+    "resume restarts with a count-in",
+    "device disconnection pauses the band",
+    "MIDI Learn binds the physical note and detected channel",
+    "computer Space key scores the kick lane",
+    "MIDI-file import exposes all four track/channel parts",
+    "imported song has a stable content-derived ID",
+    "invalid file shows a readable error without crashing",
+    "four-player lineup renders four independent input groups",
+    "mobile layout has no horizontal document overflow",
+    "autoplay demo advances both parts without misses",
+    "no browser JavaScript errors"
+  ],
+  "javascript_errors": []
+}
