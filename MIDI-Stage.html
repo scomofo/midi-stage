@@ -23,6 +23,14 @@
 .route-extended{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.route-extended label{display:grid;gap:6px;font-size:10px;color:var(--muted)}.route-extended small{font-size:10px;line-height:1.5}.sound-use{width:100%;margin-top:14px;white-space:normal}.pad:disabled{opacity:.45;cursor:default}
 @media(max-width:560px){.route-extended{grid-template-columns:1fr}.live-inputs{grid-template-columns:1fr}}
 
+/* Song Workshop — a dedicated arrangement workspace. */
+.workshop-launch{border-color:#419e98!important;background:#152e34!important;color:#72ead6!important}.workshop-launch small{font-size:9px;letter-spacing:.7px}
+.workshop-dialog{width:min(1240px,96vw);max-width:96vw;max-height:94vh;padding:28px;background:#0c1521;color:#e6eef7;border:1px solid #304456;border-radius:18px;overflow:auto}.workshop-dialog::backdrop{background:#030911de;backdrop-filter:blur(6px)}
+.workshop-dialog .dialog-heading h2{font-size:30px}.ws-intro{font-size:14px;color:#9daec1;margin:8px 0 20px}.ws-import{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:17px;border:1px dashed #3c6072;border-radius:12px;background:#122432}.ws-import>div{display:grid;gap:5px;margin-right:auto}.ws-import strong{font-size:15px}.ws-import span{font-size:12px;color:#a6bfd0}.ws-import.dragging{border-color:#49dcc8;background:#1b3d42}.ws-status{border-left:3px solid #49dcc8;background:#14282f;color:#c6e8e5;padding:11px 15px;min-height:42px;font-size:13px;line-height:1.5}
+.ws-layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:24px;margin-top:22px}.ws-inspector{border-right:1px solid #28394b;padding-right:22px}.ws-layout h3{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d1e6ed;margin:0 0 16px}.ws-layout label{font-size:11px;font-weight:600;letter-spacing:.3px;color:#a8bcd0;display:grid;gap:7px;margin:0 0 12px}.ws-layout input:not([type=checkbox]):not([type=range]),.ws-layout select{min-width:0;width:100%;height:36px;background:#101f2e;color:#eff6fa;border:1px solid #34475c;border-radius:7px;padding:6px 9px;font-size:12px}.ws-layout input:focus,.ws-layout select:focus{outline:2px solid #49dcc8;outline-offset:2px}.ws-layout .check{display:flex;align-items:center;gap:7px;font-weight:400;line-height:1.4;letter-spacing:0}.ws-layout input[type=checkbox]{accent-color:#49dcc8}.ws-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ws-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.ws-small{font-size:11px;line-height:1.55;color:#9aafc2;margin:10px 0 16px}.ws-small strong{color:#f6ca85}.ws-audio-box{display:grid;gap:10px;border:1px solid #2d4154;padding:14px;border-radius:9px;margin:18px 0}.ws-audio-box strong{font-size:12px;overflow-wrap:anywhere}.ws-audio-box label{margin-bottom:0}.ws-track{padding-bottom:9px;border-bottom:1px solid #253748}.ws-track>span{line-height:1.5;overflow-wrap:anywhere}.ws-track small{color:#789bb5}.ws-generator{margin-top:20px;border-top:1px solid #314356;padding-top:16px}.ws-generator summary{cursor:pointer;color:#d1e6ed;font-size:12px;font-weight:700;letter-spacing:.5px}.ws-roles{display:grid;grid-template-columns:1fr 1fr}.ws-roots{display:grid;gap:0}.ws-editor-heading{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ws-editor-heading h3{margin-bottom:6px}.ws-editor-heading .ws-small{margin-top:8px}.ws-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 16px}.ws-tabs button{border:1px solid #334a60;color:#acbfd2;background:#122132;border-radius:8px;padding:12px 8px;font-size:12px;font-weight:600;cursor:pointer}.ws-tabs button[aria-pressed=true]{color:#6ee9d0;border-color:#4caa9f;background:#173438}.ws-tabs span{display:block;font-size:17px;margin-top:5px;color:#eff7fb}.ws-editor-tools{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.ws-editor-tools label{width:105px;margin-bottom:12px}.ws-editor-tools .button{margin-bottom:12px}#wsCanvas{display:block;width:100%;height:auto;background:#080f19;border:1px solid #31465a;border-radius:9px;cursor:crosshair}.ws-position{display:flex;align-items:center;gap:10px;margin:8px 0 18px}.ws-position input{flex:1;min-width:50px;accent-color:#49dcc8}.ws-position output{font-size:11px;color:#a7bacd;min-width:115px;text-align:right}.ws-position .icon-button{width:28px;height:28px}.ws-note-form{display:grid;grid-template-columns:1fr 1.5fr 1fr .8fr;gap:10px}.ws-note-list{margin-top:12px!important}.ws-preview{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid #2c4052;margin-top:18px;padding-top:16px}.ws-preview .check{margin:0}.ws-preview output{font-size:13px;color:#72e2d0;margin-left:auto}.ws-review{font-size:12px;line-height:1.5;padding:12px 14px;background:#1a2332;border:1px solid #3b495d;border-radius:8px;color:#c4d7e8}.ws-library{margin-top:24px}.ws-library-row{display:flex;align-items:center;gap:8px;border-bottom:1px solid #253747;padding:10px 0}.ws-library-row>div{flex:1;min-width:0}.ws-library-row strong{display:block;font-size:13px;overflow-wrap:anywhere}.ws-library-row small{display:block;font-size:11px;color:#8fa8be;margin-top:6px}.ws-library-row .button{flex-shrink:0}#wsLibrary{font-size:13px;color:#a0b4c7}.ws-footer{position:sticky;bottom:-28px;background:#0c1521f5;border-top:1px solid #385065;margin-top:24px;padding-top:17px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:2}.ws-footer>div{display:flex;gap:8px;flex-wrap:wrap}.ws-footer>span{font-size:11px;color:#9eb7c9;max-width:240px}.workshop-dialog button:disabled{opacity:.42;cursor:not-allowed}.workshop-dialog button:focus-visible{outline:2px solid #7be8d7;outline-offset:3px}
+@media(max-width:900px){.ws-layout{grid-template-columns:235px minmax(0,1fr);gap:16px}.ws-inspector{padding-right:14px}.ws-note-form{grid-template-columns:1fr 1fr}.ws-footer{position:static;flex-direction:column;align-items:stretch}.ws-footer>span{max-width:none}.ws-editor-tools label{width:85px}}
+@media(max-width:650px){.workshop-dialog{padding:16px;width:96vw;max-height:96vh}.ws-layout{grid-template-columns:1fr}.ws-inspector{border-right:0;border-bottom:1px solid #314356;padding:0 0 16px}.ws-import{padding:12px}.ws-import .button{font-size:12px}.ws-tabs{gap:5px}.ws-tabs button{padding:9px 3px;font-size:11px}.ws-position{gap:4px}.ws-position output{min-width:104px}.ws-footer>div .button{flex:1;min-width:135px}.ws-preview .button{font-size:11px}.ws-roots{grid-template-columns:1fr 1fr 1fr;gap:7px}.ws-generator .ws-small{font-size:12px}}
+
 </style>
   
 </head>
@@ -38,7 +46,8 @@
       <p class="intro">Your drum kit. Your keys. Your band.<br>Plug in and find your groove.</p>
       <div class="section-heading"><h2>SETLIST</h2><span id="songCount">03 TRACKS</span></div>
       <div id="setlist" class="setlist" aria-label="Choose a song"></div>
-      <button id="importButton" class="import-button"><span>＋</span> Import your MIDI <small>.mid</small></button>
+      <button id="openWorkshop" class="import-button workshop-launch"><span>＋</span> Song Workshop <small>IMPORT / CREATE</small></button>
+      <button id="importButton" class="import-button"><span>↳</span> Quick MIDI import <small>.mid</small></button>
       <input id="midiFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
       <div class="section-heading band-heading"><h2>YOUR LINEUP</h2><span>1–4 PLAYERS</span></div>
       <div id="bandPick" class="band-pick" aria-label="Enable player parts"></div>
@@ -66,7 +75,7 @@
       <details class="practice-tools"><summary>Practice tools <span>Loop a section · Add backing audio</span></summary><div class="practice-row"><label class="check"><input type="checkbox" id="loop"> Loop</label><label>From (sec)<input id="loopStart" type="number" min="0" step="0.5" value="0"></label><label>To (sec)<input id="loopEnd" type="number" min="1" step="0.5" value="17.1"></label><button id="audioButton" class="button secondary small">Add backing audio</button><input id="audioFile" type="file" accept="audio/*" hidden><button id="clearAudio" class="button ghost small" hidden>Clear audio</button><label>Audio starts at (sec)<input id="audioOffset" type="number" value="0" step="0.01" min="-120" max="120"></label></div><p id="audioStatus">MIDI tracks are synthesized locally. Optional audio must match your chart; it is not automatically transcribed or aligned.</p></details>
     </section>
   </main>
-  <footer><span>MIDI STAGE <b>0.3</b> / PLAYABLE PROTOTYPE</span><span>Original game & music. Not affiliated with Rock Band or Harmonix.</span></footer>
+  <footer><span>MIDI STAGE <b>0.4</b> / PLAYABLE PROTOTYPE</span><span>Original game & music. Not affiliated with Rock Band or Harmonix.</span></footer>
   <dialog id="setupDialog" class="setup-dialog"><div class="dialog-heading"><div><div class="eyebrow">PLUG IN. MAP IT. PLAY.</div><h2>Your instrument rack</h2></div><button data-close="setupDialog" class="icon-button" aria-label="Close instrument settings">×</button></div><p class="dialog-intro">Assign each player a different device or MIDI channel. Select “Any channel” for a dedicated controller. Settings save on this browser.</p><div id="routeWarning" class="warning" hidden></div><div id="routeSettings"></div><div class="global-settings"><label>Ignore velocities below<input id="minVelocity" type="number" min="1" max="127" value="12"><small>Reject very light / accidental triggers.</small></label><label>Global correction (ms)<input id="inputOffset" type="number" min="-500" max="500" value="0"><small>Positive values compensate late input.</small></label><label class="check"><input id="monitor" type="checkbox" checked> Hear my MIDI notes</label><button id="calibrateButton" class="button secondary">Calibrate timing</button></div><div class="dialog-footer"><span id="learnStatus" role="status">MIDI Learn: click a lane, then play its pad or key.</span><button data-close="setupDialog" class="button primary">Done</button></div></dialog>
   <dialog id="calibrationDialog" class="calibration-dialog"><div class="dialog-heading"><div><div class="eyebrow">GET IN THE POCKET</div><h2>Timing calibration</h2></div><button data-close="calibrationDialog" class="icon-button" aria-label="Close calibration">×</button></div><p>Listen to the clicks. After the first three, tap your instrument or the button in time for ten beats. This estimates your input/audio correction; it does not measure hardware latency independently.</p><div id="calibrationPulse" class="calibration-pulse">♩</div><strong id="calibrationStatus" role="status">Use the same headphones or speakers you will play with.</strong><div class="calibration-actions"><button id="calibrationStart" class="button primary">Start clicks</button><button id="calibrationTap" class="button secondary" disabled>Tap on the beat <kbd>SPACE</kbd></button></div><p class="muted">Wired audio is recommended. Bluetooth delay and jitter can make timing inconsistent.</p></dialog>
   <dialog id="resultsDialog" class="results-dialog"><div class="dialog-heading"><div><div class="eyebrow" id="resultEyebrow">SET COMPLETE</div><h2 id="resultTitle">That's your groove.</h2></div><button data-close="resultsDialog" class="icon-button" aria-label="Close results">×</button></div><div id="resultContent"></div><div class="dialog-footer"><button id="resultSetup" class="button secondary">Instrument setup</button><button id="playAgain" class="button primary">↺ &nbsp; Play again</button></div></dialog>
@@ -823,6 +832,325 @@
   root.StageSoundcheck={Controller};
 })(globalThis);
 
+/* Song Workshop data model. Pure, bounded chart operations; never fetches audio. */
+(function(root,factory){
+  const api=factory(typeof module==='object'&&module.exports?require('./core.js'):root.StageCore);
+  if(typeof module==='object'&&module.exports)module.exports=api;else root.StageWorkshop=api;
+})(globalThis,function(C){
+  'use strict';
+  const SCHEMA='midi-stage-chart',VERSION=1,MAX_NOTES=60000,MAX_SECONDS=3600,MAX_JSON=12*1024*1024;
+  const clone=x=>JSON.parse(JSON.stringify(x));
+  const sortNotes=a=>a.sort((x,y)=>x.time-y.time||x.pitch-y.pitch);
+  function number(n,min,max,label){if(typeof n!=='number'||!Number.isFinite(n)||n<min||n>max)throw Error(`${label} must be between ${min} and ${max}.`);return n;}
+  function integer(n,min,max,label){number(n,min,max,label);if(!Number.isInteger(n))throw Error(`${label} must be a whole number.`);return n;}
+  function text(s,fallback,max=160){return typeof s==='string'?s.slice(0,max):fallback;}
+  function id(){return 'chart-'+(globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));}
+  function empty({title='Untitled session',duration=60,bpm=120}={}){
+    return validate({schema:SCHEMA,version:VERSION,id:id(),title,bpm,duration,firstBeat:0,audioOffset:0,audioName:'',origin:'manual',parts:C.TYPES.map(type=>({type,notes:[]})),tempoMap:[],beats:[]});
+  }
+  function validate(raw){
+    if(!raw||typeof raw!=='object'||raw.schema!==SCHEMA||raw.version!==VERSION)throw Error('Use a MIDI Stage chart exported by Song Workshop (version 1).');
+    const duration=number(raw.duration,.25,MAX_SECONDS,'Song duration');
+    const bpm=number(raw.bpm,20,400,'Tempo'),firstBeat=number(raw.firstBeat??0,0,duration,'First beat');
+    const audioOffset=number(raw.audioOffset??0,-120,120,'Audio offset');
+    if(typeof raw.id!=='string'||!/^chart-[a-zA-Z0-9-]{1,90}$/.test(raw.id))throw Error('Invalid chart ID.');
+    if(!Array.isArray(raw.parts)||raw.parts.length!==4)throw Error('A chart must contain four instrument parts.');
+    let total=0;const seen=new Set();
+    const parts=C.TYPES.map(type=>{
+      const part=raw.parts.find(p=>p?.type===type);if(!part||seen.has(part.type)||!Array.isArray(part.notes))throw Error(`Missing or invalid ${type} part.`);seen.add(part.type);
+      total+=part.notes.length;if(total>MAX_NOTES)throw Error('A chart can contain at most 60,000 notes.');
+      const notes=part.notes.map(n=>{
+        if(!n||typeof n!=='object')throw Error('Invalid chart note.');
+        const time=number(n.time,0,duration-.000001,'Note time'),length=number(n.duration,.02,MAX_SECONDS,'Note duration');
+        if(time+length>duration+.00001)throw Error('A note extends beyond the song. Increase duration first.');
+        const pitch=integer(n.pitch,0,127,'MIDI pitch');
+        if(type==='drums'&&!C.DRUMS.some(d=>d.notes.includes(pitch)))throw Error(`Drum note ${pitch} has no supported lane. Remap it before importing.`);
+        return {time,duration:length,pitch,velocity:integer(n.velocity??100,1,127,'Velocity')};
+      });
+      const dedup=new Set();return {type,notes:sortNotes(notes).filter(n=>{const key=`${n.time}:${n.pitch}`;if(dedup.has(key))return false;dedup.add(key);return true;})};
+    });
+    const tempoMap=(raw.tempoMap??[]);if(!Array.isArray(tempoMap)||tempoMap.length>20000)throw Error('Invalid tempo map.');
+    let prev=-1;const tempos=tempoMap.map(t=>{const time=number(t.time,0,duration,'Tempo time');if(time<=prev)throw Error('Tempo map must be sorted with unique times.');prev=time;return {time,bpm:number(t.bpm,.01,6e7,'MIDI tempo')};});
+    const inputBeats=raw.beats??[];if(!Array.isArray(inputBeats)||inputBeats.length>20000)throw Error('Too many beat markers.');
+    prev=-1;const beats=inputBeats.map(b=>{const time=number(b.time,0,duration+.00001,'Beat time');if(time<=prev)throw Error('Beat markers must be sorted with unique times.');prev=time;return {time,bar:!!b.bar};});
+    return {schema:SCHEMA,version:VERSION,id:raw.id,title:text(raw.title,'Untitled session').trim()||'Untitled session',bpm,duration,firstBeat,audioOffset,audioName:text(raw.audioName,''),origin:['midi','practice','manual'].includes(raw.origin)?raw.origin:'manual',parts,tempoMap:tempos,beats};
+  }
+  function parse(input){if(typeof input!=='string'||input.length>MAX_JSON)throw Error('Chart JSON must be smaller than 12 MB.');let raw;try{raw=JSON.parse(input);}catch(_){throw Error('The chart file is not valid JSON.');}return validate(raw);}
+  function serialize(project){return JSON.stringify(validate(project),null,2);}
+  function grid(project){
+    if(project.beats.length)return clone(project.beats);
+    const beat=60/project.bpm,result=[];
+    for(let i=0;i<20000;i++){const time=project.firstBeat+i*beat;if(time>project.duration+1e-8)break;result.push({time,bar:i%4===0});}return result;
+  }
+  function snap(time,project,division=2){
+    if(!division)return C.clamp(time,0,project.duration-.02);
+    number(division,1,16,'Grid division');let start=project.firstBeat,step=60/project.bpm;
+    if(project.beats.length){const at=C.lowerBound(project.beats,time+.0000001)-1;if(at>=0){start=project.beats[at].time;step=at+1<project.beats.length?project.beats[at+1].time-start:60/(project.tempoMap.at(-1)?.bpm||project.bpm);}}
+    return Math.round(C.clamp(start+Math.round((time-start)/step*division)*step/division,0,project.duration-.02)*1e6)/1e6;
+  }
+  function suggestRoutes(song){
+    return Object.fromEntries(song.parts.map(p=>[p.id,p.channel===10||/drum|percuss|kit/i.test(p.name)?'drums':/bass/i.test(p.name)?'bass':/guit|lead string/i.test(p.name)?'guitar':'keys']));
+  }
+  function monophonic(notes,low=false){
+    const out=[];
+    for(const n of sortNotes(clone(notes))){
+      const last=out.at(-1);
+      if(last&&Math.abs(n.time-last.time)<.025){if((low&&n.pitch<last.pitch)||(!low&&n.pitch>last.pitch))out[out.length-1]=n;continue;}
+      if(last&&last.time+last.duration>n.time){last.duration=n.time-last.time;if(last.duration<.02)out.pop();}
+      out.push(n);
+    }return out;
+  }
+  function thin(notes,level='full'){
+    if(!['full','medium','easy'].includes(level))throw Error('Unknown chart density.');
+    if(level==='full')return clone(notes);
+    const step=level==='easy'?.28:.14,out=[];let group=-Infinity;
+    for(const n of sortNotes(clone(notes))){if(n.time-group<.00001||n.time-group>=step){if(n.time-group>=step)group=n.time;out.push(n);}}return out;
+  }
+  function fromMIDI(song,routes,{density='full',singleStrings=false}={}){
+    const project=empty({title:song.name,duration:song.duration,bpm:C.clamp(song.bpm,20,400)});project.origin='midi';
+    project.tempoMap=song.tempoMap.filter(t=>t.time<=song.duration).map(({time,bpm})=>({time,bpm}));
+    project.beats=song.beats.filter(b=>b.time<=song.duration).map(b=>({...b}));
+    const warnings=[];
+    for(const source of song.parts){const role=routes[source.id];if(!role||role==='skip')continue;if(!C.TYPES.includes(role))throw Error('Invalid instrument assignment.');
+      const target=project.parts.find(p=>p.type===role);let removed=0;
+      for(const n of source.notes){if(role==='drums'&&!C.DRUMS.some(d=>d.notes.includes(n.pitch))){removed++;continue;}
+        const duration=Math.min(n.duration,project.duration-n.time);if(duration>=.02)target.notes.push({...n,duration});}
+      if(removed)warnings.push(`${source.name}: skipped ${removed} pitches with no drum lane; assign them to another instrument to preserve them.`);
+    }
+    for(const p of project.parts){p.notes=thin(p.notes,density);if(singleStrings&&['guitar','bass'].includes(p.type))p.notes=monophonic(p.notes,p.type==='bass');}
+    if(singleStrings)warnings.push('Single-note reduction applied to guitar/bass: chord tones and overlapping tails may be removed.');
+    return {project:validate(project),warnings};
+  }
+  function fromSong(song,players=[]){
+    const routes={};for(const p of song.parts){const assigned=players.find(x=>x.source===p.id);routes[p.id]=C.TYPES.includes(p.type)?p.type:(assigned?.type||suggestRoutes(song)[p.id]);}
+    return fromMIDI(song,routes).project;
+  }
+  function practice(project,{roles=['drums'],density='medium',roots={keys:60,guitar:40,bass:28}}={}){
+    const p=validate(project);if(!Array.isArray(roles)||!roles.length||roles.some(r=>!C.TYPES.includes(r)))throw Error('Select at least one instrument to generate.');
+    if(!['easy','medium','full'].includes(density))throw Error('Unknown chart density.');
+    const beat=60/p.bpm;
+    for(const type of roles){const notes=[],root=type==='drums'?36:integer(roots[type]??{keys:60,guitar:40,bass:28}[type],0,127,'Practice pitch');
+      const add=(b,pitch,length=.12)=>{const time=p.firstBeat+b*beat,duration=Math.min(length*beat,p.duration-time);if(time<p.duration&&duration>=.02)notes.push({time,duration,pitch,velocity:100});};
+      const count=Math.ceil((p.duration-p.firstBeat)/beat);
+      for(let i=0;i<count;i++){
+        if(type==='drums'){add(i,i%2?38:36);if(density!=='easy'){add(i,42);if(density==='full')add(i+.5,42);}}
+        else if(density!=='easy'||i%2===0){add(i,root,type==='bass'?.8:.6);if(density==='full'&&type!=='bass')add(i+.5,root,.35);}
+      }
+      p.parts.find(x=>x.type===type).notes=notes;
+    }
+    p.origin='practice';p.tempoMap=[];p.beats=[];return validate(p);
+  }
+  function revise(project,type,index,note){
+    const p=clone(project),part=p.parts.find(p=>p.type===type);if(!part)throw Error('Choose an instrument.');
+    if(index!==null&&(!Number.isInteger(index)||index<0||index>=part.notes.length))throw Error('Select an existing note.');
+    if(index===null)part.notes.push(note);else if(note===null)part.notes.splice(index,1);else part.notes[index]=note;
+    return validate(p);
+  }
+  function quantize(project,type,division){const p=clone(project),part=p.parts.find(p=>p.type===type);if(!part)throw Error('Choose an instrument.');part.notes=part.notes.map(n=>{const time=snap(n.time,p,division);return {...n,time,duration:Math.min(n.duration,p.duration-time)};});return validate(p);}
+  function hash(project){const data=JSON.stringify(validate(project));let h=2166136261;for(let i=0;i<data.length;i++){h^=data.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(16);}
+  function toSong(project){const p=validate(project);return {id:`workshop-${p.id}-${hash(p)}`,libraryId:p.id,chartProject:p,workshop:true,name:p.title,subtitle:p.origin==='practice'?'Beat practice — not a transcription':'Your authored arrangement',tag:p.origin==='practice'?'BEAT PRACTICE':'CUSTOM HIGHWAYS',original:false,bpm:p.bpm,duration:p.duration,backingOffset:p.audioOffset,audioName:p.audioName,tempoMap:p.tempoMap.length?p.tempoMap:[{time:0,bpm:p.bpm}],beats:grid(p),sections:[{time:0,name:p.origin==='practice'?'PRACTICE CHART':'YOUR ARRANGEMENT'}],parts:p.parts.map((part,i)=>({id:part.type,type:part.type,name:C.LABELS[part.type],channel:part.type==='drums'?10:i,notes:clone(part.notes)}))};}
+  function counts(project){return Object.fromEntries(project.parts.map(p=>[p.type,p.notes.length]));}
+  class History{
+    constructor(project){this.current=validate(project);this.past=[];this.future=[];}
+    set(project){const next=validate(project);if(JSON.stringify(next)===JSON.stringify(this.current))return;this.past.push(this.current);if(this.past.length>20)this.past.shift();this.current=next;this.future=[];}
+    undo(){if(this.past.length){this.future.push(this.current);this.current=this.past.pop();}return this.current;}
+    redo(){if(this.future.length){this.past.push(this.current);this.current=this.future.pop();}return this.current;}
+  }
+  /* A save resolves on transaction completion, not merely a request's success. */
+  class Library{
+    constructor(indexedDB=globalThis.indexedDB){this.indexedDB=indexedDB;this.db=null;}
+    async open(){
+      if(this.db)return this.db;if(!this.indexedDB)throw Error('Browser song storage is unavailable. Export the chart to keep it.');
+      this.db=await new Promise((resolve,reject)=>{const request=this.indexedDB.open('midi-stage-songs',1);request.onupgradeneeded=()=>request.result.createObjectStore('songs',{keyPath:'id'});request.onerror=()=>reject(request.error||Error('Song library could not open.'));request.onblocked=()=>reject(Error('Close other MIDI Stage tabs and try saving again.'));request.onsuccess=()=>resolve(request.result);});
+      this.db.onversionchange=()=>{this.db.close();this.db=null;};return this.db;
+    }
+    async transaction(mode,action){const db=await this.open();return new Promise((resolve,reject)=>{const tx=db.transaction('songs',mode);let value;tx.oncomplete=()=>resolve(value);tx.onerror=tx.onabort=()=>reject(tx.error||Error('Song library write failed. Export a backup chart.'));const req=action(tx.objectStore('songs'));req.onsuccess=()=>{value=req.result;};});}
+    async save(project,blob=null){const p=validate(project);if(blob!==null&&(!(blob instanceof Blob)||blob.size>80*1024*1024))throw Error('Backing audio must be a file smaller than 80 MB.');await this.transaction('readwrite',store=>store.put({id:p.id,project:p,blob,updated:Date.now()}));return p;}
+    async list(){const rows=await this.transaction('readonly',s=>s.getAll());return rows.map(row=>{try{return {project:validate(row.project),hasAudio:!!row.blob,updated:row.updated};}catch(_){return null;}}).filter(Boolean).sort((a,b)=>b.updated-a.updated);}
+    async get(key){const row=await this.transaction('readonly',s=>s.get(key));if(!row)return null;return {project:validate(row.project),blob:row.blob instanceof Blob?row.blob:null};}
+    async remove(key){await this.transaction('readwrite',s=>s.delete(key));}
+  }
+  return {SCHEMA,VERSION,MAX_NOTES,MAX_SECONDS,MAX_JSON,empty,validate,parse,serialize,grid,snap,suggestRoutes,monophonic,thin,fromMIDI,fromSong,practice,revise,quantize,toSong,counts,History,Library,clone};
+});
+
+/* Song Workshop UI: local file imports, arrangement editor, playback and library. */
+(function(root){
+  'use strict';
+  const W=root.StageWorkshop,C=root.StageCore,$=id=>document.getElementById(id);
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const time=t=>`${Math.floor(Math.max(t,0)/60)}:${(Math.max(t,0)%60).toFixed(1).padStart(4,'0')}`;
+  const LABELS={drums:'Drums',keys:'Keyboard',guitar:'Guitar',bass:'Bass'};
+  const markup=`
+  <dialog id="workshopDialog" class="workshop-dialog" aria-labelledby="workshopTitle">
+    <div class="dialog-heading"><div><div class="eyebrow">SONG WORKSHOP / LOCAL FILES → PLAYABLE HIGHWAYS</div><h2 id="workshopTitle">Make it your setlist.</h2></div><button id="wsClose" class="icon-button" aria-label="Close Song Workshop">×</button></div>
+    <p class="ws-intro">MIDI supplies exact notes. Audio supplies the backing track. Build, edit, rehearse, then take it to the stage.</p>
+    <div class="ws-import" id="wsDrop"><div><strong>Start with a song</strong><span>Drop MIDI, MP3, WAV or an exported chart here.</span></div><button id="wsImport" class="button primary">＋ Import song / chart</button><button id="wsEditCurrent" class="button secondary">Edit selected song</button><button id="wsNew" class="button ghost">New blank chart</button><input id="wsFile" type="file" accept=".mid,.midi,.json,.mp3,.wav,.ogg,.flac,.m4a,audio/*" hidden><input id="wsAudioFile" type="file" accept="audio/*,.mp3,.wav,.ogg,.flac,.m4a" hidden></div>
+    <p id="wsStatus" class="ws-status" role="status">Import a song or start a blank arrangement. Your work stays on this computer.</p>
+    <div class="ws-layout"><aside class="ws-inspector">
+      <h3>01 / Song &amp; timing</h3>
+      <label>Song title<input id="wsName" maxlength="160" value="Untitled session"></label>
+      <div class="ws-pair"><label>Tempo (BPM)<input id="wsBpm" type="number" min="20" max="400" step="0.1" value="120"></label><label>Duration (sec)<input id="wsDuration" type="number" min="0.25" max="3600" step="0.01" value="60"></label></div>
+      <div class="ws-pair"><label>First beat (sec)<input id="wsFirstBeat" type="number" min="0" max="3600" step="0.01" value="0"></label><label>Audio starts at (sec)<input id="wsAudioOffset" type="number" min="-120" max="120" step="0.01" value="0"></label></div>
+      <div class="ws-actions"><button id="wsTiming" class="button secondary small">Apply timing</button><button id="wsTap" class="button ghost small">Tap BPM</button></div>
+      <p class="ws-small" id="wsTempoNote">First beat sets the grid, not the audio start. Timing edits do not move existing notes.</p>
+      <div class="ws-audio-box"><strong id="wsAudioName">No backing audio</strong><button id="wsAttach" class="button secondary small">Attach / replace audio</button><button id="wsRemoveAudio" class="button ghost small" hidden>Remove audio</button><label class="check"><input id="wsKeepAudio" type="checkbox" checked> Keep audio in this browser library</label></div>
+      <div id="wsMidiPanel" hidden><h3>02 / Assign MIDI tracks</h3><div id="wsTracks"></div><label>Chart density<select id="wsDensity"><option value="full">All notes (original)</option><option value="medium">Medium — thin fast runs</option><option value="easy">Easy — thin fast runs further</option></select></label><label class="check"><input id="wsSingleStrings" type="checkbox"> Reduce guitar/bass to single notes</label><p class="ws-small">Reduction keeps the upper guitar / lower bass chord tone and trims overlaps. Live audio does not score chords.</p><button id="wsBuildMidi" class="button primary small">Build highways from MIDI</button></div>
+      <details class="ws-generator" open><summary>02 / Build a beat-practice chart</summary><p class="ws-small"><strong>Not a transcription.</strong> This generates exercises on your BPM grid, not the original song’s drum hits or guitar/bass notes. Edit them below or import a matching MIDI.</p><div id="wsRoles" class="ws-roles">${C.TYPES.map(type=>`<label class="check"><input type="checkbox" value="${type}" ${type==='drums'?'checked':''}> ${LABELS[type]}</label>`).join('')}</div><label>Pattern density<select id="wsPattern"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="full">Busy</option></select></label><div class="ws-roots">${['keys','guitar','bass'].map(type=>`<label>${LABELS[type]} practice pitch<select id="wsRoot-${type}">${Array.from({length:88},(_,i)=>i+21).map(p=>`<option value="${p}" ${p==={keys:60,guitar:40,bass:28}[type]?'selected':''}>${C.noteName(p)} · ${p}</option>`).join('')}</select></label>`).join('')}</div><button id="wsGenerate" class="button secondary small">Generate selected highways</button></details>
+    </aside><section class="ws-editor">
+      <div class="ws-editor-heading"><div><h3>03 / Shape the highway</h3><p class="ws-small">Click a blank cell to add a note; click a note to select it. Edit exact pitch, timing and sustain underneath.</p></div><div class="ws-actions"><button id="wsUndo" class="icon-button" aria-label="Undo chart edit" disabled>↶</button><button id="wsRedo" class="icon-button" aria-label="Redo chart edit" disabled>↷</button></div></div>
+      <div class="ws-tabs" id="wsTabs">${C.TYPES.map(type=>`<button data-ws-role="${type}" aria-pressed="${type==='drums'}">${LABELS[type]} <span>0</span></button>`).join('')}</div>
+      <div class="ws-editor-tools"><label>Snap<select id="wsSnap"><option value="0">Off</option><option value="1">Beat</option><option value="2" selected>½ beat</option><option value="4">¼ beat</option></select></label><label>View<select id="wsSpan"><option value="4">4 seconds</option><option value="8" selected>8 seconds</option><option value="16">16 seconds</option><option value="32">32 seconds</option></select></label><label>Lowest pitch<input id="wsLow" type="number" min="0" max="116" value="48"></label><button id="wsQuantize" class="button ghost small">Snap this part</button></div>
+      <canvas id="wsCanvas" width="840" height="382" role="img" tabindex="0" aria-label="Editable note timeline. Use the note form below as an alternative to clicking the canvas."></canvas>
+      <div class="ws-position"><button id="wsPrev" class="icon-button" aria-label="Previous timeline page">‹</button><input id="wsViewStart" type="range" min="0" max="60" step="0.1" value="0" aria-label="Timeline view start"><button id="wsNext" class="icon-button" aria-label="Next timeline page">›</button><output id="wsViewLabel">0:00.0 – 0:08.0</output></div>
+      <div class="ws-note-form"><label>Time (sec)<input id="wsNoteTime" type="number" min="0" step="0.001" value="0"></label><label id="wsPitchLabel">Pitch / drum<select id="wsPitch"></select></label><label>Length (sec)<input id="wsLength" type="number" min="0.02" step="0.01" value="0.1"></label><label>Velocity<input id="wsVelocity" type="number" min="1" max="127" value="100"></label></div>
+      <div class="ws-actions"><button id="wsAdd" class="button secondary small">Add note</button><button id="wsUpdate" class="button secondary small" disabled>Update selected</button><button id="wsDelete" class="button ghost small" disabled>Delete selected</button><button id="wsClearPart" class="button ghost small">Clear this part</button></div>
+      <label class="ws-note-list">Notes in this window (first 200)<select id="wsNoteList"><option value="">Select a note to edit</option></select></label>
+      <div class="ws-preview"><button id="wsPreview" class="button primary small">▶ Preview from view</button><button id="wsStop" class="button secondary small" disabled>■ Stop</button><label class="check"><input id="wsClick" type="checkbox" checked> Beat click</label><button id="wsTapNote" class="button ghost small" disabled>Add note at playhead</button><output id="wsClock">0:00.0</output></div>
+      <p class="ws-small">Preview uses the backing file when attached, otherwise synthesized chart notes. “Add note at playhead” uses the pitch and length above. T also places a note while previewing (outside text fields).</p>
+      <div id="wsReview" class="ws-review"></div>
+      <section class="ws-library"><div class="ws-editor-heading"><h3>Your local songs</h3><button id="wsRefresh" class="button ghost small">Refresh library</button></div><div id="wsLibrary">No saved songs yet.</div><p class="ws-small">Browser storage can be cleared. Export a chart backup; JSON exports contain notes and timing, not the audio file.</p></section>
+    </section></div>
+    <div class="dialog-footer ws-footer"><span id="wsSaveState">Unsaved draft · no audio uploads</span><div><button id="wsExport" class="button secondary">Export chart JSON</button><button id="wsSave" class="button secondary">Save to library</button><button id="wsPlay" class="button primary">Use highways in game →</button></div></div>
+  </dialog>`;
+  class Controller{
+    constructor({beforeOpen=()=>{},getSelected=()=>null,onPublish=()=>{},onLibrary=()=>{},onDelete=()=>{}}={}){
+      this.beforeOpen=beforeOpen;this.getSelected=getSelected;this.onPublish=onPublish;this.onLibrary=onLibrary;this.onDelete=onDelete;
+      document.body.insertAdjacentHTML('beforeend',markup);this.dialog=$('workshopDialog');this.library=new W.Library();this.history=new W.History(W.empty());this.role='drums';this.selected=null;this.viewStart=0;this.span=8;this.buffer=null;this.blob=null;this.midi=null;this.routes={};this.wave=[];this.taps=[];this.generation=0;this.busy=false;this.preview=new StageAudio.AudioEngine();this.previewEnd=0;this.raf=0;this.dirty=true;
+      this.bind();this.render();this.refreshLibrary().catch(e=>this.status(e.message));
+    }
+    get project(){return this.history.current;}
+    status(message){$('wsStatus').textContent=message;}
+    open(){if(this.beforeOpen()===false)return;this.dialog.showModal();this.render();}
+    commit(project){this.stop();this.history.set(project);this.selected=null;this.dirty=true;this.render();}
+    replace(project,buffer=null,blob=null){this.stop();this.history=new W.History(project);this.selected=null;this.viewStart=0;this.buffer=buffer;this.blob=blob;this.dirty=true;this.makeWave();this.fitPitch();this.render();}
+    async task(action){if(this.busy)return;const ticket=this.generation;this.busy=true;this.renderBusy();try{await action(ticket);}catch(e){if(ticket===this.generation)this.status(e.message||'That action could not be completed.');}finally{this.busy=false;this.renderBusy();}}
+    valid(ticket){return ticket===this.generation&&this.dialog.open;}
+    renderBusy(){this.dialog.querySelectorAll('input,select').forEach(el=>{el.disabled=this.busy;});$('wsLow').disabled=this.busy||this.role==='drums';this.dialog.querySelectorAll('button').forEach(b=>{if(b.id!=='wsClose')b.disabled=this.busy;});if(!this.busy){$('wsUpdate').disabled=$('wsDelete').disabled=this.selected===null;$('wsUndo').disabled=!this.history.past.length;$('wsRedo').disabled=!this.history.future.length;$('wsStop').disabled=$('wsTapNote').disabled=!this.preview.running;}}
+    bind(){
+      $('wsClose').onclick=()=>{this.generation++;this.stop();this.dialog.close();};this.dialog.addEventListener('cancel',()=>{this.generation++;this.stop();});this.dialog.addEventListener('close',()=>{this.generation++;this.stop();});
+      document.addEventListener('visibilitychange',()=>{if(document.hidden){this.stop();this.generation++;}});
+      window.addEventListener('beforeunload',()=>this.stop());
+      $('wsImport').onclick=()=>$('wsFile').click();$('wsFile').onchange=()=>{const f=$('wsFile').files[0];if(f)this.task(t=>this.importFile(f,t));$('wsFile').value='';};
+      $('wsAttach').onclick=()=>$('wsAudioFile').click();$('wsAudioFile').onchange=()=>{const f=$('wsAudioFile').files[0];if(f)this.task(t=>this.importAudio(f,t,true));$('wsAudioFile').value='';};
+      $('wsDrop').ondragover=e=>{e.preventDefault();$('wsDrop').classList.add('dragging');};$('wsDrop').ondragleave=()=>$('wsDrop').classList.remove('dragging');$('wsDrop').ondrop=e=>{e.preventDefault();$('wsDrop').classList.remove('dragging');if(e.dataTransfer.files.length!==1)return this.status('Drop one MIDI, audio or chart file at a time.');this.task(t=>this.importFile(e.dataTransfer.files[0],t));};
+      // Keep a file dropped elsewhere in the modal from navigating away.
+      this.dialog.addEventListener('dragover',e=>e.preventDefault());this.dialog.addEventListener('drop',e=>e.preventDefault());
+      $('wsNew').onclick=()=>{if(!this.discard())return;this.midi=null;this.replace(W.empty());this.status('Blank chart ready. Set the tempo and duration, then add notes.');};
+      $('wsEditCurrent').onclick=()=>this.task(async ticket=>{if(!this.discard())return;const selection=this.getSelected();if(!selection?.song)return;let project,blob=null,buffer=selection.buffer||null;
+        if(selection.song.workshop){const row=await this.library.get(selection.song.libraryId).catch(()=>null);project=selection.project||row?.project||W.fromSong(selection.song,selection.players);blob=row?.blob||null;}else project=W.fromSong(selection.song,selection.players);
+        if(!this.valid(ticket))return;project.audioOffset=selection.audioOffset||0;project.audioName=selection.bufferName||project.audioName;this.midi=null;this.replace(project,buffer,blob);this.status('Editing a copy of the selected arrangement. Original songs are not overwritten.');});
+      $('wsTiming').onclick=()=>this.attempt(()=>this.applyTiming());
+      $('wsName').onchange=()=>this.attempt(()=>this.commit({...this.project,title:$('wsName').value}));
+      $('wsTap').onclick=()=>{const now=performance.now();if(this.taps.length&&now-this.taps.at(-1)>3000)this.taps=[];this.taps.push(now);this.taps=this.taps.slice(-9);if(this.taps.length>=3){const gaps=this.taps.slice(1).map((t,i)=>t-this.taps[i]);$('wsBpm').value=C.clamp(Math.round(60000/C.median(gaps)*10)/10,20,400);this.status('Tapped tempo shown. Apply timing to update the grid; existing notes stay in place.');}};
+      $('wsBuildMidi').onclick=()=>this.attempt(()=>{if(!this.midi)return;if(this.project.parts.some(p=>p.notes.length)&&!confirm('Replace the current highways with notes from the imported MIDI? Undo remains available.'))return;const result=W.fromMIDI(this.midi,this.routes,{density:$('wsDensity').value,singleStrings:$('wsSingleStrings').checked});const p={...result.project,id:this.project.id,title:this.project.title,audioName:this.project.audioName,audioOffset:this.project.audioOffset,duration:Math.max(result.project.duration,this.project.duration)};this.commit(p);this.fitPitch();this.render();this.status(`Highways built from MIDI. ${result.warnings.join(' ')||'Note times, pitches and tempo changes preserved.'}`);});
+      $('wsGenerate').onclick=()=>this.attempt(()=>{const roles=[...$('wsRoles').querySelectorAll('input:checked')].map(x=>x.value);if(this.project.parts.some(p=>roles.includes(p.type)&&p.notes.length)&&!confirm('Replace notes in the selected instruments with beat-practice exercises? Other parts will remain.'))return;if(!this.applyTiming())return;this.commit(W.practice(this.project,{roles,density:$('wsPattern').value,roots:Object.fromEntries(['keys','guitar','bass'].map(t=>[t,Number($('wsRoot-'+t).value)]))}));this.status('Beat-practice highways generated. These exercises are NOT transcribed from the audio.');});
+      $('wsRemoveAudio').onclick=()=>{this.stop();this.buffer=null;this.blob=null;this.wave=[];this.commit({...this.project,audioName:'',audioOffset:0});};
+      $('wsTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{this.role=b.dataset.wsRole;this.selected=null;this.fitPitch();this.render();$('wsPitch').value={drums:36,keys:60,guitar:40,bass:28}[this.role];});
+      $('wsLow').onchange=()=>{$('wsLow').value=C.clamp(Math.round(Number($('wsLow').value)||0),0,116);this.draw();};
+      $('wsSpan').onchange=()=>{this.span=Number($('wsSpan').value);this.render();};
+      $('wsViewStart').oninput=()=>{this.viewStart=Number($('wsViewStart').value);this.draw();this.renderNotes();};
+      $('wsPrev').onclick=()=>{this.viewStart=Math.max(0,this.viewStart-this.span);this.render();};$('wsNext').onclick=()=>{this.viewStart=Math.min(Math.max(0,this.project.duration-.02),this.viewStart+this.span);this.render();};
+      $('wsCanvas').onclick=e=>this.attempt(()=>this.canvasClick(e));
+      $('wsNoteList').onchange=()=>{if($('wsNoteList').value!=='')this.selectNote(Number($('wsNoteList').value));};
+      $('wsAdd').onclick=()=>this.attempt(()=>this.writeNote(null));$('wsUpdate').onclick=()=>this.attempt(()=>this.writeNote(this.selected));
+      $('wsDelete').onclick=()=>this.attempt(()=>{if(this.selected!==null)this.commit(W.revise(this.project,this.role,this.selected,null));});
+      $('wsClearPart').onclick=()=>{if(confirm(`Clear the ${LABELS[this.role]} highway? You can undo this.`))this.commit({...this.project,parts:this.project.parts.map(p=>p.type===this.role?{...p,notes:[]}:p)});};
+      $('wsQuantize').onclick=()=>this.attempt(()=>{if(!Number($('wsSnap').value))throw Error('Choose a grid subdivision first.');this.commit(W.quantize(this.project,this.role,Number($('wsSnap').value)));this.status('Note starts snapped to the grid. Sustain lengths preserved where possible.');});
+      $('wsUndo').onclick=()=>{this.stop();this.history.undo();this.selected=null;this.dirty=true;this.render();};$('wsRedo').onclick=()=>{this.stop();this.history.redo();this.selected=null;this.dirty=true;this.render();};
+      $('wsPreview').onclick=()=>this.task(ticket=>this.startPreview(ticket));$('wsStop').onclick=()=>this.stop();$('wsTapNote').onclick=()=>this.attempt(()=>this.tapNote());
+      this.dialog.addEventListener('keydown',e=>{if(e.code==='KeyT'&&this.preview.running&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)){e.preventDefault();this.attempt(()=>this.tapNote());}});
+      $('wsSave').onclick=()=>this.task(t=>this.save(t));$('wsRefresh').onclick=()=>this.task(()=>this.refreshLibrary());
+      $('wsExport').onclick=()=>this.attempt(()=>{const p=W.validate({...this.project,title:$('wsName').value}),url=URL.createObjectURL(new Blob([W.serialize(p)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=p.title.replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,80)+'.midistage.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);this.status('Chart exported. Keep the original audio separately; it is not included in JSON.');});
+      $('wsPlay').onclick=()=>this.task(async ticket=>{const p=W.validate({...this.project,title:$('wsName').value});if(!p.parts.some(part=>part.notes.length))throw Error('Build a highway or add at least one note before playing.');this.stop();this.onPublish(p,this.buffer);if(this.valid(ticket))this.dialog.close();});
+    }
+    attempt(action){try{action();}catch(e){this.status(e.message);}}
+    discard(){return !this.dirty||!this.project.parts.some(p=>p.notes.length)||confirm('Replace this working draft? Save or export it first to keep it.');}
+    applyTiming(){
+      const p={...this.project,title:$('wsName').value,bpm:Number($('wsBpm').value),duration:Number($('wsDuration').value),firstBeat:Number($('wsFirstBeat').value),audioOffset:Number($('wsAudioOffset').value)};
+      if((p.bpm!==this.project.bpm||p.firstBeat!==this.project.firstBeat)&&p.tempoMap.length){if(!confirm('Replace the imported MIDI tempo grid with a constant BPM grid? Existing note times will not move.'))return false;p.tempoMap=[];p.beats=[];}
+      p.beats=p.beats.filter(b=>b.time<=p.duration);p.tempoMap=p.tempoMap.filter(t=>t.time<=p.duration);this.commit(p);return true;
+    }
+    async importFile(file,ticket){
+      if(!this.discard())return;this.stop();this.status(`Reading ${file.name} locally…`);
+      if(/\.midi?$/i.test(file.name)){
+        if(file.size>8*1024*1024)throw Error('MIDI files must be smaller than 8 MB.');const song=C.parseMIDI(await file.arrayBuffer(),file.name);if(!this.valid(ticket))return;
+        const project=W.empty({title:song.name,duration:song.duration,bpm:C.clamp(song.bpm,20,400)});this.midi=song;this.routes=W.suggestRoutes(song);this.replace(project);this.status(`Loaded ${song.parts.length} MIDI tracks. Assign them to instruments, then choose Build highways from MIDI.`);
+      }else if(/\.json$/i.test(file.name)){
+        if(file.size>W.MAX_JSON)throw Error('Chart JSON must be smaller than 12 MB.');const project=W.parse(await file.text());if(!this.valid(ticket))return;this.midi=null;this.replace(project);this.status(project.audioName?`Chart imported. Attach “${project.audioName}” to restore the backing audio.`:'Chart imported with all four highways.');
+      }else await this.importAudio(file,ticket,false);
+    }
+    async decode(file){
+      if(!file.size||file.size>80*1024*1024)throw Error('Choose a nonempty audio file smaller than 80 MB.');
+      await this.preview.init();let buffer;try{buffer=await this.preview.ctx.decodeAudioData(await file.arrayBuffer());}catch(_){throw Error('This audio could not be decoded. Try an unprotected MP3 or WAV file. Streaming links are not supported.');}
+      if(buffer.duration<.25||buffer.duration>600||buffer.length*buffer.numberOfChannels*4>256*1024*1024)throw Error('Audio must be 0.25–600 seconds and under 256 MB when decoded. Export a shorter section.');return buffer;
+    }
+    async importAudio(file,ticket,attach){
+      this.stop();this.status('Decoding local audio…');const buffer=await this.decode(file);if(!this.valid(ticket))return;
+      const project=attach?W.clone(this.project):W.empty({title:file.name.replace(/\.[^.]+$/,''),duration:buffer.duration});
+      project.audioName=file.name;project.duration=attach?Math.max(project.duration,buffer.duration+project.audioOffset):buffer.duration;
+      if(!attach)this.midi=null;this.replace(project,buffer,file);this.status(attach?'Backing audio attached. Adjust Audio starts at to align it with the chart.':'Audio loaded. Set BPM and First beat, then generate a beat-practice chart or place notes manually. Audio is not automatically transcribed.');
+    }
+    async save(ticket){
+      this.stop();const project=W.validate({...this.project,title:$('wsName').value});this.status('Saving to this browser…');
+      await this.library.save(project,$('wsKeepAudio').checked?this.blob:null);
+      if(!this.valid(ticket))return;this.history.current=project;this.dirty=false;this.render();await this.refreshLibrary();this.status(`Saved “${project.title}” in this browser${project.audioName&&!($('wsKeepAudio').checked&&this.blob)?'; reattach the backing audio when reopening':''}. Export a chart for a portable backup.`);
+    }
+    async refreshLibrary(){
+      const rows=await this.library.list();this.onLibrary(rows.map(row=>row.project));
+      $('wsLibrary').innerHTML=rows.length?rows.map(({project:p,hasAudio})=>`<div class="ws-library-row"><div><strong>${esc(p.title)}</strong><small>${p.bpm} BPM · ${time(p.duration)} · ${hasAudio?'audio saved':p.audioName?'reattach audio':'chart only'}</small></div><button class="button secondary small" data-ws-load="${p.id}">Open</button><button class="button ghost small" data-ws-delete="${p.id}" aria-label="Delete ${esc(p.title)} from local library">×</button></div>`).join(''):'No saved songs yet.';
+      $('wsLibrary').querySelectorAll('[data-ws-load]').forEach(b=>b.onclick=()=>this.task(async ticket=>{if(!this.discard())return;const row=await this.library.get(b.dataset.wsLoad);if(!row)throw Error('This song was removed from the library.');let buffer=null;if(row.blob)buffer=await this.decode(row.blob);if(!this.valid(ticket))return;this.midi=null;this.replace(row.project,buffer,row.blob);this.dirty=false;this.render();this.status(row.project.audioName&&!buffer?'Chart loaded. Reattach the backing audio.':'Saved song loaded. Edit it or use its highways in the game.');}));
+      $('wsLibrary').querySelectorAll('[data-ws-delete]').forEach(b=>b.onclick=()=>this.task(async()=>{if(!confirm('Delete this song and its stored audio from this browser library? Exported files are not affected.'))return;await this.library.remove(b.dataset.wsDelete);this.onDelete(b.dataset.wsDelete);await this.refreshLibrary();this.status('Removed from this browser library.');}));
+    }
+    async getBacking(id){const row=await this.library.get(id);return row?.blob?this.decode(row.blob):null;}
+    fitPitch(){const notes=this.project.parts.find(p=>p.type===this.role).notes;$('wsLow').value=C.clamp(notes.length?Math.min(...notes.slice(0,60000).map(n=>n.pitch)):{keys:48,guitar:40,bass:28,drums:36}[this.role],0,116);}
+    render(){
+      const p=this.project;$('wsName').value=p.title;$('wsBpm').value=p.bpm;$('wsDuration').value=p.duration;$('wsFirstBeat').value=p.firstBeat;$('wsAudioOffset').value=p.audioOffset;$('wsViewStart').max=Math.max(0,p.duration-.02);$('wsViewStart').value=this.viewStart;
+      $('wsAudioName').textContent=this.buffer?p.audioName||'Attached audio':p.audioName?`Reattach: ${p.audioName}`:'No backing audio';$('wsRemoveAudio').hidden=!p.audioName;
+      $('wsTempoNote').textContent=p.tempoMap.length?'Imported MIDI tempo changes are preserved. Snap follows its beat markers. Changing BPM replaces that grid, not the note times.':'First beat sets the grid, not the audio start. Timing edits do not move existing notes.';
+      $('wsMidiPanel').hidden=!this.midi;if(this.midi){$('wsTracks').innerHTML=this.midi.parts.map(part=>`<label class="ws-track"><span>${esc(part.name)} <small>${part.notes.length} notes</small></span><select data-ws-track="${esc(part.id)}">${['skip',...C.TYPES].map(r=>`<option value="${r}" ${this.routes[part.id]===r?'selected':''}>${LABELS[r]||'Skip track'}</option>`).join('')}</select></label>`).join('');$('wsTracks').querySelectorAll('select').forEach(s=>s.onchange=()=>{this.routes[s.dataset.wsTrack]=s.value;});}
+      const totals=W.counts(p);$('wsTabs').querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.wsRole===this.role);b.querySelector('span').textContent=totals[b.dataset.wsRole];});
+      $('wsLow').disabled=this.role==='drums';const oldPitch=Number($('wsPitch').value)||{drums:36,keys:60,guitar:40,bass:28}[this.role];
+      $('wsPitch').innerHTML=this.role==='drums'?C.DRUMS.map(d=>`<option value="${d.pitch}">${d.name} · ${d.pitch}</option>`).join(''):Array.from({length:128},(_,n)=>`<option value="${n}">${C.noteName(n)} · ${n}</option>`).join('');$('wsPitch').value=this.role==='drums'?(C.DRUMS.find(d=>d.notes.includes(oldPitch))?.pitch||36):oldPitch;
+      $('wsSaveState').textContent=this.dirty?'Unsaved changes · no audio uploads':'Saved in this browser · local only';
+      const warnings=[];for(const part of p.parts.filter(p=>p.type==='guitar'||p.type==='bass')){if(part.notes.length){const error=root.StageStrings.chartError(part.notes,part.type);if(error)warnings.push(error);}}
+      $('wsReview').textContent=`${Object.values(totals).reduce((a,b)=>a+b,0)} notes across ${Object.values(totals).filter(Boolean).length} highways. ${p.origin==='practice'?'Beat-practice exercise, not a transcription. ':''}${warnings.join(' ')}`;
+      this.renderNotes();this.draw();this.renderBusy();
+    }
+    renderNotes(){const notes=this.project.parts.find(p=>p.type===this.role).notes;const visible=notes.map((n,i)=>({n,i})).filter(({n})=>n.time>=this.viewStart&&n.time<this.viewStart+this.span).slice(0,200);$('wsNoteList').innerHTML='<option value="">Select a note to edit</option>'+visible.map(({n,i})=>`<option value="${i}" ${this.selected===i?'selected':''}>${n.time.toFixed(3)}s · ${C.noteName(n.pitch)} / ${n.pitch} · ${n.duration.toFixed(2)}s</option>`).join('');}
+    selectNote(index){const n=this.project.parts.find(p=>p.type===this.role).notes[index];if(!n)return;this.selected=index;$('wsNoteTime').value=n.time.toFixed(3);$('wsLength').value=n.duration.toFixed(3);$('wsVelocity').value=n.velocity;
+      if(this.role==='drums'&&!C.DRUMS.some(d=>d.pitch===n.pitch)){const opt=document.createElement('option');opt.value=n.pitch;opt.textContent=`${C.DRUMS.find(d=>d.notes.includes(n.pitch)).name} · ${n.pitch}`;$('wsPitch').append(opt);}$('wsPitch').value=n.pitch;this.renderNotes();this.renderBusy();this.draw();}
+    writeNote(index){const note={time:Number($('wsNoteTime').value),pitch:Number($('wsPitch').value),duration:Number($('wsLength').value),velocity:Number($('wsVelocity').value)};this.commit(W.revise(this.project,this.role,index,note));}
+    rows(){return this.role==='drums'?C.DRUMS.map(d=>({pitch:d.pitch,label:d.name,color:d.color,notes:d.notes})):Array.from({length:12},(_,i)=>{const pitch=Number($('wsLow').value)+11-i;return {pitch,label:C.noteName(pitch),color:C.COLORS[C.pc(pitch)],notes:[pitch]};});}
+    canvasClick(e){const rect=$('wsCanvas').getBoundingClientRect(),x=(e.clientX-rect.left)*840/rect.width,y=(e.clientY-rect.top)*382/rect.height;
+      const hit=this.hitboxes?.findLast(b=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h);if(hit){this.selectNote(hit.index);return;}
+      if(x<86||y<76||y>=350)return;const rows=this.rows(),row=rows[Math.floor((y-76)/(274/rows.length))];if(!row)return;
+      const t=W.snap(this.viewStart+(x-86)/742*this.span,this.project,Number($('wsSnap').value)),duration=Math.min(Number($('wsLength').value)||.1,this.project.duration-t);this.commit(W.revise(this.project,this.role,null,{time:t,pitch:row.pitch,duration,velocity:Number($('wsVelocity').value)||100}));$('wsNoteTime').value=t.toFixed(3);$('wsPitch').value=row.pitch;
+    }
+    makeWave(){this.wave=[];if(!this.buffer)return;const samples=this.buffer.getChannelData(0),step=Math.max(1,Math.ceil(samples.length/2000));for(let i=0;i<samples.length;i+=step){let peak=0;for(let j=i;j<Math.min(samples.length,i+step);j+=Math.max(1,Math.floor(step/32)))peak=Math.max(peak,Math.abs(samples[j]));this.wave.push(peak);}}
+    draw(){
+      const cv=$('wsCanvas'),ctx=cv.getContext('2d'),w=840,h=382,left=86,width=742,top=76,height=274,p=this.project,rows=this.rows(),rh=height/rows.length;
+      const x=t=>left+(t-this.viewStart)/this.span*width;ctx.clearRect(0,0,w,h);ctx.fillStyle='#080f19';ctx.fillRect(0,0,w,h);ctx.font='11px system-ui';ctx.textBaseline='middle';ctx.fillStyle='#91a6bd';ctx.fillText(this.buffer?'BACKING':'BEAT GRID',9,36);
+      if(this.buffer&&this.wave.length){ctx.fillStyle='#367c7e';for(let i=0;i<this.wave.length;i++){const t=i/this.wave.length*this.buffer.duration+p.audioOffset,px=x(t);if(px<left||px>w)continue;const hh=this.wave[i]*26;ctx.fillRect(px,36-hh,Math.max(1,this.buffer.duration/this.wave.length/this.span*width),hh*2);}}
+      rows.forEach((r,i)=>{const yy=top+i*rh;ctx.fillStyle=i%2?'#101e2b':'#0d1723';ctx.fillRect(left,yy,width,rh-1);ctx.fillStyle='#b8c7d9';ctx.fillText(r.label,10,yy+rh/2);});
+      const beats=W.grid(p);for(const b of beats){if(b.time<this.viewStart||b.time>this.viewStart+this.span)continue;const px=x(b.time);ctx.strokeStyle=b.bar?'#526579':'#26394c';ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,350);ctx.stroke();}
+      for(let i=0;i<=8;i++){const t=this.viewStart+i*this.span/8,px=x(t);ctx.fillStyle='#8a9eb4';ctx.fillText(time(t),Math.min(px,w-43),366);}
+      this.hitboxes=[];const notes=p.parts.find(q=>q.type===this.role).notes;
+      notes.forEach((n,index)=>{if(n.time+n.duration<this.viewStart||n.time>this.viewStart+this.span)return;const row=rows.findIndex(r=>r.notes.includes(n.pitch));if(row<0)return;const xx=Math.max(left,x(n.time)),ww=Math.min(w-xx-2,Math.max(7,x(n.time+n.duration)-xx)),yy=top+row*rh+3;if(ww<=0)return;ctx.fillStyle=rows[row].color;ctx.globalAlpha=index===this.selected?1:.8;ctx.fillRect(xx,yy,ww,rh-6);ctx.globalAlpha=1;if(index===this.selected){ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.strokeRect(xx-1,yy-1,ww+2,rh-4);}this.hitboxes.push({x:xx,y:yy,w:ww,h:rh-6,index});});
+      if(this.preview.running){const t=this.preview.songAt(),px=x(t);if(px>=left&&px<=w){ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px,8);ctx.lineTo(px,350);ctx.stroke();}$('wsClock').textContent=time(t);}
+      $('wsViewLabel').textContent=`${time(this.viewStart)} – ${time(Math.min(p.duration,this.viewStart+this.span))}`;
+    }
+    async startPreview(ticket){
+      this.stop();const song=W.toSong(this.project);if(song.audioName&&!this.buffer)this.status('Backing audio is missing. Previewing synthesized chart notes only; attach the audio to hear the song.');
+      await this.preview.begin({song,players:[],seek:this.viewStart,end:song.duration,countIn:false,guide:true,demo:true,metronome:$('wsClick').checked,buffer:this.buffer,audioOffset:this.project.audioOffset});
+      if(!this.valid(ticket)){this.stop();return;}this.previewEnd=song.duration;
+      const frame=()=>{if(!this.preview.running)return;if(document.hidden||this.preview.ctx.state!=='running'||this.preview.songAt()>=this.previewEnd){this.stop();return;}this.draw();this.raf=requestAnimationFrame(frame);};this.raf=requestAnimationFrame(frame);this.renderBusy();
+    }
+    tapNote(){const t=this.preview.songAt();if(t<0||t>=this.project.duration)return;const at=W.snap(t,this.project,Number($('wsSnap').value));const note={time:at,pitch:Number($('wsPitch').value),duration:Math.min(Number($('wsLength').value)||.1,this.project.duration-at),velocity:Number($('wsVelocity').value)||100};this.history.set(W.revise(this.project,this.role,null,note));this.dirty=true;this.selected=null;this.renderNotes();this.draw();$('wsSaveState').textContent='Unsaved live edits · restart preview to hear updated synthesized notes';}
+    stop(){cancelAnimationFrame(this.raf);this.preview.stop();$('wsStop').disabled=$('wsTapNote').disabled=true;}
+  }
+  W.Controller=Controller;
+})(globalThis);
+
 /* MIDI Stage application. Local-only, dependency-free browser build. */
 (function(){
   'use strict';
@@ -833,7 +1161,8 @@
   const saved=storage.get('midi-stage-settings-v1',{});
   const players=C.defaults().map(p=>{const old=saved.players?.find(x=>x.id===p.id);if(!old)return p;return {...p,enabled:!!old.enabled,input:['guitar','bass'].includes(p.type)&&old.input==='audio'?'audio':'midi',offsetMs:C.clamp(Number(old.offsetMs)||0,-500,500),device:typeof old.device==='string'?old.device:'any',channel:C.clamp(Number(old.channel)||0,0,16),mode:old.mode==='exact'?'exact':'pitch',learned:old.learned&&typeof old.learned==='object'?Object.fromEntries(Object.entries(old.learned).filter(([n,l])=>Number(n)>=0&&Number(n)<128&&Number.isInteger(l)&&l>=0&&l<12)): {}};});
   if(!players.some(p=>p.enabled))players[0].enabled=true;
-  const state={songs:[C.makeSong(0),C.makeSong(1),C.makeSong(2),C.makeValidationSong()],song:null,players,status:'ready',position:0,speed:1,difficulty:'standard',judges:new Map(),charts:new Map(),feedback:new Map(),flashes:new Map(),particles:[],devices:[],demo:false,assisted:false,learn:null,from:0,to:0,loops:0,buffer:null,bufferName:'',minVelocity:C.clamp(Number(saved.minVelocity)||12,1,127),inputOffset:C.clamp(Number(saved.inputOffset)||0,-500,500),monitor:saved.monitor!==false,lastInput:new Map(),activeTokens:new Map(),pedals:new Map(),deferred:new Map(),keyDown:new Set(),calibration:null,startLock:false,startGeneration:0};
+  const assets=new Map(),projects=new Map();let selectionTicket=0;
+  const state={backingLoading:false,songs:[C.makeSong(0),C.makeSong(1),C.makeSong(2),C.makeValidationSong()],song:null,players,status:'ready',position:0,speed:1,difficulty:'standard',judges:new Map(),charts:new Map(),feedback:new Map(),flashes:new Map(),particles:[],devices:[],demo:false,assisted:false,learn:null,from:0,to:0,loops:0,buffer:null,bufferName:'',minVelocity:C.clamp(Number(saved.minVelocity)||12,1,127),inputOffset:C.clamp(Number(saved.inputOffset)||0,-500,500),monitor:saved.monitor!==false,lastInput:new Map(),activeTokens:new Map(),pedals:new Map(),deferred:new Map(),keyDown:new Set(),calibration:null,startLock:false,startGeneration:0};
   state.song=state.songs[0];
   const audio=new StageAudio.AudioEngine();
   let toastTimer=0,raf=0,view={w:900,h:430,dpr:1},lastHud=0,lastCount='',calTimer=0,loopTimer=0;
@@ -845,6 +1174,22 @@
       $('soundcheckDialog').close();toast(`${p.label} will score from live audio. Start a set to begin capture.`);
     },getGameSettings:()=>({globalCorrectionMs:state.inputOffset,players:players.map(({id,input,offsetMs})=>({id,input,offsetMs}))}),getMIDI:()=>state.devices});
   const live=new S.LiveSession({InputHub:StageInput.AudioInputHub,getContext:async()=>{await audio.init();return audio.ctx;},onEvent:handleString,onError:interrupt});
+  const workshop=new StageWorkshop.Controller({
+    beforeOpen:()=>{resetReady('Song Workshop open. Start a fresh set after editing.');soundcheck.hub.stopAll();},
+    getSelected:()=>({song:state.song,project:state.song.chartProject||projects.get(state.song.libraryId),players,buffer:state.buffer,bufferName:state.bufferName,audioOffset:Number($('audioOffset').value)||0}),
+    onPublish:(project,buffer)=>{projects.set(project.id,StageWorkshop.clone(project));const song=StageWorkshop.toSong(project);assets.set(song.id,buffer);state.songs=state.songs.filter(s=>s.libraryId!==project.id);state.songs.push(song);selectSong(song);toast('Your highways are ready. Choose Watch demo or Start set. Save in Song Workshop to keep them after reload.');},
+    onLibrary:items=>{for(const project of items){projects.set(project.id,project);for(const old of state.songs.filter(s=>s.libraryId===project.id))assets.delete(old.id);const song=StageWorkshop.toSong(project),index=state.songs.findIndex(s=>s.libraryId===project.id);if(index<0)state.songs.push(song);else if(state.songs[index].id!==song.id)state.songs[index]=song;}renderSetlist();},
+    onDelete:id=>{projects.delete(id);for(const song of state.songs.filter(s=>s.libraryId===id))assets.delete(song.id);const current=state.song.libraryId===id;state.songs=state.songs.filter(s=>s.libraryId!==id);if(current)selectSong(state.songs[0]);else renderSetlist();}
+  });
+  $('openWorkshop').onclick=()=>workshop.open();
+  function restoreBacking(song,ticket){
+    const apply=buffer=>{if(ticket!==selectionTicket)return;state.backingLoading=false;state.buffer=buffer;state.bufferName=buffer?song.audioName||'Saved backing audio':'';if(!buffer)$('guide').checked=true;$('clearAudio').hidden=!buffer;
+      $('audioStatus').textContent=buffer?`Backing audio: ${state.bufferName}. Restored with this song's alignment.`:song.audioName?`Missing backing audio: ${song.audioName}. Reattach it in Song Workshop. Playback will use synthesized chart notes.`:'Synthesized chart backing. Add matching audio in Song Workshop.';setControls();};
+    if(assets.has(song.id)){apply(assets.get(song.id));return;}
+    if(!song.audioName){apply(null);return;}
+    state.backingLoading=true;$('audioStatus').textContent='Loading this song’s saved backing audio…';setControls();
+    workshop.getBacking(song.libraryId).then(buffer=>{if(ticket!==selectionTicket)return;assets.set(song.id,buffer);apply(buffer);}).catch(e=>{if(ticket!==selectionTicket)return;apply(null);toast(e.message);});
+  }
   function interrupt(message) {
     if(state.status==='starting'){state.startGeneration++;state.status='ready';live.stop();audio.stop();setControls();toast(message);}
     else if(state.status==='playing')pauseGame(message);
@@ -891,12 +1236,13 @@
     $('stageMode').innerHTML=`<i></i> ${enabled().length===1?'SOLO SESSION':`${enabled().length}-PLAYER BAND`}`;
   }
   function selectSong(song){
+    const ticket=++selectionTicket;state.backingLoading=false;$('audioOffset').value=song.backingOffset||0;
     state.song=song;state.buffer=null;state.bufferName='';$('audioFile').value='';$('clearAudio').hidden=true;$('audioStatus').textContent='MIDI tracks are synthesized locally. Optional audio must match your chart; it is not automatically transcribed or aligned.';
-    if(song.original){players.forEach(p=>p.source=p.type);}else{
+    if(song.workshop){players.forEach(p=>{p.source=p.type;p.enabled=!!song.parts.find(part=>part.type===p.type)?.notes.length;});if(!enabled().length)players[0].enabled=true;}else if(song.original){players.forEach(p=>p.source=p.type);}else{
       const drums=song.parts.find(p=>p.channel===10),melodic=song.parts.filter(p=>p.channel!==10);
       players.forEach(p=>{p.source=p.type==='drums'?(drums||song.parts[0]).id:(melodic.find(t=>t.name.toLowerCase().includes(p.type))||melodic[0]||song.parts[0]).id;p.enabled=drums?p.type==='drums':p.type==='keys';});
     }
-    $('songTitle').textContent=song.name;$('songTag').textContent=`${song.original?'ORIGINAL SESSION':'YOUR COLLECTION'} / ${song.tag}`;$('bpmLabel').innerHTML=`${song.bpm} <small>${song.tempoMap.length>1?'BPM*':'BPM'}</small>`;$('bpmLabel').title=song.tempoMap.length>1?'Initial tempo. Tempo changes are preserved.':'';$('durationLabel').textContent=fmt(Math.ceil(song.duration));$('loopStart').value=0;$('loopEnd').value=Math.min(song.duration,Math.round(32*60/song.bpm*10)/10);$('loop').checked=false;renderSetlist();renderBand();resetReady();
+    $('songTitle').textContent=song.name;$('songTag').textContent=`${song.original?'ORIGINAL SESSION':'YOUR COLLECTION'} / ${song.tag}`;$('bpmLabel').innerHTML=`${song.bpm} <small>${song.tempoMap.length>1?'BPM*':'BPM'}</small>`;$('bpmLabel').title=song.tempoMap.length>1?'Initial tempo. Tempo changes are preserved.':'';$('durationLabel').textContent=fmt(Math.ceil(song.duration));$('loopStart').value=0;$('loopEnd').value=Math.min(song.duration,Math.round(32*60/song.bpm*10)/10);$('loop').checked=false;renderSetlist();renderBand();resetReady();if(song.workshop)restoreBacking(song,ticket);
   }
   function renderPads(){
     $('pads').innerHTML=enabled().map(p=>{const chart=state.charts.get(p.id);return `<div class="pad-group"><span class="pad-group-name">${p.label.toUpperCase()}</span>${chart.lanes.map((l,i)=>`<button class="pad" ${S.isAudio(p)?'disabled title="Use live audio for this player"':''} data-player="${p.id}" data-lane="${i}" style="--pad-color:${l.color}" aria-label="Play ${p.label} ${esc(l.name)}; keyboard ${C.keyLabel(C.KEYS[p.id][i])}"><span>${esc(l.short)}</span><kbd>${esc(C.keyLabel(C.KEYS[p.id][i]))}</kbd></button>`).join('')}</div>`;}).join('');
@@ -905,12 +1251,13 @@
   async function ensureAudio(){try{await audio.init();}catch(e){toast(e.message);}}
   function setControls(){
     const playing=state.status==='playing',paused=state.status==='paused',busy=playing||paused||state.status==='starting';
-    $('start').disabled=playing||state.status==='starting';$('start').innerHTML=paused?'▶ &nbsp; Resume':'▶ &nbsp; Start set';$('pause').disabled=!playing;$('demo').disabled=busy;
+    $('start').disabled=playing||state.status==='starting'||state.backingLoading;$('start').innerHTML=paused?'▶ &nbsp; Resume':'▶ &nbsp; Start set';$('pause').disabled=!playing;$('demo').disabled=busy||state.backingLoading;
     ['difficulty','speed','guide','metronome','loop','loopStart','loopEnd','audioOffset','audioButton','clearAudio'].forEach(id=>$(id).disabled=busy);
     $('speedBadge').textContent=`${state.speed.toFixed(2)}× TEMPO`;
   }
   function range(){if(!$('loop').checked)return {from:0,to:state.song.duration};const from=Number($('loopStart').value),to=Number($('loopEnd').value);if(!Number.isFinite(from)||!Number.isFinite(to)||from<0||to>state.song.duration+.05||to-from<1)throw Error(`Choose a loop at least one second long, within 0–${state.song.duration.toFixed(1)} seconds.`);return {from,to:Math.min(to,state.song.duration)};}
   async function startSession(demo=false,loopRestart=false){
+    if(state.backingLoading){toast('The saved backing audio is still loading.');return;}
     if(state.startLock||state.status==='playing')return;state.startLock=true;
     try{
       const resume=state.status==='paused'&&!demo;
@@ -1097,7 +1444,7 @@
   $('calibrateButton').onclick=()=>{closeDialog('setupDialog');if(state.status==='playing')pauseGame();$('calibrationDialog').showModal();};$('calibrationStart').onclick=beginCalibration;$('calibrationTap').onclick=()=>calibrationTap();
   $('playAgain').onclick=()=>{closeDialog('resultsDialog');resetReady();startSession();};$('resultSetup').onclick=()=>{closeDialog('resultsDialog');resetReady();openSetup();};
   $('importButton').onclick=()=>{if(state.status==='playing')pauseGame();$('midiFile').click();};
-  $('midiFile').onchange=async()=>{const file=$('midiFile').files[0];if(!file)return;try{if(file.size>8*1024*1024)throw Error('MIDI files must be smaller than 8 MB.');const song=C.parseMIDI(await file.arrayBuffer(),file.name);state.songs=state.songs.filter(s=>s.original||s.id===song.id);if(!state.songs.some(s=>s.id===song.id))state.songs.push(song);else state.songs[state.songs.findIndex(s=>s.id===song.id)]=song;selectSong(song);openSetup();toast(`Imported ${song.parts.length} MIDI part${song.parts.length===1?'':'s'}. Choose a song track for each player.`);}catch(e){toast(e.message);}finally{$('midiFile').value='';}};
+  $('midiFile').onchange=async()=>{const file=$('midiFile').files[0];if(!file)return;try{if(file.size>8*1024*1024)throw Error('MIDI files must be smaller than 8 MB.');const song=C.parseMIDI(await file.arrayBuffer(),file.name);if(!state.songs.some(s=>s.id===song.id))state.songs.push(song);else state.songs[state.songs.findIndex(s=>s.id===song.id)]=song;selectSong(song);openSetup();toast(`Imported ${song.parts.length} MIDI part${song.parts.length===1?'':'s'}. Choose a song track for each player.`);}catch(e){toast(e.message);}finally{$('midiFile').value='';}};
   $('audioButton').onclick=()=>$('audioFile').click();$('audioFile').onchange=async()=>{const file=$('audioFile').files[0];if(!file)return;try{if(file.size>80*1024*1024)throw Error('Use a backing audio file smaller than 80 MB.');await audio.init();state.buffer=await audio.ctx.decodeAudioData(await file.arrayBuffer());state.bufferName=file.name;$('audioStatus').textContent=`Backing audio: ${file.name}. Set “Audio starts at” to align it with the MIDI. Tempo changes playback speed and pitch of this audio.`;$('clearAudio').hidden=false;toast('Backing audio loaded locally. It replaces synthesized backing.');}catch(e){toast(`Audio could not be loaded: ${e.message}`);}};
   $('clearAudio').onclick=()=>{state.buffer=null;state.bufferName='';$('audioFile').value='';$('clearAudio').hidden=true;$('audioStatus').textContent='Synthesized backing restored.';};
   $('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('stage').requestFullscreen();}catch(_){toast('Full screen is not available in this browser view.');}};
@@ -1118,7 +1465,7 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)interrupt('Playback paused while this tab was hidden.');});
   window.addEventListener('beforeunload',()=>{live.destroy();audio.stop();cancelAnimationFrame(raf);});
   // Read-only diagnostics for tests and troubleshooting. No virtual scores or input backdoors.
-  window.MIDIStage={version:'0.3.0',getSnapshot:()=>({status:state.status,song:state.song.id,time:state.status==='playing'?audio.songAt():state.position,demo:state.demo,players:enabled().map(p=>({id:p.id,input:p.input,offsetMs:p.offsetMs,device:p.device,channel:p.channel,stats:{...state.judges.get(p.id)?.stats},notes:state.judges.get(p.id)?.notes.map(n=>({time:n.time,lane:n.lane,pitch:n.pitch,state:n.state,hold:n.hold}))})),devices:state.devices.map(d=>({...d})),calibration:state.inputOffset,loopCount:state.loops,audio:{running:live.running,routes:[...live.hub.routes.keys()]}})};
+  window.MIDIStage={version:'0.4.0',getWorkshopSnapshot:()=>({open:workshop.dialog.open,busy:workshop.busy,preview:workshop.preview.running,project:StageWorkshop.clone(workshop.project)}),getSnapshot:()=>({backingLoading:state.backingLoading,bufferName:state.bufferName,songCount:state.songs.length,status:state.status,song:state.song.id,time:state.status==='playing'?audio.songAt():state.position,demo:state.demo,players:enabled().map(p=>({id:p.id,input:p.input,offsetMs:p.offsetMs,device:p.device,channel:p.channel,stats:{...state.judges.get(p.id)?.stats},notes:state.judges.get(p.id)?.notes.map(n=>({time:n.time,lane:n.lane,pitch:n.pitch,state:n.state,hold:n.hold}))})),devices:state.devices.map(d=>({...d})),calibration:state.inputOffset,loopCount:state.loops,audio:{running:live.running,routes:[...live.hub.routes.keys()]}})};
   renderSetlist();renderBand();resetReady();resize();raf=requestAnimationFrame(frame);
 })();
 

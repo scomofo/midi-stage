@@ -1,3 +1,17 @@
+# 0.4.0 — Song Workshop
+
+- MIDI track-to-instrument assignment and editable highway generation, with optional
+  density reduction and explicit single-note guitar/bass reduction.
+- Local audio import, waveform/timing tools and labelled beat-practice generation.
+- Four-part note editor: pitch, timing, sustain, velocity, snapping, undo/redo,
+  playback preview and playhead note placement.
+- IndexedDB chart/audio library, per-song backing restoration, schema-validated
+  chart JSON import/export and editable original-song copies.
+- Imported MIDI no longer removes other imported/custom entries from the setlist.
+- New pure-model, browser workflow and separate real-persistence CI tests.
+- Audio-to-exact-instrument transcription remains out of scope; practice patterns
+  are not represented as transcriptions.
+
 # Changes
 
 ## 0.3.0 — Live Strings
