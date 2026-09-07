@@ -1,5 +1,5 @@
 /* Local audio soundcheck. Capture is explicit, muted and never recorded.
-   Single-note pitch estimates are diagnostic only; this module cannot award scores. */
+   This capture module never awards scores; the optional live-string tracker consumes observations. */
 (function(root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -62,9 +62,9 @@
     }
   }
   class AudioInputHub {
-    constructor({getContext, mediaDevices, onData=()=>{}, onState=()=>{}, onDevices=()=>{}}={}) {
+    constructor({getContext, mediaDevices, onData=()=>{}, onState=()=>{}, onDevices=()=>{}, intervalMs=85, fftSizeFor=null, requireKnownChannels=false}={}) {
       this.media = mediaDevices || globalThis.navigator?.mediaDevices;
-      this.getContext=getContext;this.onData=onData;this.onState=onState;this.onDevices=onDevices;
+      this.intervalMs=clamp(Number(intervalMs)||85,15,250);this.fftSizeFor=fftSizeFor;this.requireKnownChannels=requireKnownChannels;this.getContext=getContext;this.onData=onData;this.onState=onState;this.onDevices=onDevices;
       this.entries=new Map();this.routes=new Map();this.requests=new Map();this.devices=[];this.timer=null;this.serial=0;this.discoveryEpoch=0;this.discoveryStreams=new Set();
       this.deviceChange=()=>this.refresh().catch(e=>this.onState(null,{error:messageFor(e)}));
       this.media?.addEventListener?.('devicechange',this.deviceChange);
@@ -141,13 +141,14 @@
         entry=await this.acquire(deviceId,ctx);
         if(this.requests.get(role)!==request){this.release(entry);return null;}
         if(entry.track.readyState==='ended')throw Error('Audio capture has ended. Reconnect and try again.');
+        if(this.requireKnownChannels && channel>1 && !entry.channels)throw Error('The browser did not report its channel count. Channel 2 cannot be verified for live play; use a verified stereo input or a separate device.');
         if(channel>Math.min(entry.channels||2,32))throw Error(`This input exposes ${entry.channels||2} browser channel${entry.channels===1?'':'s'}, not channel ${channel}. Choose an available channel; do not assume the physical jack number.`);
-        analyser=ctx.createAnalyser();analyser.fftSize=8192;analyser.smoothingTimeConstant=0;
+        analyser=ctx.createAnalyser();analyser.fftSize=this.fftSizeFor?this.fftSizeFor(ctx.sampleRate,role):8192;analyser.smoothingTimeConstant=0;
         entry.splitter.connect(analyser,channel-1,0);analyser.connect(entry.mute);
-        const route={role,deviceId,channel,gateDb:clamp(Number(gateDb)||-55,-80,-15),entry,analyser,samples:new Float32Array(analyser.fftSize),sampleRate:ctx.sampleRate};
+        const route={role,deviceId,channel,gateDb:clamp(Number(gateDb)||-55,-80,-15),entry,analyser,samples:new Float32Array(analyser.fftSize),sampleRate:ctx.sampleRate,ctx};
         this.routes.set(role,route);this.requests.delete(role);
         this.onState(role,{active:true,channel,channels:entry.channels,settings:this.safeSettings(entry.settings),name:entry.track.label||this.devices.find(d=>d.id===deviceId)?.name||'Audio input'});
-        if(!this.timer)this.timer=setInterval(()=>this.sample(),85);
+        if(!this.timer)this.timer=setInterval(()=>this.sample(),this.intervalMs);
         return this.describe(role);
       } catch(e) {
         try{if(analyser){entry?.splitter?.disconnect(analyser);analyser.disconnect();}}catch(_){}
@@ -161,8 +162,8 @@
       for(const [role,r] of this.routes) {
         try {
           r.analyser.getFloatTimeDomainData(r.samples);
-          const meter=level(r.samples),pitch=detectPitch(r.samples,r.sampleRate,{minHz:role==='bass'?28:65,maxHz:role==='bass'?550:1500,gateDb:r.gateDb});
-          this.onData(role,{...meter,pitch,clipping:meter.peak>=.985,signal:meter.db>=r.gateDb,muted:!!r.entry.track.muted});
+          const fullMeter=level(r.samples),meter=this.fftSizeFor?level(r.samples.subarray(-Math.ceil(r.sampleRate*.02))):fullMeter,pitch=detectPitch(r.samples,r.sampleRate,{minHz:role==='bass'?28:65,maxHz:role==='bass'?550:1500,gateDb:r.gateDb});
+          this.onData(role,{...meter,pitch,timestamp:performance.now(),windowMs:r.samples.length/r.sampleRate*1000,clipping:fullMeter.peak>=.985,signal:meter.db>=r.gateDb,muted:!!r.entry.track.muted});
         } catch(e){this.stop(role);this.onState(role,{error:messageFor(e)});}
       }
     }

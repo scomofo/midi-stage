@@ -1,5 +1,17 @@
 # Changes
 
+## 0.3.0 — Live Strings
+
+Added opt-in monophonic audio scoring for guitar and bass, independent MIDI/audio
+mode selection, attack and stable-pitch tracking, exact-octave matching, verified
+sustain/release, per-player manual timing corrections, live meters/next-note and
+standard-tuning fret hints, and the four-part First Rehearsal practice song.
+
+Added shared-channel rejection and startup/disconnect/pause/loop cleanup. Preserved
+MIDI drums, keys, pedal and existing game behavior. Added a cross-platform test
+runner and pinned GitHub Actions workflow. Chord recognition and automatic audio
+calibration are not implemented; physical hardware remains untested.
+
 ## 0.2.0 — Audio Soundcheck
 
 Added an opt-in audio device picker, per-role guitar/bass channel checks, input

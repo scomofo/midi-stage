@@ -2,6 +2,10 @@
 
 ## Milestone 0.3 — Live strings become playable
 
+Implementation is included in the v0.3 Live Strings PR. Physical-device validation
+is still pending. Timing correction is manual; automatic audio calibration and
+full chord recognition are not part of this milestone.
+
 - Route guitar and bass soundcheck analysers into gameplay
 - Detect fresh plucks, note changes, held notes, and releases
 - Score pitch + timing + sustain confidence

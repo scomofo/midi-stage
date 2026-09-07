@@ -1,85 +1,83 @@
-# MIDI Stage 0.2.0 — Audio Soundcheck validation
+# MIDI Stage v0.3 — Live Strings validation
 
-## Results
+## Executed result
 
-**109 automated checks passed, with no JavaScript page errors in the browser suites.**
+**174 automated checks passed; zero JavaScript page errors in the browser suites.**
+Run date: September 6, 2026. Command: `python tests/run.py --browser` (exit 0).
+Raw output: [`tests/v0.3-validation.txt`](tests/v0.3-validation.txt).
 
-| Suite | Passing checks | Execution |
+| Suite | Passed | Method |
 | --- | ---: | --- |
-| Existing chart/scoring/MIDI core | 30 | Node built-in test runner |
-| Existing browser gameplay integration | 19 | In-memory Chromium + Playwright |
-| Existing browser gameplay edge cases | 11 | In-memory Chromium + Playwright |
-| New audio-input and pitch-analysis unit tests | 21 | Node, synthetic samples and capture mocks |
-| New soundcheck browser integration | 28 | In-memory Chromium, simulated devices, real Web Audio graphs |
-| **Total** | **109** | **All listed suites rerun against 0.2** |
+| Chart, MIDI routing and score core | 30 | Node test runner |
+| Audio input and pitch detection | 22 | Synthetic samples and capture mocks |
+| Live-string tracker, verified holds, routing and timing | 37 | Node deterministic unit tests |
+| Existing browser gameplay | 19 | In-memory Chromium + simulated MIDI |
+| Existing browser edge cases | 11 | In-memory Chromium |
+| Soundcheck browser integration | 28 | Generated browser MediaStreams |
+| Live-string browser integration | 27 | Generated two-channel MediaStreams + simulated MIDI |
+| **Total** | **174** | **All suites run against v0.3** |
 
-Raw results and reproducible test scripts are included in `tests/`.
+Environment: Node 22.16.0, Python 3.13.5, Playwright 1.57.0, Chromium 144.0.7559.96
+on Linux. Browser tests are software simulations, not physical-device tests.
 
-## What the new tests demonstrate
+## What was exercised
 
-The tuner recognized synthetic low bass and guitar fundamentals, including B0 and
-E1, and harmonically enriched notes at 44.1, 48 and 96 kHz. Tested estimates were
-within seven cents of the synthetic reference frequencies. Silence, a constant
-DC level, deterministic unpitched noise, invalid samples and gated quiet signals
-were rejected. These results do not establish accuracy on every real instrument,
-chord, effect or pickup signal.
+The new browser suite sends generated audio through the application's actual
+MediaStream source, channel splitter, analyser, pitch detector, note tracker and
+gameplay judge. The four-player test independently scores MIDI drums and keys,
+live-audio guitar, and live-audio bass. It does not inject precomputed pitch or hit
+messages into the audio scoring path.
 
-The browser suite generated a real two-channel Web Audio stream with A2 on one
-channel and E1 on the other. The app's actual capture graph, channel splitter,
-analysers and tuner detected them separately. Guitar and bass shared one simulated
-device capture while retaining independent analysers. This is a signal-routing
-test, not a physical interface test or a recording of Scott's instruments.
+Tests reject wrong octaves and extras, break early guitar releases, award confirmed
+bass sustains, and distinguish one continuously ringing note from two separate
+plucks. A steady tone cannot earn two repeated chart hits. Other checks cover
+confidence thresholds, pitch changes, quiet/noisy/clipped observations, adaptive
+analysis windows, finite inputs, onset expiration, independent timing corrections,
+exact-pitch matching, monophonic chart validation, and standard-tuning hints.
 
-Additional checks covered explicit opt-in capture, readable device labels,
-same-channel warnings, rejection of unavailable mono/stereo routes, speech-
-processing constraints, temporary discovery-stream cleanup, per-role stop,
-stop-all, close-dialog cleanup, cancellation during a pending capture request,
-permission denial, disconnected-device notifications and tab-hidden cleanup.
-Discovery capture also stops when permission resolves after cancellation, or
-when device enumeration is still pending at the time of a stop-all request.
-Unknown channel counts remain unknown in diagnostics rather than being presented
-as confirmed stereo. Audio soundcheck does not increment game scores.
+Capture lifecycle checks include shared-device/separate-channel routes, duplicate
+channel rejection, unknown stereo metadata, mono/channel-two rejection, permission
+denial, mid-start song changes, delayed permission, pause/resume, loop restart,
+device interruption, hidden tabs and cleanup. Autoplay and merely opening setup
+never start live gameplay capture. Live audio mode excludes MIDI/computer-key
+shortcuts from that player's score. Soundcheck analysis remains separate.
 
-Local report export was exercised through an actual browser download event.
-Selected channel numbers and device labels were present; device IDs, group IDs
-and audio samples were absent. Source modules were inlined into an in-memory
-fixture for one set of checks; the built self-contained HTML was also opened.
-Desktop and narrow-screen soundcheck layouts were rendered and inspected.
-The screenshot's virtual interface names explicitly say TEST.
+The original gameplay regressions still exercise MIDI Learn, isolated device and
+channel routing, keyboard chords, CC64 sustain, MIDI import, count-in, practice
+loops, eligible score saving, demo exclusion, calibration and error handling.
+Desktop and narrow layouts were rendered; the new live-input screenshots label
+simulated inputs as TEST. No external page requests were observed in browser tests.
 
-## Existing gameplay regression coverage
+The standalone HTML was rebuilt from source. SHA-256:
+`7c89c43936c7f3f429bda90eeb87c7a4907f6606cd1130e89adbfce907952d03`.
+The new First Rehearsal MIDI export was also parsed back into four parts.
 
-All 60 previous checks were rerun: authored chart validity, isolated device/channel
-routing, drum aliases, MIDI Learn, MIDI-file parsing, timing windows, exact and
-arcade pitch matching, chords, held-note scoring, CC64 sustain, simultaneous
-players, pause/resume, disconnect pause, keyboard controls, MIDI import,
-calibration, practice loops, autoplay exclusion from high scores, rendering and
-error handling. The audio diagnostics are separate from the gameplay judge.
+## Additional Mac verification
 
-## Test-environment boundaries
+The 89 Node unit checks were rerun successfully on the authorized Mac with Node
+20.20.2. Python 3.9.6 rebuilt the standalone HTML with the same SHA-256 shown above.
+This is build/unit verification only; no microphone or MIDI hardware was acquired.
 
-Chromium page navigation to the local test server is blocked by this execution
-environment's administrator policy. No attempt was made to bypass that policy.
-Browser tests instead use in-memory documents. The Python localhost server's
-HTTP responses were checked separately, not through browser navigation.
+## Boundaries
 
-MIDI devices, audio-device enumeration and permission responses are simulated.
-The soundcheck uses real browser MediaStreams generated by test oscillators, but
-those are not OS-enumerated physical inputs. Secure-context detection is mocked
-in the in-memory soundcheck suite. Some existing tests mock local storage; actual
-cross-restart persistence on the user's browser has not been verified.
+Device enumeration, permissions, secure-context detection, MIDI messages and
+local storage are mocked in relevant suites. Audio streams use real browser audio
+graphs driven by synthetic oscillators, not OS-enumerated instruments. Browser
+navigation to a localhost server is restricted in this execution environment;
+integration fixtures inline the actual source rather than bypassing that policy.
+This does not test the user's OS permission UI, drivers or real localhost workflow.
 
-## Not verified or not implemented
+Not verified: Scott's interface make/model, jack mapping, physical channel
+separation, MIDI controllers, actual guitar/bass attack reliability, gain, noise,
+crosstalk, real input/output latency, or sustained four-player hardware performance.
+Synthetic tests do not establish general chord/noise/effect rejection accuracy.
 
-- Scott's actual interface make/model, drivers, physical jack mapping, channel
-  separation, input gain, MIDI devices or operating-system permission dialogs.
-- Pitch reliability on live pickups, chords, distorted audio or noisy rooms.
-- Audio-to-gameplay scoring, real-instrument attack detection, chord recognition,
-  or live guitar/bass latency calibration. Audio input is soundcheck-only.
-- Per-device physical latency, Bluetooth behavior, long-session endurance,
-  native Windows/macOS launcher execution or formal accessibility certification.
-- Full 88-key piano visualization, vocals, online multiplayer, native installers,
-  3D performance scenes or licensed commercial song content.
+Not implemented: full guitar-chord recognition; automatic live-audio latency
+calibration; full 88-key piano-roll presentation; vocals; online multiplayer;
+native installers; commercial song licensing. Per-player correction is manual;
+the existing global tap calibration uses MIDI/button taps. Long endurance,
+cross-browser support and formal accessibility certification remain unverified.
 
-The build is ready for an actual input-path trial. It is not hardware-certified
-and should not be described as a completed Rock Band or Rocksmith replacement.
+The GitHub Actions workflow is included, but this local result is not itself an
+Actions result. Consult the PR checks for the hosted run's status. Earlier v0.2
+reports remain in `docs/V0.2_TEST_REPORT.md` and existing historical test logs.
