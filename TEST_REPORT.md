@@ -1,41 +1,49 @@
-# MIDI Stage 0.7.0 — MIDI OUT / Hardware Profiles validation
+# MIDI Stage 0.8.0 — Hardware Onboarding validation
 
 ## Completed local validation
 
-**208 Node unit checks pass** on the authorized Mac. The standalone `MIDI-Stage.html`
-rebuilds from source and `git diff --check` is clean. This includes the existing chord,
-MIDI-input, live-audio, Song Workshop and import suites plus new MIDI-output coverage.
+**218 Node unit checks pass** on the authorized Mac. The standalone build regenerates
+from source and `git diff --check` is clean. The ten new onboarding model checks cover
+role-name suggestions, connected/missing/audio status, per-player calibration math,
+readable report fields, clock-output resolution, and removal of raw browser device IDs.
 
-New unit coverage verifies stable output signatures, SysEx rejection, timestamped safe
-sends, queue clear/panic behavior, external guide-note planning, chord-tone guide
-output, refusal to invent rhythm-chart pitches, note/CC hit feedback, 24-PPQN clock,
-tempo-changing beat grids, Song Position Pointer, Start/Continue/Stop, and disconnected
-saved-output handling.
+The existing MIDI OUT, chord, input, audio, Song Workshop and analysis units remain
+part of the same 218-check run.
 
 ## Browser/hosted gate
 
-`tests/hardware.browser.py` is included in the standard browser runner. It uses two
-simulated MIDI inputs and two simulated MIDI outputs while exercising the real
-Instrument Setup UI, Web Audio song clock, score callbacks and session lifecycle. It
-checks output enumeration, saved profiles, test notes, clock, guide output, feedback,
-Stop/panic cleanup, resume/Continue, output disconnection, and absence of SysEx.
+`tests/onboarding.browser.py` adds **17 browser checks** to the standard GitHub Actions
+suite. It opens the real five-step wizard with simulated MIDI inputs/outputs and checks:
 
-The complete GitHub Actions run also executes all pre-existing browser suites and the
-real IndexedDB/process-restart storage suite. Hosted totals are intentionally not
-claimed in this file until that PR run completes.
+- opening onboarding does not request permission before the user presses Connect;
+- Web MIDI permission keeps SysEx disabled;
+- discovery displays MIDI IN/OUT labels;
+- playing a drum pad and keyboard key binds the actual input and detected channel;
+- External synth / feedback profiles and MIDI Clock settings persist;
+- the wizard test-output button emits MIDI data;
+- manual per-player correction persists;
+- role calibration hands off to the named calibration dialog and returns to the wizard;
+- the summary reflects routes and finish stores the onboarding completion marker;
+- no JavaScript page errors occur.
 
-## Safety and product boundaries
+The hosted runner also repeats all previous browser suites and the real
+IndexedDB/process-restart storage gate. With the previous 408-check baseline, ten new
+unit checks and 17 onboarding browser checks, the expected hosted total is **435** if
+the complete workflow passes. This file does not claim that pending hosted result.
 
-- Web MIDI is requested with `sysex:false`; the MIDI OUT layer independently rejects
-  messages beginning with SysEx status F0.
-- Normal session cleanup only clears outputs configured by MIDI Stage. The explicit
-  PANIC control intentionally targets every connected output and all 16 channels.
-- Generic Note/CC feedback does not guarantee LED behavior on any particular device.
-- Guide notes from MP3 chord charts may reflect heuristic chord estimates. Plain
-  rhythm-only MP3 charts send no invented guide pitches.
-- Automated MIDI ports are simulated. No physical synth, drum module, keyboard,
-  controller, MIDI interface or clock follower has been certified by this test run.
-- Browser/OS timing, USB MIDI driver behavior and physical round-trip latency remain
-  unmeasured.
+## Reproducible build
 
-See `docs/MIDI_OUT.md` for the output protocol and profile contract.
+`python3 build.py` must reproduce the committed `MIDI-Stage.html`. CI verifies that
+with `git diff --exit-code -- MIDI-Stage.html` after all tests.
+
+## Product boundaries
+
+- Browser/device labels and simulated ports are not physical-device certification.
+- The role-specific click test includes human response and the audible monitoring path;
+  it does not isolate USB MIDI, audio interface or OS driver latency.
+- Guitar/bass audio setup still uses Audio soundcheck and manual player correction.
+- Generic MIDI Note/CC feedback does not guarantee LED behavior on a real controller.
+- SysEx remains disabled. The wizard does not install drivers or access firmware.
+- Exported onboarding reports omit raw browser MIDI IDs and audio samples.
+
+See `docs/HARDWARE_ONBOARDING.md` and `docs/MIDI_OUT.md`.

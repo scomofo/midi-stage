@@ -1,18 +1,17 @@
-# MIDI Stage — v0.7 / Hardware MIDI OUT
+# MIDI Stage — v0.8 / Hardware Onboarding
 
 A local rhythm game for MIDI drums, an 88-key MIDI-capable keyboard, and electric
 guitar/bass through an audio interface. Original code, visuals and practice songs;
 not affiliated with Rock Band or Harmonix. No account, cloud service, recording,
 or audio uploads. The browser game has no runtime package dependencies.
 
-**v0.7 adds safe MIDI OUT and reusable hardware profiles on top of the v0.6 chord
-highways.** A player can route authored guide notes or chord tones to an external
-synth, pulse a MIDI note/CC for pad or LED feedback, and sync external gear with
-24-PPQN MIDI Clock plus Start/Continue/Stop. Non-zero practice starts send Song
-Position Pointer before Continue. SysEx stays disabled. Profiles reconnect by the
-output manufacturer/name signature rather than only a transient browser port ID.
-Actual output devices, LEDs, synths, clock followers and end-to-end hardware latency
-still need physical validation.
+**v0.8 adds a guided Hardware Setup Wizard on top of the v0.7 MIDI OUT layer.**
+The wizard discovers MIDI ports, identifies drums/keys by listening for the next
+played note or pad, hands guitar/bass audio routing to Soundcheck, configures optional
+MIDI OUT/Clock profiles, launches per-player MIDI timing calibration, and saves a
+human-readable local hardware report. Advanced Instrument Setup remains available.
+SysEx stays disabled. Physical devices and end-to-end latency still require real
+hardware validation; the wizard does not turn simulated tests into certification.
 
 ## Run it
 
@@ -22,6 +21,31 @@ Windows launchers call the same Python server; Python 3 is required.
 
 `MIDI-Stage.html` is the standalone build. Use the localhost launcher for instrument
 permissions. `index.html` loads the separate source modules for development.
+
+## Hardware setup wizard
+
+Choose **Hardware setup wizard** in the sidebar when setting up a machine or changing
+instruments. The five-step flow is:
+
+1. **Find your rig** — request normal Web MIDI access and list connected MIDI inputs
+   and outputs. SysEx is not requested.
+2. **Identify your instruments** — choose Listen for Drums or Keyboard, then play one
+   pad/key. The received device and MIDI channel are saved to that role. Guitar/bass
+   can hand off to Audio soundcheck instead.
+3. **Set up MIDI OUT** — optionally choose External synth, Pad/LED feedback, Hybrid,
+   or Custom output profiles and a MIDI Clock/transport destination. Test sends are
+   available before leaving the step.
+4. **Calibrate timing** — launch a role-specific click test for each connected MIDI
+   player, or enter a correction manually. The role calibration only accepts events
+   from that role's saved MIDI device/channel. Audio roles continue to use Soundcheck
+   plus manual per-player correction.
+5. **Review and save** — persist the routing and mark onboarding complete. The
+   optional profile report contains readable device labels, channels and corrections,
+   not audio samples or raw browser device IDs.
+
+The wizard can be rerun at any time. **Advanced instrument setup** remains the place
+for detailed lane mappings, exact output channels/CC numbers, and global correction.
+See [docs/HARDWARE_ONBOARDING.md](docs/HARDWARE_ONBOARDING.md).
 
 ## MIDI OUT and hardware profiles
 

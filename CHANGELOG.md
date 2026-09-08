@@ -1,3 +1,14 @@
+# 0.8.0 — Hardware Onboarding
+
+- Added a five-step Hardware Setup Wizard for discovery, role identification, MIDI OUT, calibration and review.
+- Drums/keyboard can bind to the exact MIDI device and channel by playing one pad/key while the wizard listens.
+- Guitar/bass onboarding hands off to the existing Audio soundcheck instead of treating audio interfaces as MIDI devices.
+- Added guided External synth / Pad-LED / Hybrid output selection, test sends, MIDI Clock and panic access.
+- Added role-specific MIDI timing calibration that only accepts the selected role's saved route and stores a per-player correction.
+- Added local hardware-profile export without audio samples or raw browser device IDs.
+- Advanced Instrument Setup remains available; normal Connect MIDI behavior remains backward compatible.
+- Added onboarding model/browser tests. Physical-device support remains unverified until real hardware trials.
+
 # 0.7.0 — MIDI OUT / Hardware Profiles
 
 - Added Web MIDI output enumeration with stable manufacturer/name profile keys.
