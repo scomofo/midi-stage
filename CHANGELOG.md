@@ -1,3 +1,15 @@
+# 0.6.0 — Chord Highways
+
+- Added version-3 chord-highway metadata for Keyboard/Guitar charts.
+- Matching MIDI groups simultaneous notes into named chord targets while preserving the original note data.
+- Added local MP3 chord estimation using pitch-class energy and confidence-scored chord templates.
+- Added default I–V–vi–IV assist with automatic major-key, phase and common chord-span fitting plus manual key override.
+- Chord previews and gameplay show Roman numerals with chord names (for example `I C`, `V G`, `vi Am`, `IV F`).
+- MIDI keyboard chord scoring supports arcade pitch-class matching and exact authored MIDI voicings. Partial chords count as one missed target.
+- Live electric-guitar chord highways score strum timing only; the app does not claim reliable multi-string chord recognition from audio.
+- Added sustained chord blocks, dedicated chord scoring tests, PCM progression tests and browser integration coverage.
+- Existing rhythm-only audio charts remain version 2; ordinary manual/MIDI charts remain version 1 unless chord targets are present.
+
 # 0.4.0 — Song Workshop
 
 ## 0.5.0 — Quick MP3 Highways
