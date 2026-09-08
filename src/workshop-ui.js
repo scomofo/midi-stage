@@ -139,7 +139,7 @@
     async analyzeBuffer(buffer,ticket){
       if(!this.quickOptions().roles.length)throw Error('Choose at least one instrument above, then import your song.');
       const job=new StageSongAnalysis.Job();this.analysisJob=job;$('wsAnalysisProgress').hidden=false;
-      try{return await job.run(buffer,(fraction,label)=>{if(!this.valid(ticket))return;$('wsProgress').value=Math.round(fraction*78);$('wsAnalysisLabel').textContent=label;});}
+      try{return await job.run(buffer,(fraction,label)=>{if(!this.valid(ticket))return;$('wsProgress').value=Math.round(fraction*100);$('wsAnalysisLabel').textContent=label;});}
       finally{if(this.analysisJob===job)this.analysisJob=null;if(ticket===this.generation)this.analysisBackend=job.backend;}
     }
     async estimateChords(buffer,bpm,firstBeat,ticket){
