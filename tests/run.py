@@ -25,7 +25,7 @@ def main() -> int:
             import playwright.sync_api  # noqa: F401
         except ImportError:
             parser.error('Install requirements-dev.txt and run python -m playwright install chromium first.')
-        commands += [[sys.executable, 'tests/'+name] for name in ['browser.test.py','edge.test.py','soundcheck.browser.py','strings.browser.py','workshop.browser.py','smart-import.browser.py','chords.browser.py']]
+        commands += [[sys.executable, 'tests/'+name] for name in ['browser.test.py','edge.test.py','soundcheck.browser.py','strings.browser.py','workshop.browser.py','smart-import.browser.py','chords.browser.py','hardware.browser.py']]
     if args.storage:
         commands.append([sys.executable, 'tests/workshop-storage.browser.py'])
     try:

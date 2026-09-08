@@ -1,17 +1,18 @@
-# MIDI Stage — v0.6 / Chord Highways
+# MIDI Stage — v0.7 / Hardware MIDI OUT
 
 A local rhythm game for MIDI drums, an 88-key MIDI-capable keyboard, and electric
 guitar/bass through an audio interface. Original code, visuals and practice songs;
 not affiliated with Rock Band or Harmonix. No account, cloud service, recording,
 or audio uploads. The browser game has no runtime package dependencies.
 
-**v0.6 adds playable chord highways on top of the v0.5 quick MP3 flow.** Matching
-MIDI groups simultaneous notes into chord targets. MP3/audio imports can estimate
-major/minor chord changes locally, with an I–V–vi–IV assist enabled by default for
-pop-progressions such as `I C → V G → vi Am → IV F`. Keyboard/MIDI can score chord
-tones; live guitar chord charts score strum timing without claiming reliable chord
-identity. Actual instruments, real recordings, and physical interface latency still
-need validation.
+**v0.7 adds safe MIDI OUT and reusable hardware profiles on top of the v0.6 chord
+highways.** A player can route authored guide notes or chord tones to an external
+synth, pulse a MIDI note/CC for pad or LED feedback, and sync external gear with
+24-PPQN MIDI Clock plus Start/Continue/Stop. Non-zero practice starts send Song
+Position Pointer before Continue. SysEx stays disabled. Profiles reconnect by the
+output manufacturer/name signature rather than only a transient browser port ID.
+Actual output devices, LEDs, synths, clock followers and end-to-end hardware latency
+still need physical validation.
 
 ## Run it
 
@@ -21,6 +22,42 @@ Windows launchers call the same Python server; Python 3 is required.
 
 `MIDI-Stage.html` is the standalone build. Use the localhost launcher for instrument
 permissions. `index.html` loads the separate source modules for development.
+
+## MIDI OUT and hardware profiles
+
+Open **Instrument setup** after **Connect MIDI**. Each player has an optional MIDI
+OUT profile with an output, MIDI channel and preset:
+
+- **External synth** sends that player’s authored guide notes to the chosen output.
+- **Pad / LED feedback** sends a short velocity-coded MIDI note after Perfect/Great/
+  Good hits. Change Feedback to **CC pulse** for controllers that react to CC values.
+- **Hybrid** enables both. **Custom** keeps manually chosen guide/feedback settings.
+- **Off** sends nothing for that player. A test-note button checks basic output
+  routing without starting a song.
+
+For normal MIDI/manual charts, guide output follows authored pitches and note tails.
+For chord highways it sends the chart chord tones. MP3-derived chord tones may be
+estimated and should not be treated as authoritative transcription. Plain rhythm-only
+MP3 charts intentionally send no invented guide pitches.
+
+Choose a **Clock output** to send standard MIDI Clock at 24 pulses per quarter note.
+Clock timing follows the song beat map, including imported tempo changes. Starting at
+song zero sends MIDI Start; resuming or starting a non-zero loop/section sends Song
+Position Pointer followed by Continue; pause/finish sends Stop. Scheduled future
+messages are cleared when MIDI Stage stops or seeks.
+
+**PANIC / ALL NOTES OFF** clears queued output and sends Sustain Off (CC64), All Notes
+Off (CC123), and All Sound Off (CC120) on all 16 channels of every connected output.
+Normal pause/finish cleanup is narrower and targets only outputs/channels configured
+by MIDI Stage.
+
+Web MIDI access is requested with `sysex:false`; MIDI Stage also rejects attempted
+SysEx sends in its output layer. It does not perform firmware access or device-specific
+SysEx configuration. Hardware names/behavior differ by manufacturer, so Note/CC LED
+feedback may need the device manual and a Custom profile.
+
+See [docs/MIDI_OUT.md](docs/MIDI_OUT.md) for the transport contract, profile schema,
+and validation boundaries.
 
 ## Import songs and create highways
 

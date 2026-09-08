@@ -21,6 +21,20 @@ player actually fretted the displayed multi-string chord remains future work.
 A diverse legally supplied song corpus and physical-device timing still need
 validation.
 
+## MIDI OUT / hardware milestone — implemented in v0.7
+
+Web MIDI outputs can now receive authored guide notes, chord tones, hit-feedback note
+or CC pulses, 24-PPQN MIDI Clock and transport messages. Player profiles persist by
+manufacturer/name signature and support external-synth, feedback, hybrid and custom
+routing. Non-zero practice starts send Song Position Pointer + Continue; pause/finish
+clear scheduled sends and use scoped panic cleanup. An explicit panic control targets
+all connected outputs and all channels. SysEx is disabled.
+
+Browser/synthetic coverage is regression evidence only. Actual synths, drum modules,
+LED controllers, MIDI interfaces and clock followers still require physical testing.
+Device-specific feedback profiles can be added after their models and MIDI
+implementations are known.
+
 ## Higher-fidelity song parts — future implementation
 
 Evaluate instrument separation and transcription as a separate, optional pipeline.
@@ -57,14 +71,14 @@ Implemented in the Song Workshop PR: MIDI/audio import, editable instrument
 highways, beat-practice exercises, preview, local library and chart JSON backups.
 This is not full audio transcription. Actual instrument trials remain pending.
 
-## Milestone 0.7 — 88-key keyboard experience
+## Milestone 0.8 — 88-key keyboard experience
 
 - Full piano-roll visualization
 - Left/right hand ranges and fingering hints where authored
 - Chord voicing and sustain-pedal feedback
 - Difficulty reductions that preserve musical intent
 
-## Milestone 0.8 — Band feel
+## Milestone 0.9 — Band feel
 
 - Shared crowd/energy meter
 - Unison sections and band bonuses
@@ -76,7 +90,7 @@ This is not full audio transcription. Actual instrument trials remain pending.
 - Guitar chord recognition after single-note reliability is proven
 - Expanded song authoring: tempo editing, stem workflow, transcription research
 - Better stem/backing-track workflow
-- Hardware compatibility profiles
+- Device-specific hardware profile presets after physical validation
 - Native packaging
 - Optional vocals
 - Online play only after local latency and scoring are solid
