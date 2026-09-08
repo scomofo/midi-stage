@@ -91,7 +91,7 @@
       this.dialog.addEventListener('keydown',e=>{if(e.code==='KeyT'&&this.preview.running&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)){e.preventDefault();this.attempt(()=>this.tapNote());}});
       $('wsSave').onclick=()=>this.task(t=>this.save(t));$('wsRefresh').onclick=()=>this.task(()=>this.refreshLibrary());
       $('wsExport').onclick=()=>this.attempt(()=>{const p=W.validate({...this.project,title:$('wsName').value}),url=URL.createObjectURL(new Blob([W.serialize(p)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=p.title.replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,80)+'.midistage.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);this.status('Chart exported. Keep the original audio separately; it is not included in JSON.');});
-      $('wsPlay').onclick=()=>this.task(async ticket=>{const p=W.validate({...this.project,title:$('wsName').value});if(!p.parts.some(part=>part.notes.length))throw Error('Build a highway or add at least one note before playing.');this.stop();this.onPublish(p,this.buffer);if(this.valid(ticket))this.dialog.close();});
+      $('wsPlay').onclick=()=>this.task(async ticket=>{const p=W.validate({...this.project,title:$('wsName').value});if(!p.parts.some(part=>part.notes.length))throw Error('Build a highway or add at least one note before playing.');this.stop();this.onPublish(p,this.buffer);if(this.dialog.open)this.dialog.close();});
     }
     attempt(action){try{action();}catch(e){this.status(e.message);}}
     discard(){return !this.dirty||!this.project.parts.some(p=>p.notes.length)||confirm('Replace this working draft? Save or export it first to keep it.');}
