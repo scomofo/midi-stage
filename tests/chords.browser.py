@@ -40,10 +40,8 @@ with sync_playwright() as p:
     page.wait_for_function('!MIDIStage.getWorkshopSnapshot().busy')
     project=ws(page)['project']
     check('version-3 import preserves Roman numerals and key',project['version']==3 and [c['roman'] for c in project['chordHighways']['keys']]==['I','V','vi','IV'] and project['chordHighways']['keys'][0]['key']=='C')
-    page.locator('#wsPlay').click();page.wait_for_timeout(250)
-    publish_state=page.evaluate("({open:document.getElementById('workshopDialog').open,status:document.getElementById('wsStatus').textContent,tag:document.getElementById('songTag').textContent,toast:document.getElementById('toast').textContent})")
-    print('PUBLISH_DIAGNOSTIC',json.dumps(publish_state),flush=True)
-    check('publishing chord highways closes Song Workshop',not publish_state['open'])
+    page.locator('#wsPlay').click();page.wait_for_function("!document.getElementById('workshopDialog').open")
+    check('publishing chord highways closes Song Workshop',not page.locator('#workshopDialog').evaluate('(e)=>e.open'))
     check('published setlist song advertises chord highways','CHORD HIGHWAYS' in page.locator('#songTag').inner_text())
     # Keyboard only for exact chord-gameplay validation.
     if page.locator('[data-part="guitar"]').get_attribute('aria-pressed')=='true': page.locator('[data-part="guitar"]').click()
