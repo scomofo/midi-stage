@@ -36,6 +36,10 @@
 
 .ws-quick-visual{margin:10px 0 18px}#wsQuickCanvas{display:block;width:100%;height:auto;min-height:105px;background:#0a1822;border:1px solid #28424b;border-radius:9px}.ws-quick-visual p{margin:6px 0 0}.ws-quick-ready .ws-quick-scope{margin-bottom:12px}
 
+.hardware-global{border-top:1px solid var(--line);margin-top:22px;padding-top:18px}.hardware-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.hardware-heading h3{font-size:17px;margin:4px 0}.hardware-global>p{font-size:10px;color:var(--dim);margin:5px 0 13px}.hardware-fields{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:12px;align-items:end}.hardware-fields>label:not(.check){display:grid;gap:5px;font-size:9px}.hardware-fields select{width:100%;min-width:0}.hardware-global>small{display:block;margin-top:9px;color:var(--dim);font-size:9px}.hardware-route{margin-top:13px;padding-top:12px;border-top:1px dashed #334654}.hardware-route-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.hardware-route-title strong{font-size:9px;letter-spacing:1.2px;color:var(--mint)}.hardware-route-grid{display:grid;grid-template-columns:1.35fr .55fr .9fr .75fr .7fr;gap:9px;align-items:end}.hardware-route-grid label{display:grid;gap:5px;font-size:8px}.hardware-route-grid select,.hardware-route-grid input{width:100%;min-width:0}.hardware-route-actions{display:flex;align-items:center;gap:8px;margin-top:8px}.hardware-route-actions .check{height:auto}.hardware-route-actions small{font-size:8px;color:var(--dim)}
+@media(max-width:850px){.hardware-fields{grid-template-columns:1fr 1fr}.hardware-route-grid{grid-template-columns:1fr 1fr 1fr}.hardware-route-grid label:first-child{grid-column:span 2}}
+@media(max-width:560px){.hardware-fields,.hardware-route-grid{grid-template-columns:1fr}.hardware-route-grid label:first-child{grid-column:auto}.hardware-heading{align-items:flex-start;flex-direction:column}.hardware-route-actions{align-items:flex-start;flex-direction:column}}
+
 </style>
   
 </head>
@@ -80,8 +84,8 @@
       <details class="practice-tools"><summary>Practice tools <span>Loop a section · Add backing audio</span></summary><div class="practice-row"><label class="check"><input type="checkbox" id="loop"> Loop</label><label>From (sec)<input id="loopStart" type="number" min="0" step="0.5" value="0"></label><label>To (sec)<input id="loopEnd" type="number" min="1" step="0.5" value="17.1"></label><button id="audioButton" class="button secondary small">Add backing audio</button><input id="audioFile" type="file" accept="audio/*" hidden><button id="clearAudio" class="button ghost small" hidden>Clear audio</button><label>Audio starts at (sec)<input id="audioOffset" type="number" value="0" step="0.01" min="-120" max="120"></label></div><p id="audioStatus">MIDI tracks are synthesized locally. Optional audio must match your chart; it is not automatically transcribed or aligned.</p></details>
     </section>
   </main>
-  <footer><span>MIDI STAGE <b>0.5</b> / PLAYABLE PROTOTYPE</span><span>Original game & music. Not affiliated with Rock Band or Harmonix.</span></footer>
-  <dialog id="setupDialog" class="setup-dialog"><div class="dialog-heading"><div><div class="eyebrow">PLUG IN. MAP IT. PLAY.</div><h2>Your instrument rack</h2></div><button data-close="setupDialog" class="icon-button" aria-label="Close instrument settings">×</button></div><p class="dialog-intro">Assign each player a different device or MIDI channel. Select “Any channel” for a dedicated controller. Settings save on this browser.</p><div id="routeWarning" class="warning" hidden></div><div id="routeSettings"></div><div class="global-settings"><label>Ignore velocities below<input id="minVelocity" type="number" min="1" max="127" value="12"><small>Reject very light / accidental triggers.</small></label><label>Global correction (ms)<input id="inputOffset" type="number" min="-500" max="500" value="0"><small>Positive values compensate late input.</small></label><label class="check"><input id="monitor" type="checkbox" checked> Hear my MIDI notes</label><button id="calibrateButton" class="button secondary">Calibrate timing</button></div><div class="dialog-footer"><span id="learnStatus" role="status">MIDI Learn: click a lane, then play its pad or key.</span><button data-close="setupDialog" class="button primary">Done</button></div></dialog>
+  <footer><span>MIDI STAGE <b>0.7</b> / PLAYABLE PROTOTYPE</span><span>Original game & music. Not affiliated with Rock Band or Harmonix.</span></footer>
+  <dialog id="setupDialog" class="setup-dialog"><div class="dialog-heading"><div><div class="eyebrow">PLUG IN. MAP IT. PLAY.</div><h2>Your instrument rack</h2></div><button data-close="setupDialog" class="icon-button" aria-label="Close instrument settings">×</button></div><p class="dialog-intro">Assign each player a different device or MIDI channel. Select “Any channel” for a dedicated controller. Settings save on this browser.</p><div id="routeWarning" class="warning" hidden></div><div id="routeSettings"></div><div class="global-settings"><label>Ignore velocities below<input id="minVelocity" type="number" min="1" max="127" value="12"><small>Reject very light / accidental triggers.</small></label><label>Global correction (ms)<input id="inputOffset" type="number" min="-500" max="500" value="0"><small>Positive values compensate late input.</small></label><label class="check"><input id="monitor" type="checkbox" checked> Hear my MIDI notes</label><button id="calibrateButton" class="button secondary">Calibrate timing</button></div><section class="hardware-global"><div class="hardware-heading"><div><div class="eyebrow">MIDI OUT / HARDWARE SYNC</div><h3>External gear</h3></div><button id="panicOut" class="button ghost small">PANIC / ALL NOTES OFF</button></div><p>Optional. Route guide notes or hit feedback to MIDI hardware and sync external devices with MIDI Clock. SysEx stays disabled.</p><div class="hardware-fields"><label>CLOCK OUTPUT<select id="clockOutput"></select></label><label class="check"><input id="midiClock" type="checkbox"> Send MIDI Clock · 24 PPQN</label><label class="check"><input id="midiTransport" type="checkbox" checked> Start / Continue / Stop</label></div><small id="hardwareStatus" role="status">No MIDI outputs connected.</small></section><div class="dialog-footer"><span id="learnStatus" role="status">MIDI Learn: click a lane, then play its pad or key.</span><button data-close="setupDialog" class="button primary">Done</button></div></dialog>
   <dialog id="calibrationDialog" class="calibration-dialog"><div class="dialog-heading"><div><div class="eyebrow">GET IN THE POCKET</div><h2>Timing calibration</h2></div><button data-close="calibrationDialog" class="icon-button" aria-label="Close calibration">×</button></div><p>Listen to the clicks. After the first three, tap your instrument or the button in time for ten beats. This estimates your input/audio correction; it does not measure hardware latency independently.</p><div id="calibrationPulse" class="calibration-pulse">♩</div><strong id="calibrationStatus" role="status">Use the same headphones or speakers you will play with.</strong><div class="calibration-actions"><button id="calibrationStart" class="button primary">Start clicks</button><button id="calibrationTap" class="button secondary" disabled>Tap on the beat <kbd>SPACE</kbd></button></div><p class="muted">Wired audio is recommended. Bluetooth delay and jitter can make timing inconsistent.</p></dialog>
   <dialog id="resultsDialog" class="results-dialog"><div class="dialog-heading"><div><div class="eyebrow" id="resultEyebrow">SET COMPLETE</div><h2 id="resultTitle">That's your groove.</h2></div><button data-close="resultsDialog" class="icon-button" aria-label="Close results">×</button></div><div id="resultContent"></div><div class="dialog-footer"><button id="resultSetup" class="button secondary">Instrument setup</button><button id="playAgain" class="button primary">↺ &nbsp; Play again</button></div></dialog>
   <dialog id="soundcheckDialog" class="soundcheck-dialog" aria-labelledby="soundcheckTitle">
@@ -391,25 +395,35 @@
   return {TEMPLATES,chordName,groupNotes,templateScore,progressionForKey,fitPopProgression,classifyChroma,fftChroma,analyzeBuffer,makeChart,ChordJudge};
 });
 
-/* MIDI input only: no SysEx, output, firmware access, or network traffic. */
+/* Web MIDI input/output transport. SysEx is deliberately disabled. */
 (function(root){
   'use strict';
+  const clean=s=>String(s||'').trim().replace(/\s+/g,' ');
+  function basePortKey(port){return `${clean(port?.manufacturer).toLowerCase()}|${clean(port?.name).toLowerCase()}`;}
   class MIDIHub {
-    constructor({onMessage=()=>{},onDevices=()=>{},onDisconnect=()=>{}}={}){this.access=null;this.onMessage=onMessage;this.onDevices=onDevices;this.onDisconnect=onDisconnect;this.attached=new Map();}
+    constructor({onMessage=()=>{},onDevices=()=>{},onOutputs=()=>{},onDisconnect=()=>{},onOutputDisconnect=()=>{}}={}){
+      this.access=null;this.onMessage=onMessage;this.onDevices=onDevices;this.onOutputs=onOutputs;this.onDisconnect=onDisconnect;this.onOutputDisconnect=onOutputDisconnect;this.attached=new Map();this.lastOutputs=new Set();
+    }
     async connect(){
-      if(!window.isSecureContext)throw Error('MIDI needs a secure page. Launch with start.py and open http://localhost:8765 in Chrome.');
-      if(!navigator.requestMIDIAccess)throw Error('Web MIDI is not available here. Use desktop Chrome. Keyboard play still works.');
-      this.access=await navigator.requestMIDIAccess({sysex:false});
+      if(!root.isSecureContext)throw Error('MIDI needs a secure page. Launch with start.py and open http://localhost:8765 in Chrome.');
+      if(!root.navigator?.requestMIDIAccess)throw Error('Web MIDI is not available here. Use desktop Chrome. Keyboard play still works.');
+      this.access=await root.navigator.requestMIDIAccess({sysex:false});
       this.access.onstatechange=()=>this.refresh();this.refresh();return this.devices();
     }
-    devices(){return this.access?[...this.access.inputs.values()].filter(p=>p.state==='connected').map(p=>({id:p.id,name:p.name||'MIDI input',manufacturer:p.manufacturer||''})):[];}
+    keyed(ports,label){
+      const seen=new Map();return [...ports].filter(p=>p.state==='connected').map(p=>{const base=basePortKey(p),n=(seen.get(base)||0)+1;seen.set(base,n);return {id:p.id,key:`${base}#${n}`,name:p.name||label,manufacturer:p.manufacturer||'',state:p.state};});
+    }
+    devices(){return this.access?this.keyed(this.access.inputs.values(),'MIDI input'):[];}
+    outputDevices(){return this.access?.outputs?.values?this.keyed(this.access.outputs.values(),'MIDI output'):[];}
     refresh(){
       const devices=this.devices(),ids=new Set(devices.map(d=>d.id));
       for(const [id,port] of this.attached)if(!ids.has(id)){port.onmidimessage=null;this.attached.delete(id);this.onDisconnect(id);}
       if(this.access)for(const port of this.access.inputs.values())if(port.state==='connected'&&!this.attached.has(port.id)){
         port.onmidimessage=event=>this.receive(port.id,event);this.attached.set(port.id,port);
       }
-      this.onDevices(devices);
+      const outputs=this.outputDevices(),outIds=new Set(outputs.map(o=>o.id));
+      for(const old of this.lastOutputs)if(!outIds.has(old))this.onOutputDisconnect(old);
+      this.lastOutputs=outIds;this.onDevices(devices);this.onOutputs(outputs);
     }
     receive(device,event){
       const d=event.data;if(!d||!d.length)return;const type=d[0]&0xf0,channel=(d[0]&15)+1;
@@ -417,9 +431,89 @@
       if(d.length>=3&&(type===0x90||type===0x80))this.onMessage({kind:type===0x90&&d[2]>0?'on':'off',device,channel,note:d[1],velocity:type===0x80?0:d[2],timestamp,token:`${device}:${channel}:${d[1]}`});
       else if(d.length>=3&&type===0xb0)this.onMessage({kind:'cc',device,channel,controller:d[1],value:d[2],timestamp});
     }
+    outputById(id){return this.access?.outputs?.get(id)||null;}
+    outputByKey(key){const meta=this.outputDevices().find(o=>o.key===key);return meta?this.outputById(meta.id):null;}
+    send(outputId,data,timestamp=0){
+      if(!Array.isArray(data)&&!(data instanceof Uint8Array))throw TypeError('MIDI output data must be a byte sequence.');
+      if(data[0]===0xf0)throw Error('SysEx output is disabled in MIDI Stage.');
+      const port=this.outputById(outputId);if(!port||port.state==='disconnected')throw Error('MIDI output is disconnected.');
+      port.send([...data],Number.isFinite(timestamp)?timestamp:0);return true;
+    }
+    sendKey(key,data,timestamp=0){const meta=this.outputDevices().find(o=>o.key===key);if(!meta)throw Error('Saved MIDI output is not connected.');return this.send(meta.id,data,timestamp);}
+    clear(outputId){const port=this.outputById(outputId);if(port?.clear)port.clear();}
+    clearKey(key){const meta=this.outputDevices().find(o=>o.key===key);if(meta)this.clear(meta.id);}
+    panic(outputId,channels=Array.from({length:16},(_,i)=>i+1)){
+      const port=this.outputById(outputId);if(!port)return false;port.clear?.();for(const ch of channels){const status=0xb0+Math.max(0,Math.min(15,ch-1));port.send([status,64,0]);port.send([status,123,0]);port.send([status,120,0]);}return true;
+    }
   }
-  root.StageMIDI={MIDIHub};
-})(globalThis);
+  root.StageMIDI={MIDIHub,basePortKey};
+  if(typeof module==='object'&&module.exports)module.exports={MIDIHub,basePortKey};
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+/* Safe MIDI OUT profiles, guide routing, clock/transport and hit feedback. */
+(function(root,factory){
+  const api=factory(typeof module==='object'&&module.exports?require('./core.js'):root.StageCore);
+  if(typeof module==='object'&&module.exports)module.exports=api;else root.StageHardware=api;
+})(globalThis,function(C){
+  'use strict';
+  const ROLES=['drums','keys','guitar','bass'];
+  const DEFAULT_CHANNEL={drums:10,keys:1,guitar:2,bass:3};
+  const DEFAULT_FEEDBACK={drums:36,keys:60,guitar:64,bass:40};
+  const PRESETS={
+    off:{guide:false,feedback:'off'},
+    synth:{guide:true,feedback:'off'},
+    feedback:{guide:false,feedback:'note'},
+    hybrid:{guide:true,feedback:'note'},
+    custom:null
+  };
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  function playerDefaults(role){return {outputKey:'',channel:DEFAULT_CHANNEL[role]||1,preset:'off',guide:false,feedback:'off',feedbackNumber:DEFAULT_FEEDBACK[role]||60};}
+  function defaultSettings(){return {clock:{enabled:false,transport:true,outputKey:''},players:Object.fromEntries(ROLES.map(r=>[r,playerDefaults(r)]))};}
+  function normalizePlayer(role,value={}){
+    const d=playerDefaults(role),p={...d,...value};p.outputKey=typeof p.outputKey==='string'?p.outputKey:'';p.channel=clamp(Math.round(Number(p.channel)||d.channel),1,16);p.feedbackNumber=clamp(Math.round(Number(p.feedbackNumber)||d.feedbackNumber),0,127);p.feedback=['off','note','cc'].includes(p.feedback)?p.feedback:'off';p.guide=!!p.guide;p.preset=Object.hasOwn(PRESETS,p.preset)?p.preset:'custom';return p;
+  }
+  function normalizeSettings(value={}){const d=defaultSettings(),clock={...d.clock,...(value.clock||{})};clock.enabled=!!clock.enabled;clock.transport=clock.transport!==false;clock.outputKey=typeof clock.outputKey==='string'?clock.outputKey:'';return {clock,players:Object.fromEntries(ROLES.map(r=>[r,normalizePlayer(r,value.players?.[r])]))};}
+  function applyPreset(profile,preset){const p=normalizePlayer('keys',profile);if(!Object.hasOwn(PRESETS,preset))preset='custom';if(PRESETS[preset])Object.assign(p,PRESETS[preset]);p.preset=preset;return p;}
+  function status(channel,type){return (type&0xf0)+clamp(channel,1,16)-1;}
+  function feedbackValue(grade){return grade==='perfect'?127:grade==='great'?104:grade==='good'?78:0;}
+  function beatTimes(song){return (song?.beats||[]).map(b=>Number(b.time)).filter(Number.isFinite).sort((a,b)=>a-b);}
+  function clockPlan(song,start=0,end=song.duration){const beats=beatTimes(song),times=[];if(beats.length>=2){for(let i=0;i<beats.length;i++){const a=beats[i];if(a>=end)break;const prev=i?beats[i]-beats[i-1]:60/(song.bpm||120),b=beats[i+1]??(a+prev);if(b<=a)continue;for(let k=0;k<24;k++){const t=a+(b-a)*k/24;if(t>=start-1e-8&&t<end-1e-8)times.push(t);}}}else{const step=60/(song.bpm||120)/24;for(let i=Math.ceil((start-1e-8)/step);i*step<end-1e-8;i++)times.push(i*step);}return times;}
+  function songPosition(song,time){const beats=beatTimes(song);let quarter;if(beats.length>=2){let i=0;while(i+1<beats.length&&beats[i+1]<=time+1e-9)i++;const a=beats[i]??0,b=beats[i+1]??(a+(i?beats[i]-beats[i-1]:60/(song.bpm||120))),fraction=b>a?clamp((time-a)/(b-a),0,1):0;quarter=i+fraction;}else quarter=time*(song.bpm||120)/60;return clamp(Math.round(quarter*4),0,0x3fff);}
+  class Engine{
+    constructor({hub,settings,onStatus=()=>{},now=()=>performance.now()}={}){this.hub=hub;this.settings=normalizeSettings(settings);this.onStatus=onStatus;this.now=now;this.running=false;this.timer=null;this.guide=[];this.guideCursor=0;this.clockTimes=[];this.clockCursor=0;this.transportSent=false;this.session=null;this.touched=new Map();}
+    configure(settings){this.settings=normalizeSettings(settings);return this.settings;}
+    connected(key){return !!key&&!!this.hub?.outputDevices?.().some(o=>o.key===key);}
+    meta(key){return this.hub?.outputDevices?.().find(o=>o.key===key)||null;}
+    sendKey(key,data,at=0){if(!key)return false;if(!this.connected(key)){this.onStatus('Saved MIDI output is not connected.');return false;}try{this.hub.sendKey(key,data,at);return true;}catch(e){this.onStatus(e.message);return false;}}
+    touch(key,ch){if(!key)return;if(!this.touched.has(key))this.touched.set(key,new Set());this.touched.get(key).add(ch);}
+    guidePlan(song,players,start,end){
+      const events=[];for(const player of players.filter(p=>p.enabled)){const profile=this.settings.players[player.id];if(!profile?.guide||!profile.outputKey)continue;let notes=[];
+        const chords=song.chordHighways?.[player.type];if(chords?.length){for(const e of chords)if(e.time>=start-1e-6&&e.time<end-1e-6)for(const pitch of e.pitches||[])notes.push({time:e.time,duration:e.duration,pitch,velocity:92});}
+        else if(!song.rhythmOnly){const part=C.sourceFor(song,player);notes=part.notes.filter(n=>n.time>=start-1e-6&&n.time<end-1e-6);}
+        for(const n of notes){const ch=profile.channel,on=status(ch,0x90),off=status(ch,0x80),dur=Math.max(.04,Math.min(Number(n.duration)||.1,end-n.time));events.push({time:n.time,key:profile.outputKey,data:[on,clamp(Math.round(n.pitch),0,127),clamp(Math.round(n.velocity)||90,1,127)]},{time:n.time+dur,key:profile.outputKey,data:[off,clamp(Math.round(n.pitch),0,127),0]});this.touch(profile.outputKey,ch);}
+      }return events.sort((a,b)=>a.time-b.time||(a.data[0]&0xf0)-(b.data[0]&0xf0));
+    }
+    start({song,players,speed=1,seek=0,end=song.duration,resume=false,songNow=()=>seek}={}){
+      this.stop({transport:false,panic:true});this.running=true;this.session={song,players,speed,seek,end,resume,songNow};this.guide=this.guidePlan(song,players,seek,end);this.guideCursor=0;this.clockTimes=this.settings.clock.enabled?clockPlan(song,seek,end):[];this.clockCursor=0;this.transportSent=false;this.schedule();this.timer=setInterval(()=>this.schedule(),25);return this.snapshot();
+    }
+    schedule(){
+      if(!this.running||!this.session)return;const {song,speed,seek,end,resume,songNow}=this.session,now=this.now(),current=songNow(now),lookahead=.13*speed,until=current+lookahead;
+      const clock=this.settings.clock;if(clock.outputKey&&clock.transport&&!this.transportSent&&current<=seek+.001&&until>=seek){const at=now+Math.max(0,(seek-current)/speed*1000);if(resume||seek>1e-6){const spp=songPosition(song,seek);this.sendKey(clock.outputKey,[0xf2,spp&0x7f,(spp>>7)&0x7f],at);this.sendKey(clock.outputKey,[0xfb],at);}else this.sendKey(clock.outputKey,[0xfa],at);this.transportSent=true;}
+      if(clock.enabled&&clock.outputKey)while(this.clockCursor<this.clockTimes.length&&this.clockTimes[this.clockCursor]<=until+1e-8){const t=this.clockTimes[this.clockCursor++];if(t<current-.05*speed)continue;this.sendKey(clock.outputKey,[0xf8],now+Math.max(0,(t-current)/speed*1000));}
+      while(this.guideCursor<this.guide.length&&this.guide[this.guideCursor].time<=until+1e-8){const e=this.guide[this.guideCursor++];if(e.time<current-.05*speed)continue;this.sendKey(e.key,e.data,now+Math.max(0,(e.time-current)/speed*1000));}
+    }
+    feedback(player,grade){const p=this.settings.players[player?.id];if(!p?.outputKey||p.feedback==='off'||!['perfect','great','good'].includes(grade))return false;const value=feedbackValue(grade),now=this.now(),ch=p.channel,n=p.feedbackNumber;this.touch(p.outputKey,ch);
+      if(p.feedback==='cc'){this.sendKey(p.outputKey,[status(ch,0xb0),n,value],now);this.sendKey(p.outputKey,[status(ch,0xb0),n,0],now+90);}
+      else{this.sendKey(p.outputKey,[status(ch,0x90),n,value],now);this.sendKey(p.outputKey,[status(ch,0x80),n,0],now+90);}return true;
+    }
+    test(player){const p=this.settings.players[player?.id];if(!p?.outputKey)return false;const now=this.now(),note=p.feedbackNumber||60;this.touch(p.outputKey,p.channel);this.sendKey(p.outputKey,[status(p.channel,0x90),note,110],now);this.sendKey(p.outputKey,[status(p.channel,0x80),note,0],now+160);return true;}
+    configuredKeys(){const keys=new Set();if(this.settings.clock.outputKey)keys.add(this.settings.clock.outputKey);for(const p of Object.values(this.settings.players))if(p.outputKey)keys.add(p.outputKey);return keys;}
+    panic(all=false){let sent=0;for(const out of this.hub?.outputDevices?.()||[]){let channels;if(all)channels=Array.from({length:16},(_,i)=>i+1);else{channels=new Set(this.touched.get(out.key)||[]);for(const p of Object.values(this.settings.players))if(p.outputKey===out.key)channels.add(p.channel);channels=[...channels];}if(channels.length){this.hub.panic(out.id,channels);sent++;}}return sent;}
+    stop({transport=true,panic=true}={}){const wasRunning=this.running;this.running=false;clearInterval(this.timer);this.timer=null;for(const key of this.configuredKeys()){const meta=this.meta(key);if(meta)this.hub.clear(meta.id);}if(wasRunning&&transport&&this.settings.clock.transport&&this.settings.clock.outputKey)this.sendKey(this.settings.clock.outputKey,[0xfc],this.now());if(panic&&(wasRunning||this.touched.size))this.panic(false);this.touched.clear();this.guide=[];this.guideCursor=0;this.clockTimes=[];this.clockCursor=0;this.session=null;this.transportSent=false;}
+    snapshot(){return {running:this.running,clock:{...this.settings.clock},players:JSON.parse(JSON.stringify(this.settings.players)),outputs:(this.hub?.outputDevices?.()||[]).map(o=>({...o})),guidePending:Math.max(0,this.guide.length-this.guideCursor)};}
+  }
+  return {ROLES,PRESETS,DEFAULT_CHANNEL,DEFAULT_FEEDBACK,playerDefaults,defaultSettings,normalizePlayer,normalizeSettings,applyPreset,feedbackValue,beatTimes,clockPlan,songPosition,Engine};
+});
 
 /* Audio-clock transport with a short look-ahead scheduler. All sounds synthesized here. */
 (function(root){
@@ -1578,7 +1672,7 @@
 /* MIDI Stage application. Local-only, dependency-free browser build. */
 (function(){
   'use strict';
-  const C=StageCore,S=StageStrings,X=StageChords,$=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const C=StageCore,S=StageStrings,X=StageChords,H=StageHardware,$=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt=t=>{t=Math.max(0,Math.floor(t));return `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;};
   const icons={drums:'◉',keys:'▥',guitar:'ϟ',bass:'≋'};
   const storage={get(k,fallback){try{return JSON.parse(localStorage.getItem(k))??fallback;}catch(_){return fallback;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(_){}}};
@@ -1586,12 +1680,13 @@
   const players=C.defaults().map(p=>{const old=saved.players?.find(x=>x.id===p.id);if(!old)return p;return {...p,enabled:!!old.enabled,input:['guitar','bass'].includes(p.type)&&old.input==='audio'?'audio':'midi',offsetMs:C.clamp(Number(old.offsetMs)||0,-500,500),device:typeof old.device==='string'?old.device:'any',channel:C.clamp(Number(old.channel)||0,0,16),mode:old.mode==='exact'?'exact':'pitch',learned:old.learned&&typeof old.learned==='object'?Object.fromEntries(Object.entries(old.learned).filter(([n,l])=>Number(n)>=0&&Number(n)<128&&Number.isInteger(l)&&l>=0&&l<12)): {}};});
   if(!players.some(p=>p.enabled))players[0].enabled=true;
   const assets=new Map(),projects=new Map();let selectionTicket=0;
-  const state={backingLoading:false,songs:[C.makeSong(0),C.makeSong(1),C.makeSong(2),C.makeValidationSong()],song:null,players,status:'ready',position:0,speed:1,difficulty:'standard',judges:new Map(),charts:new Map(),feedback:new Map(),flashes:new Map(),particles:[],devices:[],demo:false,assisted:false,learn:null,from:0,to:0,loops:0,buffer:null,bufferName:'',minVelocity:C.clamp(Number(saved.minVelocity)||12,1,127),inputOffset:C.clamp(Number(saved.inputOffset)||0,-500,500),monitor:saved.monitor!==false,lastInput:new Map(),activeTokens:new Map(),pedals:new Map(),deferred:new Map(),keyDown:new Set(),calibration:null,startLock:false,startGeneration:0};
+  const state={backingLoading:false,songs:[C.makeSong(0),C.makeSong(1),C.makeSong(2),C.makeValidationSong()],song:null,players,status:'ready',position:0,speed:1,difficulty:'standard',judges:new Map(),charts:new Map(),feedback:new Map(),flashes:new Map(),particles:[],devices:[],outputs:[],hardware:H.normalizeSettings(saved.hardware),demo:false,assisted:false,learn:null,from:0,to:0,loops:0,buffer:null,bufferName:'',minVelocity:C.clamp(Number(saved.minVelocity)||12,1,127),inputOffset:C.clamp(Number(saved.inputOffset)||0,-500,500),monitor:saved.monitor!==false,lastInput:new Map(),activeTokens:new Map(),pedals:new Map(),deferred:new Map(),keyDown:new Set(),calibration:null,startLock:false,startGeneration:0};
   state.song=state.songs[0];
   const audio=new StageAudio.AudioEngine();
   let toastTimer=0,raf=0,view={w:900,h:430,dpr:1},lastHud=0,lastCount='',calTimer=0,loopTimer=0;
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const hub=new StageMIDI.MIDIHub({onMessage:handleMIDI,onDevices:updateDevices,onDisconnect:id=>{if(state.status==='playing'&&players.some(p=>p.enabled&&!S.isAudio(p)&&(p.device===id||p.device==='any'))){pauseGame('An instrument disconnected. Reconnect it, then resume.');}releaseDevice(id);}});
+  const hub=new StageMIDI.MIDIHub({onMessage:handleMIDI,onDevices:updateDevices,onOutputs:updateOutputs,onDisconnect:id=>{if(state.status==='playing'&&players.some(p=>p.enabled&&!S.isAudio(p)&&(p.device===id||p.device==='any'))){pauseGame('An instrument disconnected. Reconnect it, then resume.');}releaseDevice(id);},onOutputDisconnect:id=>{if(state.status==='playing')toast('A MIDI output disconnected. Gameplay continues; hardware sync/feedback may stop.');}});
+  const hardware=new H.Engine({hub,settings:state.hardware,onStatus:m=>{$('hardwareStatus').textContent=m;if(state.status==='playing')toast(m);}});
   const soundcheck=new StageSoundcheck.Controller({getContext:async()=>{await audio.init();return audio.ctx;},beforeOpen:()=>{if(state.status==='starting')return false;if(state.status==='playing')pauseGame('Paused for soundcheck.');},onMIDI:openSetup,onUseAudio:role=>{
       const p=players.find(p=>p.id===role);p.input='audio';p.mode='exact';p.enabled=true;
       persist();renderBand();resetReady('Live audio selected. Choose First Rehearsal, then Start set.');
@@ -1616,7 +1711,7 @@
     workshop.getBacking(song.libraryId).then(buffer=>{if(ticket!==selectionTicket)return;assets.set(song.id,buffer);apply(buffer);}).catch(e=>{if(ticket!==selectionTicket)return;apply(null);toast(e.message);});
   }
   function interrupt(message) {
-    if(state.status==='starting'){state.startGeneration++;state.status='ready';live.stop();audio.stop();setControls();toast(message);}
+    if(state.status==='starting'){state.startGeneration++;state.status='ready';live.stop();audio.stop();hardware.stop();setControls();toast(message);}
     else if(state.status==='playing')pauseGame(message);
   }
   function handleString(role,event) {
@@ -1643,11 +1738,11 @@
     if(active.length)$('inputMode').textContent='LIVE AUDIO + MIDI · INPUT PLAYBACK MUTED';
   }
   function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),5000);}
-  function persist(){storage.set('midi-stage-settings-v1',{players:players.map(({id,enabled,device,channel,mode,input,offsetMs,learned})=>({id,enabled,device,channel,mode,input,offsetMs,learned})),minVelocity:state.minVelocity,inputOffset:state.inputOffset,monitor:state.monitor});}
+  function persist(){state.hardware=hardware.configure(state.hardware);storage.set('midi-stage-settings-v1',{players:players.map(({id,enabled,device,channel,mode,input,offsetMs,learned})=>({id,enabled,device,channel,mode,input,offsetMs,learned})),minVelocity:state.minVelocity,inputOffset:state.inputOffset,monitor:state.monitor,hardware:state.hardware});}
   function enabled(){return players.filter(p=>p.enabled);}
   function bestKey(){return ['midi-stage-best-v3',state.song.id,state.difficulty,state.speed,enabled().map(p=>`${p.id}:${p.source}:${p.mode}:${p.input}`).join('|')].join('/');}
   function resetReady(message){
-    state.startGeneration++;clearTimeout(loopTimer);live.stop();audio.stop();state.status='ready';state.position=0;state.demo=false;state.assisted=false;state.loops=0;state.activeTokens.clear();state.pedals.clear();state.deferred.clear();state.keyDown.clear();state.feedback.clear();state.particles=[];state.from=0;state.to=state.song.duration;
+    state.startGeneration++;clearTimeout(loopTimer);live.stop();audio.stop();hardware.stop();state.status='ready';state.position=0;state.demo=false;state.assisted=false;state.loops=0;state.activeTokens.clear();state.pedals.clear();state.deferred.clear();state.keyDown.clear();state.feedback.clear();state.particles=[];state.from=0;state.to=state.song.duration;
     rebuildCharts();setControls();$('stageOverlay').hidden=false;$('countdown').innerHTML='';lastCount='';$('runStatus').textContent=message||'Ready when you are.';updateHUD();
   }
   function rebuildCharts(){state.charts.clear();state.judges.clear();for(const p of enabled()){const timingOnly=S.isAudio(p)&&p.type==='guitar',chordChart=state.song.chordHighways?.[p.type]?.length?X.makeChart(state.song,p,state.from,state.to,{timingOnly}):null,chart=chordChart||C.makeChart(state.song,p,state.from,state.to);state.charts.set(p.id,chart);const opts={difficulty:state.difficulty,speed:state.speed,mode:state.song.rhythmOnly?'rhythm':S.isAudio(p)?'exact':p.mode,onJudge:r=>feedback(p.id,r)};state.judges.set(p.id,chordChart?new X.ChordJudge(chart,{...opts,timingOnly}):new C.Judge(chart,{...opts,drums:p.type==='drums',verifiedHolds:S.isAudio(p)&&!state.song.rhythmOnly}));}renderPads();}
@@ -1699,19 +1794,20 @@
       } else live.stop();
       if(document.hidden||ticket!==state.startGeneration){interrupt('Start cancelled while the page was hidden.');return;}
       await audio.begin({song:state.song,players,speed:state.speed,seek:state.position,end:state.to,countIn:true,guide:$('guide').checked,demo:state.demo,metronome:$('metronome').checked,buffer:state.buffer,audioOffset:Number($('audioOffset').value)||0});
-      if(ticket!==state.startGeneration){audio.stop();live.stop();return;}
+      if(ticket!==state.startGeneration){audio.stop();live.stop();hardware.stop();return;}
+      if(!state.demo)hardware.start({song:state.song,players,speed:state.speed,seek:state.position,end:state.to,resume,songNow:stamp=>audio.songAt(stamp)});
       state.status='playing';$('stageOverlay').hidden=true;$('runStatus').textContent=state.demo?'DEMO · Autoplay · Scores are not saved':$('loop').checked?`Loop practice · Pass ${state.loops+1}`:'Count in, then make it yours.';setControls();
-    }catch(e){state.status='ready';live.stop();audio.stop();setControls();toast(e.message||'The set could not start.');}finally{state.startLock=false;}
+    }catch(e){state.status='ready';live.stop();audio.stop();hardware.stop();setControls();toast(e.message||'The set could not start.');}finally{state.startLock=false;}
   }
   function pauseGame(message='Paused. Press Enter or Resume to continue.'){
-    if(state.status!=='playing')return;state.position=C.clamp(audio.songAt(),state.from,state.to);state.status='paused';live.stop();audio.stop();
+    if(state.status!=='playing')return;state.position=C.clamp(audio.songAt(),state.from,state.to);state.status='paused';live.stop();audio.stop();hardware.stop();
     // A paused hold earns no unplayed sustain bonus. The run becomes practice-only.
     for(const j of state.judges.values())for(const n of [...j.activeHolds]){n.hold='paused';j.activeHolds.delete(n);j.held.delete(n.token);state.assisted=true;}
     state.activeTokens.clear();state.pedals.clear();state.deferred.clear();state.keyDown.clear();$('countdown').innerHTML='Ⅱ<small>PAUSED</small>';$('runStatus').textContent=message;setControls();
   }
   function feedback(id,result){
     const time=performance.now()/1000;state.feedback.set(id,{...result,until:time+.64});
-    if(result.note&&['perfect','great','good'].includes(result.grade)){const hitLanes=result.note.lanes||[result.note.lane];for(const lane of hitLanes)flash(id,lane);if(!reduced)for(const lane of hitLanes.slice(0,4))for(let i=0;i<2;i++)state.particles.push({id,lane,created:time,vx:(i?1:-1)*22,vy:-60-i*18,color:state.charts.get(id).lanes[lane].color});}
+    if(result.note&&['perfect','great','good'].includes(result.grade)){if(!state.demo)hardware.feedback(players.find(p=>p.id===id),result.grade);const hitLanes=result.note.lanes||[result.note.lane];for(const lane of hitLanes)flash(id,lane);if(!reduced)for(const lane of hitLanes.slice(0,4))for(let i=0;i<2;i++)state.particles.push({id,lane,created:time,vx:(i?1:-1)*22,vy:-60-i*18,color:state.charts.get(id).lanes[lane].color});}
     if(state.particles.length>120)state.particles.splice(0,state.particles.length-120);
   }
   function flash(id,lane){state.flashes.set(`${id}:${lane}`,performance.now()/1000+.14);const b=$('pads').querySelector(`[data-player="${id}"][data-lane="${lane}"]`);if(b){b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),120);}}
@@ -1755,19 +1851,23 @@
     }
   }
   function updateDevices(devices){
-    state.devices=devices;$('midiStatus').textContent=devices.length?`${devices.length} MIDI input${devices.length===1?'':'s'} connected`:'Keyboard ready';$('midiDot').classList.toggle('connected',devices.length>0);$('connectMIDI').innerHTML=devices.length?'⌁ &nbsp; MIDI connected':'⌁ &nbsp; Connect MIDI';$('inputMode').textContent=devices.length?'LIVE MIDI INPUT / KEYBOARD BACKUP':'COMPUTER KEYBOARD / MIDI';
+    state.devices=devices;const total=devices.length+state.outputs.length;$('midiStatus').textContent=devices.length?`${devices.length} MIDI input${devices.length===1?'':'s'} · ${state.outputs.length} out`:(state.outputs.length?`${state.outputs.length} MIDI output${state.outputs.length===1?'':'s'} connected`:'Keyboard ready');$('midiDot').classList.toggle('connected',total>0);$('connectMIDI').innerHTML=total?'⌁ &nbsp; MIDI connected':'⌁ &nbsp; Connect MIDI';$('inputMode').textContent=devices.length?'LIVE MIDI INPUT / KEYBOARD BACKUP':'COMPUTER KEYBOARD / MIDI';
     soundcheck.updateMIDI();if($('setupDialog').open)renderSetup();
   }
+  function updateOutputs(outputs){state.outputs=outputs;hardware.configure(state.hardware);$('hardwareStatus').textContent=outputs.length?`${outputs.length} MIDI output${outputs.length===1?'':'s'} available. Profiles reconnect by manufacturer/name.`:'No MIDI outputs connected.';updateDevices(state.devices);if($('setupDialog').open)renderSetup();}
   function renderSetup(){
     const conflicts=C.routingConflicts(players);$('routeWarning').hidden=!conflicts.length;$('routeWarning').textContent=`${conflicts.join('. ')}. This sends the same input to multiple parts. Select separate devices or channels.`;
     $('routeSettings').innerHTML=players.map(p=>{
-      const lanes=C.lanesFor(state.song,p),missing=p.device!=='any'&&!state.devices.some(d=>d.id===p.device);
-      return `<section class="route-card"><div class="route-title"><strong>${icons[p.type]} &nbsp; ${p.label} <span style="color:var(--dim);font-size:10px;font-weight:400">${p.enabled?'IN YOUR LINEUP':'NOT PLAYING'}</span></strong><button data-reset="${p.id}">Reset mapping</button></div><div class="route-fields"><label>MIDI INPUT<select data-route="device" data-player="${p.id}"><option value="any" ${p.device==='any'?'selected':''}>Any MIDI input</option>${state.devices.map(d=>`<option value="${esc(d.id)}" ${p.device===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}${missing?`<option selected value="${esc(p.device)}">Saved device (disconnected)</option>`:''}</select></label><label>INPUT CHANNEL<select data-route="channel" data-player="${p.id}">${Array.from({length:17},(_,i)=>`<option value="${i}" ${p.channel===i?'selected':''}>${i===0?'Any channel':`Channel ${i}`}</option>`).join('')}</select></label><label>SONG TRACK<select data-route="source" data-player="${p.id}">${state.song.parts.map(s=>`<option value="${esc(s.id)}" ${C.sourceFor(state.song,p).id===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label><label>MATCHING<select data-route="mode" data-player="${p.id}" ${p.type==='drums'||S.isAudio(p)?'disabled':''}><option value="pitch" ${p.mode==='pitch'?'selected':''}>Arcade / any octave</option><option value="exact" ${p.mode==='exact'?'selected':''}>Exact MIDI pitch</option></select></label></div><div class="route-extended"><label>PLAY INPUT<select data-route="input" data-player="${p.id}" ${['guitar','bass'].includes(p.type)?'':'disabled'}><option value="midi" ${!S.isAudio(p)?'selected':''}>MIDI / computer keys</option>${['guitar','bass'].includes(p.type)?`<option value="audio" ${S.isAudio(p)?'selected':''}>Live audio · single notes</option>`:''}</select></label><label>PLAYER CORRECTION (ms)<input type="number" min="-500" max="500" step="5" value="${p.offsetMs}" data-route="offsetMs" data-player="${p.id}"><small>Added to global correction. Positive compensates late input.</small></label></div>${state.song.rhythmOnly?'<p class="route-note">This chart uses rhythm-only matching: any note or pad on the assigned input counts. Pitches are not transcribed.</p>':''}${S.isAudio(p)?'<p class="route-note">Normal note charts use exact pitch for live audio; MIDI Learn and keyboard shortcuts do not score this player. Choose the device/channel in Audio soundcheck.</p>':''}<div class="mapping-pads">${lanes.map((l,i)=>{const custom=Object.entries(p.learned).filter(([,v])=>v===i).map(([n])=>n);return `<button class="learn-button ${state.learn?.id===p.id&&state.learn?.lane===i?'learning':''}" ${S.isAudio(p)?'disabled':''} data-learn="${p.id}" data-lane="${i}" style="--pad-color:${l.color}">${esc(l.name)}<small>${custom.length?'MIDI '+custom.join(', '):l.any?'Any note / pad':p.type==='drums'?'MIDI '+l.notes.join(','):'e.g. '+C.noteName(l.pitch)}</small></button>`;}).join('')}</div><p class="route-note">${p.type==='drums'?'General MIDI drum map by default. Learn a lane to bind its physical pad.':'Arcade matches the displayed pitch class or learned lane; Exact requires the authored MIDI note number.'} Learn also binds the device and channel. Computer keyboard always uses lane assist.</p></section>`;
+      const lanes=C.lanesFor(state.song,p),missing=p.device!=='any'&&!state.devices.some(d=>d.id===p.device),hp=state.hardware.players[p.id],outMissing=hp.outputKey&&!state.outputs.some(o=>o.key===hp.outputKey);
+      const outOptions=`<option value="" ${!hp.outputKey?'selected':''}>No MIDI output</option>${state.outputs.map(o=>`<option value="${esc(o.key)}" ${hp.outputKey===o.key?'selected':''}>${esc(o.name)}${o.manufacturer?` · ${esc(o.manufacturer)}`:''}</option>`).join('')}${outMissing?`<option selected value="${esc(hp.outputKey)}">Saved output (disconnected)</option>`:''}`;
+      return `<section class="route-card"><div class="route-title"><strong>${icons[p.type]} &nbsp; ${p.label} <span style="color:var(--dim);font-size:10px;font-weight:400">${p.enabled?'IN YOUR LINEUP':'NOT PLAYING'}</span></strong><button data-reset="${p.id}">Reset mapping</button></div><div class="route-fields"><label>MIDI INPUT<select data-route="device" data-player="${p.id}"><option value="any" ${p.device==='any'?'selected':''}>Any MIDI input</option>${state.devices.map(d=>`<option value="${esc(d.id)}" ${p.device===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}${missing?`<option selected value="${esc(p.device)}">Saved device (disconnected)</option>`:''}</select></label><label>INPUT CHANNEL<select data-route="channel" data-player="${p.id}">${Array.from({length:17},(_,i)=>`<option value="${i}" ${p.channel===i?'selected':''}>${i===0?'Any channel':`Channel ${i}`}</option>`).join('')}</select></label><label>SONG TRACK<select data-route="source" data-player="${p.id}">${state.song.parts.map(s=>`<option value="${esc(s.id)}" ${C.sourceFor(state.song,p).id===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label><label>MATCHING<select data-route="mode" data-player="${p.id}" ${p.type==='drums'||S.isAudio(p)?'disabled':''}><option value="pitch" ${p.mode==='pitch'?'selected':''}>Arcade / any octave</option><option value="exact" ${p.mode==='exact'?'selected':''}>Exact MIDI pitch</option></select></label></div><div class="route-extended"><label>PLAY INPUT<select data-route="input" data-player="${p.id}" ${['guitar','bass'].includes(p.type)?'':'disabled'}><option value="midi" ${!S.isAudio(p)?'selected':''}>MIDI / computer keys</option>${['guitar','bass'].includes(p.type)?`<option value="audio" ${S.isAudio(p)?'selected':''}>Live audio · single notes</option>`:''}</select></label><label>PLAYER CORRECTION (ms)<input type="number" min="-500" max="500" step="5" value="${p.offsetMs}" data-route="offsetMs" data-player="${p.id}"><small>Added to global correction. Positive compensates late input.</small></label></div>${state.song.rhythmOnly?'<p class="route-note">This chart uses rhythm-only matching: any note or pad on the assigned input counts. Pitches are not transcribed.</p>':''}${S.isAudio(p)?'<p class="route-note">Normal note charts use exact pitch for live audio; MIDI Learn and keyboard shortcuts do not score this player. Choose the device/channel in Audio soundcheck.</p>':''}<div class="hardware-route"><div class="hardware-route-title"><strong>MIDI OUT PROFILE</strong><button class="button ghost small" data-hw-test="${p.id}" ${hp.outputKey?'':'disabled'}>Send test note</button></div><div class="hardware-route-grid"><label>OUTPUT<select data-hw="outputKey" data-player="${p.id}">${outOptions}</select></label><label>CH<select data-hw="channel" data-player="${p.id}">${Array.from({length:16},(_,i)=>`<option value="${i+1}" ${hp.channel===i+1?'selected':''}>${i+1}</option>`).join('')}</select></label><label>PROFILE<select data-hw="preset" data-player="${p.id}"><option value="off" ${hp.preset==='off'?'selected':''}>Off</option><option value="synth" ${hp.preset==='synth'?'selected':''}>External synth</option><option value="feedback" ${hp.preset==='feedback'?'selected':''}>Pad / LED feedback</option><option value="hybrid" ${hp.preset==='hybrid'?'selected':''}>Hybrid</option><option value="custom" ${hp.preset==='custom'?'selected':''}>Custom</option></select></label><label>FEEDBACK<select data-hw="feedback" data-player="${p.id}"><option value="off" ${hp.feedback==='off'?'selected':''}>Off</option><option value="note" ${hp.feedback==='note'?'selected':''}>Note pulse</option><option value="cc" ${hp.feedback==='cc'?'selected':''}>CC pulse</option></select></label><label>NOTE / CC<input type="number" min="0" max="127" value="${hp.feedbackNumber}" data-hw="feedbackNumber" data-player="${p.id}"></label></div><div class="hardware-route-actions"><label class="check"><input type="checkbox" data-hw="guide" data-player="${p.id}" ${hp.guide?'checked':''}> Send guide notes to this output</label><small>${state.song.rhythmOnly&&!state.song.chordHighways?.[p.type]?.length?'Rhythm-only MP3 charts do not invent guide pitches.':state.song.chordHighways?.[p.type]?.length?'Chord guide uses the chart chord tones, which may be estimated for MP3 imports.':'Guide follows authored MIDI notes.'}</small></div></div><div class="mapping-pads">${lanes.map((l,i)=>{const custom=Object.entries(p.learned).filter(([,v])=>v===i).map(([n])=>n);return `<button class="learn-button ${state.learn?.id===p.id&&state.learn?.lane===i?'learning':''}" ${S.isAudio(p)?'disabled':''} data-learn="${p.id}" data-lane="${i}" style="--pad-color:${l.color}">${esc(l.name)}<small>${custom.length?'MIDI '+custom.join(', '):l.any?'Any note / pad':p.type==='drums'?'MIDI '+l.notes.join(','):'e.g. '+C.noteName(l.pitch)}</small></button>`;}).join('')}</div><p class="route-note">${p.type==='drums'?'General MIDI drum map by default. Learn a lane to bind its physical pad.':'Arcade matches the displayed pitch class or learned lane; Exact requires the authored MIDI note number.'} Learn also binds the device and channel. Computer keyboard always uses lane assist.</p></section>`;
     }).join('');
     $('routeSettings').querySelectorAll('[data-route]').forEach(el=>el.onchange=()=>{const p=players.find(p=>p.id===el.dataset.player),field=el.dataset.route;p[field]=field==='channel'?Number(el.value):field==='offsetMs'?C.clamp(Number(el.value)||0,-500,500):el.value;if(field==='input'&&el.value==='audio')p.mode='exact';if(field==='device'&&el.value!=='any')p.channel=0;if(field==='source')p.learned={};persist();resetReady('Instrument setup changed. Ready for a fresh set.');renderSetup();});
+    $('routeSettings').querySelectorAll('[data-hw]').forEach(el=>el.onchange=()=>{const profile=state.hardware.players[el.dataset.player],field=el.dataset.hw;if(field==='preset'){const next=H.applyPreset(profile,el.value);Object.assign(profile,next);}else if(field==='channel')profile.channel=C.clamp(Number(el.value)||1,1,16);else if(field==='feedbackNumber')profile.feedbackNumber=C.clamp(Number(el.value)||0,0,127);else if(field==='guide'){profile.guide=el.checked;profile.preset='custom';}else{profile[field]=el.value;if(field==='feedback')profile.preset='custom';if(field==='outputKey'&&!el.value)profile.preset='off';}hardware.configure(state.hardware);persist();renderSetup();});
+    $('routeSettings').querySelectorAll('[data-hw-test]').forEach(el=>el.onclick=()=>{const p=players.find(p=>p.id===el.dataset.hwTest);if(hardware.test(p))toast(`Sent a short test note to ${p.label}'s MIDI output.`);else toast('Choose a connected MIDI output first.');});
     $('routeSettings').querySelectorAll('[data-learn]').forEach(el=>el.onclick=()=>{state.learn={id:el.dataset.learn,lane:Number(el.dataset.lane)};renderSetup();$('learnStatus').textContent='Listening… play the pad/key to assign. Click Done to cancel.';if(!state.devices.length)toast('Connect MIDI first, then play the instrument you want to map.');});
     $('routeSettings').querySelectorAll('[data-reset]').forEach(el=>el.onclick=()=>{players.find(p=>p.id===el.dataset.reset).learned={};state.learn=null;persist();renderSetup();toast('Default lane mappings restored.');});
-    $('minVelocity').value=state.minVelocity;$('inputOffset').value=state.inputOffset;$('monitor').checked=state.monitor;
+    $('minVelocity').value=state.minVelocity;$('inputOffset').value=state.inputOffset;$('monitor').checked=state.monitor;const ck=state.hardware.clock,clockMissing=ck.outputKey&&!state.outputs.some(o=>o.key===ck.outputKey);$('clockOutput').innerHTML=`<option value="" ${!ck.outputKey?'selected':''}>No clock output</option>${state.outputs.map(o=>`<option value="${esc(o.key)}" ${ck.outputKey===o.key?'selected':''}>${esc(o.name)}</option>`).join('')}${clockMissing?`<option selected value="${esc(ck.outputKey)}">Saved output (disconnected)</option>`:''}`;$('midiClock').checked=ck.enabled;$('midiTransport').checked=ck.transport;$('hardwareStatus').textContent=state.outputs.length?`${state.outputs.length} MIDI output${state.outputs.length===1?'':'s'} available · SysEx disabled`:'No MIDI outputs connected.';
   }
   function openSetup(){if(state.status==='starting')return;if(state.status==='playing')pauseGame();renderSetup();$('setupDialog').showModal();}
   function closeDialog(id){$(id).close();if(id==='setupDialog'){state.learn=null;persist();}if(id==='calibrationDialog')stopCalibration();}
@@ -1778,7 +1878,7 @@
     const t=state.status==='playing'?audio.songAt():state.position,progress=C.clamp((t-state.from)/(state.to-state.from||1),0,1);$('progressFill').style.width=`${progress*100}%`;$('elapsed').textContent=fmt(Math.max(state.from,t));$('remaining').textContent=fmt(Math.ceil(Math.max(0,state.to-Math.max(state.from,t))));
   }
   function finishSession(){
-    if(state.status!=='playing')return;state.position=state.to;state.status='complete';live.stop();audio.stop();for(const j of state.judges.values())if(j.verifiedHolds)for(const n of [...j.activeHolds])j.finishHold(n,false);$('countdown').innerHTML='';
+    if(state.status!=='playing')return;state.position=state.to;state.status='complete';live.stop();audio.stop();hardware.stop();for(const j of state.judges.values())if(j.verifiedHolds)for(const n of [...j.activeHolds])j.finishHold(n,false);$('countdown').innerHTML='';
     const results=enabled().map(p=>({player:p,...state.judges.get(p.id).finish(state.to+.25*state.speed)}));
     const total=results.reduce((a,r)=>a+r.score,0),counts={perfect:0,great:0,good:0,miss:0,extra:0,holdBreaks:0,weight:0};for(const r of results)for(const k of Object.keys(counts))counts[k]+=r[k];const den=counts.perfect+counts.great+counts.good+counts.miss+counts.extra,acc=den?100*counts.weight/den:0;
     if($('loop').checked&&!state.demo){state.loops++;$('runStatus').textContent=`Loop ${state.loops}: ${Math.round(acc)}% accuracy. Starting next pass…`;state.status='ready';setControls();updateHUD();loopTimer=setTimeout(()=>startSession(false,true),600);return;}
@@ -1861,13 +1961,14 @@
   function endCalibration(){const c=state.calibration;if(!c)return;const taps=[...c.taps];stopCalibration();if(taps.length<6){$('calibrationStatus').textContent='Not enough taps. Try again and begin after the 3 warm-up clicks.';return;}const result=C.calibration(taps);state.inputOffset=C.clamp(result.offset,-500,500);$('inputOffset').value=state.inputOffset;persist();$('calibrationStatus').textContent=`Saved ${state.inputOffset>=0?'+':''}${state.inputOffset} ms correction · ${result.count} taps · ${result.spread} ms variation`;}
   function stopCalibration(){clearTimeout(calTimer);state.calibration=null;audio.stop();$('calibrationTap').disabled=true;$('calibrationStart').disabled=false;$('calibrationPulse').classList.remove('lit');}
   // UI events.
-  $('connectMIDI').onclick=async()=>{if(state.status==='playing')pauseGame();try{const devices=await hub.connect();await audio.init();if(devices.length===1&&enabled().length===1&&enabled()[0].device==='any'){enabled()[0].device=devices[0].id;enabled()[0].channel=0;persist();}openSetup();if(!devices.length)toast('MIDI permission granted, but no inputs are connected. Attach your instrument and check its driver.');}catch(e){toast(e.name==='NotAllowedError'?'MIDI permission was denied. Allow MIDI for this site in your browser settings. Keyboard play still works.':e.message);}};
+  $('connectMIDI').onclick=async()=>{if(state.status==='playing')pauseGame();try{const devices=await hub.connect();await audio.init();if(devices.length===1&&enabled().length===1&&enabled()[0].device==='any'){enabled()[0].device=devices[0].id;enabled()[0].channel=0;persist();}openSetup();if(!devices.length)toast(state.outputs.length?'MIDI permission granted. No inputs are connected, but MIDI output hardware is available.':'MIDI permission granted, but no MIDI ports are connected. Attach your instrument and check its driver.');}catch(e){toast(e.name==='NotAllowedError'?'MIDI permission was denied. Allow MIDI for this site in your browser settings. Keyboard play still works.':e.message);}};
   $('settingsTop').onclick=$('openSetup').onclick=openSetup;
   document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeDialog(b.dataset.close));
   $('setupDialog').addEventListener('close',()=>{state.learn=null;persist();});$('calibrationDialog').addEventListener('close',stopCalibration);
   $('start').onclick=()=>startSession();$('overlayStart').onclick=()=>startSession();$('demo').onclick=()=>startSession(true);$('pause').onclick=()=>pauseGame();$('restart').onclick=()=>{resetReady();startSession();};
   $('difficulty').onchange=()=>{state.difficulty=$('difficulty').value;resetReady();};$('speed').onchange=()=>{state.speed=Number($('speed').value);resetReady();};$('volume').oninput=()=>audio.setVolume(Number($('volume').value)/100);
   $('minVelocity').onchange=()=>{state.minVelocity=C.clamp(Number($('minVelocity').value)||1,1,127);$('minVelocity').value=state.minVelocity;persist();};$('inputOffset').onchange=()=>{state.inputOffset=C.clamp(Number($('inputOffset').value)||0,-500,500);$('inputOffset').value=state.inputOffset;persist();};$('monitor').onchange=()=>{state.monitor=$('monitor').checked;persist();};
+  $('clockOutput').onchange=()=>{state.hardware.clock.outputKey=$('clockOutput').value;hardware.configure(state.hardware);persist();renderSetup();};$('midiClock').onchange=()=>{state.hardware.clock.enabled=$('midiClock').checked;hardware.configure(state.hardware);persist();};$('midiTransport').onchange=()=>{state.hardware.clock.transport=$('midiTransport').checked;hardware.configure(state.hardware);persist();};$('panicOut').onclick=()=>{const n=hardware.panic(true);toast(n?`Panic sent to ${n} MIDI output${n===1?'':'s'} on all 16 channels.`:'No connected MIDI outputs to panic.');};
   $('calibrateButton').onclick=()=>{closeDialog('setupDialog');if(state.status==='playing')pauseGame();$('calibrationDialog').showModal();};$('calibrationStart').onclick=beginCalibration;$('calibrationTap').onclick=()=>calibrationTap();
   $('playAgain').onclick=()=>{closeDialog('resultsDialog');resetReady();startSession();};$('resultSetup').onclick=()=>{closeDialog('resultsDialog');resetReady();openSetup();};
   $('importButton').onclick=()=>{if(state.status==='playing')pauseGame();$('midiFile').click();};
@@ -1890,9 +1991,9 @@
   window.addEventListener('keyup',e=>{state.keyDown.delete(e.code);for(const p of enabled())inputRelease(p,`keyboard:${p.id}:${e.code}`,e.timeStamp);});
   window.addEventListener('blur',()=>{interrupt('Window lost focus. Press Resume when you are ready.');state.keyDown.clear();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)interrupt('Playback paused while this tab was hidden.');});
-  window.addEventListener('beforeunload',()=>{live.destroy();audio.stop();cancelAnimationFrame(raf);});
+  window.addEventListener('beforeunload',()=>{live.destroy();audio.stop();hardware.stop();cancelAnimationFrame(raf);});
   // Read-only diagnostics for tests and troubleshooting. No virtual scores or input backdoors.
-  window.MIDIStage={version:'0.6.0',getWorkshopSnapshot:()=>({open:workshop.dialog.open,busy:workshop.busy,analysis:workshop.analysis?{bpm:workshop.analysis.bpm,confidence:workshop.analysis.confidence,onsetCount:workshop.analysis.onsets.length,backend:workshop.analysisBackend}:null,preview:workshop.preview.running,project:StageWorkshop.clone(workshop.project)}),getSnapshot:()=>({rhythmOnly:!!state.song.rhythmOnly,backingLoading:state.backingLoading,bufferName:state.bufferName,songCount:state.songs.length,status:state.status,song:state.song.id,time:state.status==='playing'?audio.songAt():state.position,demo:state.demo,players:enabled().map(p=>({id:p.id,input:p.input,offsetMs:p.offsetMs,device:p.device,channel:p.channel,matching:state.judges.get(p.id)?.mode,stats:{...state.judges.get(p.id)?.stats},chordMode:!!state.judges.get(p.id)?.chordMode,notes:state.judges.get(p.id)?.notes.map(n=>({time:n.time,lane:n.lane,lanes:n.lanes,name:n.name,roman:n.roman,key:n.key,pitch:n.pitch,state:n.state,hold:n.hold}))})),devices:state.devices.map(d=>({...d})),calibration:state.inputOffset,loopCount:state.loops,audio:{running:live.running,routes:[...live.hub.routes.keys()]}})};
+  window.MIDIStage={version:'0.7.0',getWorkshopSnapshot:()=>({open:workshop.dialog.open,busy:workshop.busy,analysis:workshop.analysis?{bpm:workshop.analysis.bpm,confidence:workshop.analysis.confidence,onsetCount:workshop.analysis.onsets.length,backend:workshop.analysisBackend}:null,preview:workshop.preview.running,project:StageWorkshop.clone(workshop.project)}),getSnapshot:()=>({rhythmOnly:!!state.song.rhythmOnly,backingLoading:state.backingLoading,bufferName:state.bufferName,songCount:state.songs.length,status:state.status,song:state.song.id,time:state.status==='playing'?audio.songAt():state.position,demo:state.demo,players:enabled().map(p=>({id:p.id,input:p.input,offsetMs:p.offsetMs,device:p.device,channel:p.channel,matching:state.judges.get(p.id)?.mode,stats:{...state.judges.get(p.id)?.stats},chordMode:!!state.judges.get(p.id)?.chordMode,notes:state.judges.get(p.id)?.notes.map(n=>({time:n.time,lane:n.lane,lanes:n.lanes,name:n.name,roman:n.roman,key:n.key,pitch:n.pitch,state:n.state,hold:n.hold}))})),devices:state.devices.map(d=>({...d})),outputs:state.outputs.map(d=>({...d})),hardware:hardware.snapshot(),calibration:state.inputOffset,loopCount:state.loops,audio:{running:live.running,routes:[...live.hub.routes.keys()]}})};
   renderSetlist();renderBand();resetReady();resize();raf=requestAnimationFrame(frame);
 })();
 

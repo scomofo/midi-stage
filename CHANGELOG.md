@@ -1,3 +1,15 @@
+# 0.7.0 — MIDI OUT / Hardware Profiles
+
+- Added Web MIDI output enumeration with stable manufacturer/name profile keys.
+- Added External synth, Pad/LED feedback, Hybrid, Off and Custom per-player profiles.
+- Added authored guide-note and chord-tone output; rhythm-only audio charts never invent guide pitches.
+- Added note-pulse or CC-pulse hit feedback with per-player output/channel/value routing.
+- Added 24-PPQN MIDI Clock based on the song beat map, including tempo changes.
+- Added MIDI Start, Song Position Pointer + Continue for non-zero starts/resume, and Stop on pause/finish.
+- Added explicit PANIC across all connected outputs/channels plus scoped session cleanup.
+- Scheduled output queues are cleared on stop/seek; SysEx remains disabled in permission and send paths.
+- Added MIDI OUT unit and browser integration coverage. Physical hardware remains unverified.
+
 # 0.6.0 — Chord Highways
 
 - Added version-3 chord-highway metadata for Keyboard/Guitar charts.
