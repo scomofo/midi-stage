@@ -40,7 +40,7 @@ with sync_playwright() as p:
     page.wait_for_function('!MIDIStage.getWorkshopSnapshot().busy')
     project=ws(page)['project']
     check('version-3 import preserves Roman numerals and key',project['version']==3 and [c['roman'] for c in project['chordHighways']['keys']]==['I','V','vi','IV'] and project['chordHighways']['keys'][0]['key']=='C')
-    page.locator('#wsPlay').click()
+    page.locator('#wsPlay').click();page.wait_for_function("!document.getElementById('workshopDialog').open")
     check('published setlist song advertises chord highways','CHORD HIGHWAYS' in page.locator('#songTag').inner_text())
     # Keyboard only for exact chord-gameplay validation.
     if page.locator('[data-part="guitar"]').get_attribute('aria-pressed')=='true': page.locator('[data-part="guitar"]').click()
