@@ -1,10 +1,10 @@
 /* Song Workshop data model. Pure, bounded chart operations; never fetches audio. */
 (function(root,factory){
-  const api=factory(typeof module==='object'&&module.exports?require('./core.js'):root.StageCore);
+  const api=factory(typeof module==='object'&&module.exports?require('./core.js'):root.StageCore,typeof module==='object'&&module.exports?require('./chords.js'):root.StageChords);
   if(typeof module==='object'&&module.exports)module.exports=api;else root.StageWorkshop=api;
-})(globalThis,function(C){
+})(globalThis,function(C,X){
   'use strict';
-  const SCHEMA='midi-stage-chart',VERSION=1,MAX_NOTES=60000,MAX_SECONDS=3600,MAX_JSON=12*1024*1024;
+  const SCHEMA='midi-stage-chart',VERSION=1,MAX_NOTES=60000,MAX_CHORDS=10000,MAX_SECONDS=3600,MAX_JSON=12*1024*1024;
   const clone=x=>JSON.parse(JSON.stringify(x));
   const sortNotes=a=>a.sort((x,y)=>x.time-y.time||x.pitch-y.pitch);
   function number(n,min,max,label){if(typeof n!=='number'||!Number.isFinite(n)||n<min||n>max)throw Error(`${label} must be between ${min} and ${max}.`);return n;}
@@ -15,10 +15,10 @@
     return validate({schema:SCHEMA,version:VERSION,id:id(),title,bpm,duration,firstBeat:0,audioOffset:0,audioName:'',origin:'manual',parts:C.TYPES.map(type=>({type,notes:[]})),tempoMap:[],beats:[]});
   }
   function validate(raw){
-    if(!raw||typeof raw!=='object'||raw.schema!==SCHEMA||![1,2].includes(raw.version))throw Error('Use a MIDI Stage chart exported by Song Workshop (version 1 or 2).');
+    if(!raw||typeof raw!=='object'||raw.schema!==SCHEMA||![1,2,3].includes(raw.version))throw Error('Use a MIDI Stage chart exported by Song Workshop (version 1, 2 or 3).');
     if(raw.matching!==undefined&&raw.matching!=='rhythm')throw Error('Unsupported chart matching mode.');
-    const rhythm=raw.version===2&&raw.matching==='rhythm';
-    if(raw.version===2&&!rhythm||raw.matching==='rhythm'&&!rhythm)throw Error('Rhythm charts require version 2 and rhythm matching.');
+    const rhythm=raw.version>=2&&raw.matching==='rhythm';
+    if(raw.version===2&&!rhythm||raw.matching==='rhythm'&&!rhythm)throw Error('Rhythm charts require version 2 or 3 and rhythm matching.');
     const duration=number(raw.duration,.25,MAX_SECONDS,'Song duration');
     const bpm=number(raw.bpm,20,400,'Tempo'),firstBeat=number(raw.firstBeat??0,0,duration,'First beat');
     const audioOffset=number(raw.audioOffset??0,-120,120,'Audio offset');
@@ -42,7 +42,10 @@
     let prev=-1;const tempos=tempoMap.map(t=>{const time=number(t.time,0,duration,'Tempo time');if(time<=prev)throw Error('Tempo map must be sorted with unique times.');prev=time;return {time,bpm:number(t.bpm,.01,6e7,'MIDI tempo')};});
     const inputBeats=raw.beats??[];if(!Array.isArray(inputBeats)||inputBeats.length>20000)throw Error('Too many beat markers.');
     prev=-1;const beats=inputBeats.map(b=>{const time=number(b.time,0,duration+.00001,'Beat time');if(time<=prev)throw Error('Beat markers must be sorted with unique times.');prev=time;return {time,bar:!!b.bar};});
-    return {schema:SCHEMA,version:rhythm?2:VERSION,...(rhythm?{matching:'rhythm'}:{}),id:raw.id,title:text(raw.title,'Untitled session').trim()||'Untitled session',bpm,duration,firstBeat,audioOffset,audioName:text(raw.audioName,''),origin:rhythm?'audio-rhythm':['midi','practice','manual'].includes(raw.origin)?raw.origin:'manual',parts,tempoMap:tempos,beats};
+    const chordHighways={keys:[],guitar:[]},inputChords=raw.chordHighways??{};if(inputChords===null||typeof inputChords!=='object'||Array.isArray(inputChords))throw Error('Invalid chord-highway data.');
+    for(const role of ['keys','guitar']){const list=inputChords[role]??[];if(!Array.isArray(list)||list.length>MAX_CHORDS)throw Error(`${role} chord highway has too many targets.`);let last=-1;chordHighways[role]=list.map(e=>{if(!e||typeof e!=='object')throw Error('Invalid chord target.');const time=number(e.time,0,duration-.000001,'Chord time'),length=number(e.duration,.05,MAX_SECONDS,'Chord duration');if(time+length>duration+.00001)throw Error('A chord extends beyond the song.');if(time<last-.00001)throw Error('Chord targets must be sorted by time.');last=time;if(!Array.isArray(e.pitches)||e.pitches.length<2||e.pitches.length>6)throw Error('Chord targets need 2–6 MIDI pitches.');const pitches=[...new Set(e.pitches.map(v=>integer(v,0,127,'Chord pitch')))].sort((a,b)=>a-b);if(pitches.length<2)throw Error('Chord targets need at least two distinct pitches.');const name=text(e.name,X.chordName(pitches)||'Chord',32).trim()||X.chordName(pitches)||'Chord';return {time,duration:length,name,pitches,pcs:[...new Set(pitches.map(C.pc))].sort((a,b)=>a-b),roman:text(e.roman,'',4).trim(),key:text(e.key,'',8).trim(),confidence:number(e.confidence??1,0,1,'Chord confidence'),source:['midi','estimated','manual'].includes(e.source)?e.source:'manual'};});}
+    const hasChords=chordHighways.keys.length||chordHighways.guitar.length,version=hasChords?3:rhythm?2:VERSION;
+    return {schema:SCHEMA,version,...(rhythm?{matching:'rhythm'}:{}),id:raw.id,title:text(raw.title,'Untitled session').trim()||'Untitled session',bpm,duration,firstBeat,audioOffset,audioName:text(raw.audioName,''),origin:rhythm?'audio-rhythm':['midi','practice','manual'].includes(raw.origin)?raw.origin:'manual',parts,tempoMap:tempos,beats,...(hasChords?{chordHighways}: {})};
   }
   function parse(input){if(typeof input!=='string'||input.length>MAX_JSON)throw Error('Chart JSON must be smaller than 12 MB.');let raw;try{raw=JSON.parse(input);}catch(_){throw Error('The chart file is not valid JSON.');}return validate(raw);}
   function serialize(project){return JSON.stringify(validate(project),null,2);}
@@ -87,7 +90,10 @@
       if(removed)warnings.push(`${source.name}: skipped ${removed} pitches with no drum lane; assign them to another instrument to preserve them.`);
     }
     for(const p of project.parts){p.notes=thin(p.notes,density);if(singleStrings&&['guitar','bass'].includes(p.type))p.notes=monophonic(p.notes,p.type==='bass');}
+    const chordHighways={};for(const role of ['keys','guitar']){const part=project.parts.find(p=>p.type===role),groups=X.groupNotes(part.notes);if(groups.length)chordHighways[role]=groups;}
+    if(Object.keys(chordHighways).length)project.chordHighways=chordHighways;
     if(singleStrings)warnings.push('Single-note reduction applied to guitar/bass: chord tones and overlapping tails may be removed.');
+    else if(chordHighways.keys?.length||chordHighways.guitar?.length)warnings.push('Simultaneous MIDI notes were grouped into playable chord targets for keyboard/guitar highways.');
     return {project:validate(project),warnings};
   }
   function fromSong(song,players=[]){
@@ -115,7 +121,11 @@
     const p=validate(project),A=typeof module==='object'&&module.exports?require('./song-analysis.js'):globalThis.StageSongAnalysis;
     const bpm=options.bpm??analysis.bpm,firstBeat=options.firstBeat??analysis.firstBeat;
     const parts=A.eventsFor(analysis,{...options,bpm,firstBeat});
-    return validate({...p,version:2,matching:'rhythm',origin:'audio-rhythm',bpm,firstBeat,parts,tempoMap:[],beats:[],audioOffset:0});
+    const next={...p,version:2,matching:'rhythm',origin:'audio-rhythm',bpm,firstBeat,parts,tempoMap:[],beats:[],audioOffset:0};delete next.chordHighways;return validate(next);
+  }
+  function withChords(project,events,roles=['keys','guitar']){
+    const p=validate(project);if(!Array.isArray(events)||!Array.isArray(roles)||roles.some(r=>!['keys','guitar'].includes(r)))throw Error('Invalid chord-highway request.');
+    const chordHighways={...(p.chordHighways||{})};for(const role of roles)chordHighways[role]=clone(events);return validate({...p,version:3,chordHighways});
   }
   function revise(project,type,index,note){
     const p=clone(project),part=p.parts.find(p=>p.type===type);if(!part)throw Error('Choose an instrument.');
@@ -125,7 +135,7 @@
   }
   function quantize(project,type,division){const p=clone(project),part=p.parts.find(p=>p.type===type);if(!part)throw Error('Choose an instrument.');part.notes=part.notes.map(n=>{const time=snap(n.time,p,division);return {...n,time,duration:Math.min(n.duration,p.duration-time)};});return validate(p);}
   function hash(project){const data=JSON.stringify(validate(project));let h=2166136261;for(let i=0;i<data.length;i++){h^=data.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(16);}
-  function toSong(project){const p=validate(project);return {id:`workshop-${p.id}-${hash(p)}`,libraryId:p.id,chartProject:p,workshop:true,rhythmOnly:p.matching==='rhythm',name:p.title,subtitle:p.matching==='rhythm'?'Audio rhythm — any note / pad':p.origin==='practice'?'Beat practice — not a transcription':'Your authored arrangement',tag:p.matching==='rhythm'?'RHYTHM ONLY · NOT NOTE TRANSCRIPTION':p.origin==='practice'?'BEAT PRACTICE':'CUSTOM HIGHWAYS',original:false,bpm:p.bpm,duration:p.duration,backingOffset:p.audioOffset,audioName:p.audioName,tempoMap:p.tempoMap.length?p.tempoMap:[{time:0,bpm:p.bpm}],beats:grid(p),sections:[{time:0,name:p.origin==='practice'?'PRACTICE CHART':'YOUR ARRANGEMENT'}],parts:p.parts.map((part,i)=>({id:part.type,type:part.type,name:C.LABELS[part.type],channel:part.type==='drums'?10:i,notes:clone(part.notes)}))};}
+  function toSong(project){const p=validate(project),hasChords=!!(p.chordHighways?.keys?.length||p.chordHighways?.guitar?.length);return {id:`workshop-${p.id}-${hash(p)}`,libraryId:p.id,chartProject:p,workshop:true,rhythmOnly:p.matching==='rhythm',chordHighways:clone(p.chordHighways||{}),name:p.title,subtitle:hasChords?'Chord highways · estimated labels require review':p.matching==='rhythm'?'Audio rhythm — any note / pad':p.origin==='practice'?'Beat practice — not a transcription':'Your authored arrangement',tag:hasChords?'CHORD HIGHWAYS':p.matching==='rhythm'?'RHYTHM ONLY · NOT NOTE TRANSCRIPTION':p.origin==='practice'?'BEAT PRACTICE':'CUSTOM HIGHWAYS',original:false,bpm:p.bpm,duration:p.duration,backingOffset:p.audioOffset,audioName:p.audioName,tempoMap:p.tempoMap.length?p.tempoMap:[{time:0,bpm:p.bpm}],beats:grid(p),sections:[{time:0,name:hasChords?'CHORD PROGRESSION':p.origin==='practice'?'PRACTICE CHART':'YOUR ARRANGEMENT'}],parts:p.parts.map((part,i)=>({id:part.type,type:part.type,name:C.LABELS[part.type],channel:part.type==='drums'?10:i,notes:clone(part.notes)}))};}
   function counts(project){return Object.fromEntries(project.parts.map(p=>[p.type,p.notes.length]));}
   class History{
     constructor(project){this.current=validate(project);this.past=[];this.future=[];}
@@ -147,5 +157,5 @@
     async get(key){const row=await this.transaction('readonly',s=>s.get(key));if(!row)return null;return {project:validate(row.project),blob:row.blob instanceof Blob?row.blob:null};}
     async remove(key){await this.transaction('readwrite',s=>s.delete(key));}
   }
-  return {SCHEMA,VERSION,MAX_NOTES,MAX_SECONDS,MAX_JSON,empty,validate,parse,serialize,grid,snap,suggestRoutes,monophonic,thin,fromMIDI,fromSong,practice,fromAudioAnalysis,revise,quantize,toSong,counts,History,Library,clone};
+  return {SCHEMA,VERSION,MAX_NOTES,MAX_CHORDS,MAX_SECONDS,MAX_JSON,empty,validate,parse,serialize,grid,snap,suggestRoutes,monophonic,thin,fromMIDI,fromSong,practice,fromAudioAnalysis,withChords,revise,quantize,toSong,counts,History,Library,clone};
 });

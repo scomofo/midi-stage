@@ -1,5 +1,13 @@
 # Song Workshop architecture and scope
 
+## v0.6 chord-highway addition
+
+Charts containing `chordHighways` validate as version 3. Chord targets are stored
+separately from the four ordinary note parts so existing rhythm/pitch semantics stay
+portable. MIDI imports group recognized simultaneous keyboard/guitar notes. Audio
+imports may add estimated chord targets, including the default I–V–vi–IV assist and
+manual major-key override. See `docs/CHORD_HIGHWAYS.md`.
+
 ## v0.5 addition
 
 The default MP3 path now performs local rhythm analysis. Exact/manual charts remain

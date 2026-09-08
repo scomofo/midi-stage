@@ -289,6 +289,108 @@
   return {PC,COLORS,DRUMS,WINDOWS,TYPES,LABELS,KEYS,keyLabel,clamp,pc,noteName,defaults,median,calibration,lowerBound,makeSong,makeValidationSong,sourceFor,lanesFor,laneForPitch,makeChart,routes,routingConflicts,Judge,parseMIDI};
 });
 
+/* Chord highway extraction, local audio estimation, rendering data and scoring. */
+(function(root,factory){
+  const api=factory(typeof module==='object'&&module.exports?require('./core.js'):root.StageCore);
+  if(typeof module==='object'&&module.exports)module.exports=api;else root.StageChords=api;
+})(globalThis,function(C){
+  'use strict';
+  const TEMPLATES=[
+    {suffix:'maj7',ints:[0,4,7,11]},{suffix:'7',ints:[0,4,7,10]},{suffix:'m7',ints:[0,3,7,10]},
+    {suffix:'',ints:[0,4,7]},{suffix:'m',ints:[0,3,7]},{suffix:'dim',ints:[0,3,6]},
+    {suffix:'aug',ints:[0,4,8]},{suffix:'sus2',ints:[0,2,7]},{suffix:'sus4',ints:[0,5,7]},{suffix:'5',ints:[0,7]}
+  ];
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const unique=a=>[...new Set(a)].sort((x,y)=>x-y);
+  const pcs=pitches=>unique(pitches.map(C.pc));
+  function chordName(pitches){
+    const set=pcs(pitches);if(set.length<2||set.length>4)return null;
+    for(let root=0;root<12;root++)for(const t of TEMPLATES){
+      const want=unique(t.ints.map(i=>(root+i)%12));
+      if(want.length===set.length&&want.every((p,i)=>p===set[i]))return `${C.PC[root]}${t.suffix}`;
+    }return null;
+  }
+  function groupNotes(notes,{tolerance=.035,minTones=2}={}){
+    const sorted=[...notes].sort((a,b)=>a.time-b.time||a.pitch-b.pitch),groups=[];let group=[];
+    const flush=()=>{if(group.length){const pitches=unique(group.map(n=>n.pitch)),name=chordName(pitches);if(name&&pcs(pitches).length>=minTones){const time=Math.min(...group.map(n=>n.time)),end=Math.max(...group.map(n=>n.time+n.duration));groups.push({time,duration:Math.max(.08,end-time),name,pitches,pcs:pcs(pitches),confidence:1,source:'midi'});}group=[];}};
+    for(const n of sorted){if(!group.length||n.time-group[0].time<=tolerance)group.push(n);else{flush();group=[n];}}flush();return groups;
+  }
+  function templateScore(chroma,root,ints){
+    const sum=[...chroma].reduce((a,b)=>a+b,0);if(sum<1e-8)return -1;
+    const c=[...chroma].map(v=>v/sum),insideTotal=ints.reduce((v,i)=>v+c[(root+i)%12],0);
+    return insideTotal/ints.length-.42*(1-insideTotal)/Math.max(1,12-ints.length);
+  }
+  function progressionForKey(root){
+    const defs=[['I',root,'',[0,4,7]],['V',(root+7)%12,'',[0,4,7]],['vi',(root+9)%12,'m',[0,3,7]],['IV',(root+5)%12,'',[0,4,7]]];
+    return defs.map(([roman,r,suffix,ints])=>{const pitches=ints.map(i=>60+r+i);return {roman,root:r,suffix,ints,name:`${C.PC[r]}${suffix}`,pitches,pcs:pcs(pitches)};});
+  }
+  function fitPopProgression(chromas,forcedKey=null){
+    if(!Array.isArray(chromas)||chromas.length<4)return null;let best=null,second=null;
+    for(let key=0;key<12;key++){if(forcedKey!==null&&key!==forcedKey)continue;const prog=progressionForKey(key);for(const span of [1,2,4])for(let offset=0;offset<span;offset++)for(let phase=0;phase<4;phase++){
+      let score=0,count=0;for(let i=0;i<chromas.length;i++){const c=chromas[i];if(!c)continue;const chord=prog[(Math.floor((i+offset)/span)+phase)%4];score+=templateScore(c,chord.root,chord.ints);count++;}
+      if(!count)continue;const fit={key,span,offset,phase,score:score/count,progression:prog};if(!best||fit.score>best.score){second=best;best=fit;}else if(!second||fit.score>second.score)second=fit;
+    }}
+    if(!best||best.score<.06)return null;best.confidence=clamp((best.score-(second?.score??0))/.028,0,1);if(best.confidence<.06)return null;return best;
+  }
+  function classifyChroma(chroma){
+    if(!Array.isArray(chroma)&&!(chroma instanceof Float32Array)&&!(chroma instanceof Float64Array))throw Error('Invalid chroma data.');
+    if(chroma.length!==12||[...chroma].some(v=>!Number.isFinite(v)||v<0))throw Error('Invalid chroma data.');
+    const sum=[...chroma].reduce((a,b)=>a+b,0);if(sum<1e-8)return null;const scores=[];
+    for(let root=0;root<12;root++)for(const t of TEMPLATES.filter(t=>t.ints.length>=3&&t.ints.length<=4))scores.push({root,template:t,score:templateScore(chroma,root,t.ints)});
+    scores.sort((a,b)=>b.score-a.score);const best=scores[0],second=scores[1];
+    if(best.score<.055)return null;
+    const confidence=clamp((best.score-second.score)/Math.max(.02,best.score)*1.8,0,1);
+    const rootMidi=60+best.root,pitches=best.template.ints.map(i=>rootMidi+i);
+    return {name:`${C.PC[best.root]}${best.template.suffix}`,root:best.root,pitches,pcs:pcs(pitches),confidence};
+  }
+  function fftChroma(samples,sampleRate){
+    const n=samples.length,re=new Float64Array(n),im=new Float64Array(n);for(let i=0;i<n;i++)re[i]=samples[i]*(.5-.5*Math.cos(2*Math.PI*i/(n-1)));
+    for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){const x=re[i];re[i]=re[j];re[j]=x;}}
+    for(let len=2;len<=n;len<<=1){const ang=-2*Math.PI/len,wr0=Math.cos(ang),wi0=Math.sin(ang);for(let i=0;i<n;i+=len){let wr=1,wi=0;for(let j=0;j<len/2;j++){const u=i+j,v=u+len/2,tr=wr*re[v]-wi*im[v],ti=wr*im[v]+wi*re[v];re[v]=re[u]-tr;im[v]=im[u]-ti;re[u]+=tr;im[u]+=ti;const nw=wr*wr0-wi*wi0;wi=wr*wi0+wi*wr0;wr=nw;}}}
+    const chroma=new Float64Array(12);for(let k=1;k<n/2;k++){const f=k*sampleRate/n;if(f<65||f>1800)continue;const midi=69+12*Math.log2(f/440),p=C.pc(Math.round(midi)),mag=re[k]*re[k]+im[k]*im[k];chroma[p]+=mag/Math.sqrt(f);}return chroma;
+  }
+  function windowChroma(buffer,from,to,n=2048){
+    const dur=Math.max(.08,to-from),rate=n/dur,samples=new Float64Array(n),channels=Array.from({length:buffer.numberOfChannels},(_,c)=>buffer.getChannelData(c));
+    for(let i=0;i<n;i++){const t=from+i/n*dur,idx=clamp(Math.floor(t*buffer.sampleRate),0,buffer.length-1);let v=0;for(const ch of channels)v+=ch[idx];samples[i]=v/channels.length;}
+    return fftChroma(samples,rate);
+  }
+  async function analyzeBuffer(buffer,{bpm,firstBeat=0,progress=()=>{},cancelled=()=>false,progressionAssist=true,forcedKey=null}={}){
+    if(!buffer||!Number.isFinite(buffer.duration)||!Number.isFinite(buffer.sampleRate)||!Number.isFinite(bpm)||bpm<20||bpm>400)throw Error('Set a valid decoded song and tempo before estimating chords.');
+    const beat=60/bpm,raw=[],chromas=[],max=Math.min(3000,Math.ceil((buffer.duration-firstBeat)/beat));
+    for(let i=0;i<max;i++){
+      if(cancelled()){const e=Error('Chord analysis cancelled.');e.name='AbortError';throw e;}
+      const time=firstBeat+i*beat;if(time>=buffer.duration-.05)break;const end=Math.min(buffer.duration,time+Math.max(.18,Math.min(.72,beat*.9))),chroma=windowChroma(buffer,time,end),found=classifyChroma(chroma);chromas.push(chroma);
+      raw.push(found?{time,duration:Math.max(.08,end-time),...found,source:'estimated'}:{time,duration:Math.max(.08,end-time),name:null,confidence:0,source:'estimated'});
+      if(i%8===7){progress((i+1)/max);await new Promise(r=>setTimeout(r,0));}
+    }
+    if(forcedKey!==null&&(!Number.isInteger(forcedKey)||forcedKey<0||forcedKey>11))throw Error('Forced key must be a pitch class from 0 to 11.');const pop=progressionAssist?fitPopProgression(chromas,forcedKey):null;
+    if(pop){const out=[];for(let i=0;i<raw.length;i++){const chord=pop.progression[(Math.floor((i+pop.offset)/pop.span)+pop.phase)%4],score=templateScore(chromas[i],chord.root,chord.ints),local=clamp((score-.025)/.19,0,1),e={time:raw[i].time,duration:Math.min(beat,buffer.duration-raw[i].time),name:chord.name,pitches:chord.pitches,pcs:chord.pcs,roman:chord.roman,key:C.PC[pop.key],confidence:clamp(.35*pop.confidence+.65*local,0,1),source:'estimated'};const last=out.at(-1);if(last&&last.name===e.name&&last.roman===e.roman&&e.time<=last.time+last.duration+beat*.2){last.duration=Math.min(buffer.duration-last.time,e.time+e.duration-last.time);last.confidence=(last.confidence+e.confidence)/2;}else out.push(e);}progress(1);return out;}
+    for(let i=1;i<raw.length-1;i++)if(raw[i-1].name&&raw[i-1].name===raw[i+1].name&&(raw[i].confidence<.18||raw[i].name!==raw[i-1].name))raw[i]={...raw[i-1],time:raw[i].time,duration:raw[i].duration,confidence:Math.min(raw[i-1].confidence,raw[i+1].confidence)};
+    const out=[];for(const e of raw){if(!e.name||e.confidence<.035)continue;const last=out.at(-1);if(last&&last.name===e.name&&e.time<=last.time+last.duration+beat*.2){last.duration=Math.min(buffer.duration,last.duration+beat);last.confidence=(last.confidence+e.confidence)/2;}else out.push({...e,duration:Math.min(beat,buffer.duration-e.time)});}progress(1);return out;
+  }
+  function makeChart(song,player,start=0,end=song.duration,{timingOnly=false}={}){
+    const events=song.chordHighways?.[player.type]||[];if(!events.length)return null;
+    const lanes=timingOnly?[{name:'CHORD STRUM',short:'STRUM',pitch:40,pc:0,any:true,color:C.COLORS[2]}]:C.PC.map((name,i)=>({name,short:name,pitch:60+i,pc:i,color:C.COLORS[i]}));
+    const notes=events.filter(e=>e.time>=start-1e-6&&e.time<end-1e-6).map((e,id)=>({...e,id,chord:true,lanes:timingOnly?[0]:e.pcs.map(p=>p),lane:timingOnly?0:e.pcs[0],duration:Math.min(e.duration,end-e.time)}));
+    return {lanes,notes,chordMode:true,timingOnly};
+  }
+  class ChordJudge{
+    constructor(chart,{difficulty='standard',speed=1,mode='pitch',timingOnly=false,onJudge=()=>{}}={}){this.notes=chart.notes.map(n=>({...n,state:0,received:new Set(),errors:[]}));this.lanes=chart.lanes;this.windows=(C.WINDOWS[difficulty]||C.WINDOWS.standard).map(x=>x*speed);this.speed=speed;this.mode=mode;this.timingOnly=timingOnly;this.chordMode=true;this.cursor=0;this.onJudge=onJudge;this.activeHolds=new Set();this.held=new Map();this.stats={score:0,combo:0,maxCombo:0,perfect:0,great:0,good:0,miss:0,extra:0,holdBreaks:0,holds:0,weight:0,offsets:[]};}
+    get multiplier(){return Math.min(4,1+Math.floor(this.stats.combo/10));}get accuracy(){const s=this.stats,n=s.perfect+s.great+s.good+s.miss+s.extra;return n?100*s.weight/n:100;}
+    tick(t){while(this.cursor<this.notes.length&&this.notes[this.cursor].time<t-this.windows[2]-1e-8){const n=this.notes[this.cursor++];if(!n.state){n.state=2;this.stats.miss++;this.stats.combo=0;this.onJudge({grade:'miss',note:n,delta:0});}}}
+    hit(t,{lane,pitch,arcade=false}){this.tick(t);let closest=null,best=Infinity,key=null,exact=false;
+      for(let i=this.cursor;i<this.notes.length;i++){const n=this.notes[i];if(n.time>t+this.windows[2]+1e-8)break;if(n.state)continue;const d=Math.abs(n.time-t);if(d>this.windows[2]+1e-8)continue;
+        if(this.timingOnly){closest=n;best=d;key='strum';break;}exact=this.mode==='exact'&&n.source==='midi'&&!arcade;const candidate=exact?pitch:C.pc(pitch),required=exact?n.pitches:n.pcs;if(required.includes(candidate)&&d<best){closest=n;best=d;key=candidate;}}
+      if(!closest){this.stats.extra++;this.stats.combo=0;this.onJudge({grade:'extra',lane,delta:0});return null;}
+      if(this.timingOnly){closest.received.add('strum');return this.award(closest,t,best);}
+      if(closest.received.has(key))return null;closest.received.add(key);closest.errors.push(best);const need=exact?closest.pitches.length:closest.pcs.length;if(closest.received.size<need)return closest;return this.award(closest,t,Math.max(...closest.errors));
+    }
+    award(n,t,best){const grade=best<=this.windows[0]+1e-8?'perfect':best<=this.windows[1]+1e-8?'great':'good',weight={perfect:1,great:.75,good:.4}[grade],s=this.stats;n.state=1;n.hitAt=t;n.grade=grade;s[grade]++;s.weight+=weight;s.combo++;s.maxCombo=Math.max(s.maxCombo,s.combo);s.score+=Math.round(140*weight*this.multiplier);s.offsets.push((t-n.time)/this.speed*1000);this.onJudge({grade,note:n,delta:(t-n.time)/this.speed*1000});return n;}
+    confirm(){}release(){}finishHold(){}finish(t){this.tick(t+this.windows[2]+.001);return {...this.stats,accuracy:this.accuracy,total:this.notes.length,meanOffset:this.stats.offsets.length?this.stats.offsets.reduce((a,b)=>a+b,0)/this.stats.offsets.length:0};}
+  }
+  return {TEMPLATES,chordName,groupNotes,templateScore,progressionForKey,fitPopProgression,classifyChroma,fftChroma,analyzeBuffer,makeChart,ChordJudge};
+});
+
 /* MIDI input only: no SysEx, output, firmware access, or network traffic. */
 (function(root){
   'use strict';
@@ -843,11 +945,11 @@
 
 /* Song Workshop data model. Pure, bounded chart operations; never fetches audio. */
 (function(root,factory){
-  const api=factory(typeof module==='object'&&module.exports?require('./core.js'):root.StageCore);
+  const api=factory(typeof module==='object'&&module.exports?require('./core.js'):root.StageCore,typeof module==='object'&&module.exports?require('./chords.js'):root.StageChords);
   if(typeof module==='object'&&module.exports)module.exports=api;else root.StageWorkshop=api;
-})(globalThis,function(C){
+})(globalThis,function(C,X){
   'use strict';
-  const SCHEMA='midi-stage-chart',VERSION=1,MAX_NOTES=60000,MAX_SECONDS=3600,MAX_JSON=12*1024*1024;
+  const SCHEMA='midi-stage-chart',VERSION=1,MAX_NOTES=60000,MAX_CHORDS=10000,MAX_SECONDS=3600,MAX_JSON=12*1024*1024;
   const clone=x=>JSON.parse(JSON.stringify(x));
   const sortNotes=a=>a.sort((x,y)=>x.time-y.time||x.pitch-y.pitch);
   function number(n,min,max,label){if(typeof n!=='number'||!Number.isFinite(n)||n<min||n>max)throw Error(`${label} must be between ${min} and ${max}.`);return n;}
@@ -858,10 +960,10 @@
     return validate({schema:SCHEMA,version:VERSION,id:id(),title,bpm,duration,firstBeat:0,audioOffset:0,audioName:'',origin:'manual',parts:C.TYPES.map(type=>({type,notes:[]})),tempoMap:[],beats:[]});
   }
   function validate(raw){
-    if(!raw||typeof raw!=='object'||raw.schema!==SCHEMA||![1,2].includes(raw.version))throw Error('Use a MIDI Stage chart exported by Song Workshop (version 1 or 2).');
+    if(!raw||typeof raw!=='object'||raw.schema!==SCHEMA||![1,2,3].includes(raw.version))throw Error('Use a MIDI Stage chart exported by Song Workshop (version 1, 2 or 3).');
     if(raw.matching!==undefined&&raw.matching!=='rhythm')throw Error('Unsupported chart matching mode.');
-    const rhythm=raw.version===2&&raw.matching==='rhythm';
-    if(raw.version===2&&!rhythm||raw.matching==='rhythm'&&!rhythm)throw Error('Rhythm charts require version 2 and rhythm matching.');
+    const rhythm=raw.version>=2&&raw.matching==='rhythm';
+    if(raw.version===2&&!rhythm||raw.matching==='rhythm'&&!rhythm)throw Error('Rhythm charts require version 2 or 3 and rhythm matching.');
     const duration=number(raw.duration,.25,MAX_SECONDS,'Song duration');
     const bpm=number(raw.bpm,20,400,'Tempo'),firstBeat=number(raw.firstBeat??0,0,duration,'First beat');
     const audioOffset=number(raw.audioOffset??0,-120,120,'Audio offset');
@@ -885,7 +987,10 @@
     let prev=-1;const tempos=tempoMap.map(t=>{const time=number(t.time,0,duration,'Tempo time');if(time<=prev)throw Error('Tempo map must be sorted with unique times.');prev=time;return {time,bpm:number(t.bpm,.01,6e7,'MIDI tempo')};});
     const inputBeats=raw.beats??[];if(!Array.isArray(inputBeats)||inputBeats.length>20000)throw Error('Too many beat markers.');
     prev=-1;const beats=inputBeats.map(b=>{const time=number(b.time,0,duration+.00001,'Beat time');if(time<=prev)throw Error('Beat markers must be sorted with unique times.');prev=time;return {time,bar:!!b.bar};});
-    return {schema:SCHEMA,version:rhythm?2:VERSION,...(rhythm?{matching:'rhythm'}:{}),id:raw.id,title:text(raw.title,'Untitled session').trim()||'Untitled session',bpm,duration,firstBeat,audioOffset,audioName:text(raw.audioName,''),origin:rhythm?'audio-rhythm':['midi','practice','manual'].includes(raw.origin)?raw.origin:'manual',parts,tempoMap:tempos,beats};
+    const chordHighways={keys:[],guitar:[]},inputChords=raw.chordHighways??{};if(inputChords===null||typeof inputChords!=='object'||Array.isArray(inputChords))throw Error('Invalid chord-highway data.');
+    for(const role of ['keys','guitar']){const list=inputChords[role]??[];if(!Array.isArray(list)||list.length>MAX_CHORDS)throw Error(`${role} chord highway has too many targets.`);let last=-1;chordHighways[role]=list.map(e=>{if(!e||typeof e!=='object')throw Error('Invalid chord target.');const time=number(e.time,0,duration-.000001,'Chord time'),length=number(e.duration,.05,MAX_SECONDS,'Chord duration');if(time+length>duration+.00001)throw Error('A chord extends beyond the song.');if(time<last-.00001)throw Error('Chord targets must be sorted by time.');last=time;if(!Array.isArray(e.pitches)||e.pitches.length<2||e.pitches.length>6)throw Error('Chord targets need 2–6 MIDI pitches.');const pitches=[...new Set(e.pitches.map(v=>integer(v,0,127,'Chord pitch')))].sort((a,b)=>a-b);if(pitches.length<2)throw Error('Chord targets need at least two distinct pitches.');const name=text(e.name,X.chordName(pitches)||'Chord',32).trim()||X.chordName(pitches)||'Chord';return {time,duration:length,name,pitches,pcs:[...new Set(pitches.map(C.pc))].sort((a,b)=>a-b),roman:text(e.roman,'',4).trim(),key:text(e.key,'',8).trim(),confidence:number(e.confidence??1,0,1,'Chord confidence'),source:['midi','estimated','manual'].includes(e.source)?e.source:'manual'};});}
+    const hasChords=chordHighways.keys.length||chordHighways.guitar.length,version=hasChords?3:rhythm?2:VERSION;
+    return {schema:SCHEMA,version,...(rhythm?{matching:'rhythm'}:{}),id:raw.id,title:text(raw.title,'Untitled session').trim()||'Untitled session',bpm,duration,firstBeat,audioOffset,audioName:text(raw.audioName,''),origin:rhythm?'audio-rhythm':['midi','practice','manual'].includes(raw.origin)?raw.origin:'manual',parts,tempoMap:tempos,beats,...(hasChords?{chordHighways}: {})};
   }
   function parse(input){if(typeof input!=='string'||input.length>MAX_JSON)throw Error('Chart JSON must be smaller than 12 MB.');let raw;try{raw=JSON.parse(input);}catch(_){throw Error('The chart file is not valid JSON.');}return validate(raw);}
   function serialize(project){return JSON.stringify(validate(project),null,2);}
@@ -930,7 +1035,10 @@
       if(removed)warnings.push(`${source.name}: skipped ${removed} pitches with no drum lane; assign them to another instrument to preserve them.`);
     }
     for(const p of project.parts){p.notes=thin(p.notes,density);if(singleStrings&&['guitar','bass'].includes(p.type))p.notes=monophonic(p.notes,p.type==='bass');}
+    const chordHighways={};for(const role of ['keys','guitar']){const part=project.parts.find(p=>p.type===role),groups=X.groupNotes(part.notes);if(groups.length)chordHighways[role]=groups;}
+    if(Object.keys(chordHighways).length)project.chordHighways=chordHighways;
     if(singleStrings)warnings.push('Single-note reduction applied to guitar/bass: chord tones and overlapping tails may be removed.');
+    else if(chordHighways.keys?.length||chordHighways.guitar?.length)warnings.push('Simultaneous MIDI notes were grouped into playable chord targets for keyboard/guitar highways.');
     return {project:validate(project),warnings};
   }
   function fromSong(song,players=[]){
@@ -958,7 +1066,11 @@
     const p=validate(project),A=typeof module==='object'&&module.exports?require('./song-analysis.js'):globalThis.StageSongAnalysis;
     const bpm=options.bpm??analysis.bpm,firstBeat=options.firstBeat??analysis.firstBeat;
     const parts=A.eventsFor(analysis,{...options,bpm,firstBeat});
-    return validate({...p,version:2,matching:'rhythm',origin:'audio-rhythm',bpm,firstBeat,parts,tempoMap:[],beats:[],audioOffset:0});
+    const next={...p,version:2,matching:'rhythm',origin:'audio-rhythm',bpm,firstBeat,parts,tempoMap:[],beats:[],audioOffset:0};delete next.chordHighways;return validate(next);
+  }
+  function withChords(project,events,roles=['keys','guitar']){
+    const p=validate(project);if(!Array.isArray(events)||!Array.isArray(roles)||roles.some(r=>!['keys','guitar'].includes(r)))throw Error('Invalid chord-highway request.');
+    const chordHighways={...(p.chordHighways||{})};for(const role of roles)chordHighways[role]=clone(events);return validate({...p,version:3,chordHighways});
   }
   function revise(project,type,index,note){
     const p=clone(project),part=p.parts.find(p=>p.type===type);if(!part)throw Error('Choose an instrument.');
@@ -968,7 +1080,7 @@
   }
   function quantize(project,type,division){const p=clone(project),part=p.parts.find(p=>p.type===type);if(!part)throw Error('Choose an instrument.');part.notes=part.notes.map(n=>{const time=snap(n.time,p,division);return {...n,time,duration:Math.min(n.duration,p.duration-time)};});return validate(p);}
   function hash(project){const data=JSON.stringify(validate(project));let h=2166136261;for(let i=0;i<data.length;i++){h^=data.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(16);}
-  function toSong(project){const p=validate(project);return {id:`workshop-${p.id}-${hash(p)}`,libraryId:p.id,chartProject:p,workshop:true,rhythmOnly:p.matching==='rhythm',name:p.title,subtitle:p.matching==='rhythm'?'Audio rhythm — any note / pad':p.origin==='practice'?'Beat practice — not a transcription':'Your authored arrangement',tag:p.matching==='rhythm'?'RHYTHM ONLY · NOT NOTE TRANSCRIPTION':p.origin==='practice'?'BEAT PRACTICE':'CUSTOM HIGHWAYS',original:false,bpm:p.bpm,duration:p.duration,backingOffset:p.audioOffset,audioName:p.audioName,tempoMap:p.tempoMap.length?p.tempoMap:[{time:0,bpm:p.bpm}],beats:grid(p),sections:[{time:0,name:p.origin==='practice'?'PRACTICE CHART':'YOUR ARRANGEMENT'}],parts:p.parts.map((part,i)=>({id:part.type,type:part.type,name:C.LABELS[part.type],channel:part.type==='drums'?10:i,notes:clone(part.notes)}))};}
+  function toSong(project){const p=validate(project),hasChords=!!(p.chordHighways?.keys?.length||p.chordHighways?.guitar?.length);return {id:`workshop-${p.id}-${hash(p)}`,libraryId:p.id,chartProject:p,workshop:true,rhythmOnly:p.matching==='rhythm',chordHighways:clone(p.chordHighways||{}),name:p.title,subtitle:hasChords?'Chord highways · estimated labels require review':p.matching==='rhythm'?'Audio rhythm — any note / pad':p.origin==='practice'?'Beat practice — not a transcription':'Your authored arrangement',tag:hasChords?'CHORD HIGHWAYS':p.matching==='rhythm'?'RHYTHM ONLY · NOT NOTE TRANSCRIPTION':p.origin==='practice'?'BEAT PRACTICE':'CUSTOM HIGHWAYS',original:false,bpm:p.bpm,duration:p.duration,backingOffset:p.audioOffset,audioName:p.audioName,tempoMap:p.tempoMap.length?p.tempoMap:[{time:0,bpm:p.bpm}],beats:grid(p),sections:[{time:0,name:hasChords?'CHORD PROGRESSION':p.origin==='practice'?'PRACTICE CHART':'YOUR ARRANGEMENT'}],parts:p.parts.map((part,i)=>({id:part.type,type:part.type,name:C.LABELS[part.type],channel:part.type==='drums'?10:i,notes:clone(part.notes)}))};}
   function counts(project){return Object.fromEntries(project.parts.map(p=>[p.type,p.notes.length]));}
   class History{
     constructor(project){this.current=validate(project);this.past=[];this.future=[];}
@@ -990,7 +1102,7 @@
     async get(key){const row=await this.transaction('readonly',s=>s.get(key));if(!row)return null;return {project:validate(row.project),blob:row.blob instanceof Blob?row.blob:null};}
     async remove(key){await this.transaction('readwrite',s=>s.delete(key));}
   }
-  return {SCHEMA,VERSION,MAX_NOTES,MAX_SECONDS,MAX_JSON,empty,validate,parse,serialize,grid,snap,suggestRoutes,monophonic,thin,fromMIDI,fromSong,practice,fromAudioAnalysis,revise,quantize,toSong,counts,History,Library,clone};
+  return {SCHEMA,VERSION,MAX_NOTES,MAX_CHORDS,MAX_SECONDS,MAX_JSON,empty,validate,parse,serialize,grid,snap,suggestRoutes,monophonic,thin,fromMIDI,fromSong,practice,fromAudioAnalysis,withChords,revise,quantize,toSong,counts,History,Library,clone};
 });
 
 /* Local, dependency-free pulse analysis. No pitch transcription or stem separation.
@@ -1207,7 +1319,7 @@
   <dialog id="workshopDialog" class="workshop-dialog" aria-labelledby="workshopTitle">
     <div class="dialog-heading"><div><div class="eyebrow">SONG WORKSHOP / LOCAL FILES → PLAYABLE HIGHWAYS</div><h2 id="workshopTitle">Make it your setlist.</h2></div><button id="wsClose" class="icon-button" aria-label="Close Song Workshop">×</button></div>
     <p class="ws-intro">Drop a song. Find its groove. Play. MP3 highways score rhythm; MIDI highways can score the actual notes.</p>
-    <section class="ws-quick-options" aria-label="Quick import settings"><div><strong>Your instruments</strong><div id="wsQuickRoles" class="ws-roles">${C.TYPES.map(type=>`<label class="check"><input type="checkbox" value="${type}" ${type==='drums'?'checked':''}> ${LABELS[type]}</label>`).join('')}</div></div><label>Highway difficulty<select id="wsQuickDensity"><option value="easy">Easy / room to breathe</option><option value="medium" selected>Normal / find the groove</option><option value="full">Busy / more attacks</option></select></label><button id="wsFullBand" class="button secondary small">Full band</button><label class="check"><input id="wsAuto" type="checkbox" checked> Automatically build from MP3 / audio</label></section>
+    <section class="ws-quick-options" aria-label="Quick import settings"><div><strong>Your instruments</strong><div id="wsQuickRoles" class="ws-roles">${C.TYPES.map(type=>`<label class="check"><input type="checkbox" value="${type}" ${type==='drums'?'checked':''}> ${LABELS[type]}</label>`).join('')}</div></div><label>Highway difficulty<select id="wsQuickDensity"><option value="easy">Easy / room to breathe</option><option value="medium" selected>Normal / find the groove</option><option value="full">Busy / more attacks</option></select></label><button id="wsFullBand" class="button secondary small">Full band</button><label class="check"><input id="wsAuto" type="checkbox" checked> Automatically build from MP3 / audio</label><label class="check"><input id="wsAutoChords" type="checkbox" checked> Estimate chord highways for Keys / Guitar</label><label class="check"><input id="wsPopAssist" type="checkbox" checked> I–V–vi–IV assist</label><label>Song key<select id="wsChordKey"><option value="auto" selected>Auto detect</option>${C.PC.map((n,i)=>`<option value="${i}">${n} major</option>`).join('')}</select></label></section>
     <div class="ws-import" id="wsDrop"><div><strong>Drop your MP3 here</strong><span>Or choose WAV, MIDI, or a saved chart. Local files only.</span></div><button id="wsImport" class="button primary">＋ Import song / chart</button><button id="wsEditCurrent" class="button secondary">Edit selected song</button><button id="wsNew" class="button ghost">New blank chart</button><input id="wsFile" type="file" accept=".mid,.midi,.json,.mp3,.wav,.ogg,.flac,.m4a,audio/*" hidden><input id="wsAudioFile" type="file" accept="audio/*,.mp3,.wav,.ogg,.flac,.m4a" hidden></div>
     <p id="wsStatus" class="ws-status" role="status">Import a song or start a blank arrangement. Your work stays on this computer.</p>
     <section id="wsAnalysisProgress" class="ws-analysis-progress" aria-label="Song analysis" hidden><div><strong id="wsAnalysisLabel">Reading audio…</strong><button id="wsCancelAnalysis" class="button secondary small">Cancel</button></div><progress id="wsProgress" max="100" value="0" aria-label="Audio analysis progress"></progress><small>Your audio stays here. No account, server upload or model download.</small></section>
@@ -1221,7 +1333,7 @@
       <div class="ws-actions"><button id="wsTiming" class="button secondary small">Apply timing</button><button id="wsTap" class="button ghost small">Tap BPM</button></div>
       <p class="ws-small" id="wsTempoNote">First beat sets the grid, not the audio start. Timing edits do not move existing notes.</p>
       <div class="ws-audio-box"><strong id="wsAudioName">No backing audio</strong><button id="wsAttach" class="button secondary small">Attach / replace audio</button><button id="wsRemoveAudio" class="button ghost small" hidden>Remove audio</button><label class="check"><input id="wsKeepAudio" type="checkbox" checked> Keep audio in this browser library</label></div>
-      <div id="wsMidiPanel" hidden><h3>02 / Assign MIDI tracks</h3><div id="wsTracks"></div><label>Chart density<select id="wsDensity"><option value="full">All notes (original)</option><option value="medium">Medium — thin fast runs</option><option value="easy">Easy — thin fast runs further</option></select></label><label class="check"><input id="wsSingleStrings" type="checkbox"> Reduce guitar/bass to single notes</label><p class="ws-small">Reduction keeps the upper guitar / lower bass chord tone and trims overlaps. Live audio does not score chords.</p><button id="wsBuildMidi" class="button primary small">Build highways from MIDI</button></div>
+      <div id="wsMidiPanel" hidden><h3>02 / Assign MIDI tracks</h3><div id="wsTracks"></div><label>Chart density<select id="wsDensity"><option value="full">All notes (original)</option><option value="medium">Medium — thin fast runs</option><option value="easy">Easy — thin fast runs further</option></select></label><label class="check"><input id="wsSingleStrings" type="checkbox"> Reduce guitar/bass to single notes</label><p class="ws-small">Reduction keeps the upper guitar / lower bass chord tone and trims overlaps. Chord mode keeps simultaneous MIDI voicings; live guitar audio scores strum timing, not chord identity.</p><button id="wsBuildMidi" class="button primary small">Build highways from MIDI</button></div>
       <details class="ws-generator" open><summary>02 / Build a beat-practice chart</summary><p class="ws-small"><strong>Not a transcription.</strong> This generates exercises on your BPM grid, not the original song’s drum hits or guitar/bass notes. Edit them below or import a matching MIDI.</p><div id="wsRoles" class="ws-roles">${C.TYPES.map(type=>`<label class="check"><input type="checkbox" value="${type}" ${type==='drums'?'checked':''}> ${LABELS[type]}</label>`).join('')}</div><label>Pattern density<select id="wsPattern"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="full">Busy</option></select></label><div class="ws-roots">${['keys','guitar','bass'].map(type=>`<label>${LABELS[type]} practice pitch<select id="wsRoot-${type}">${Array.from({length:88},(_,i)=>i+21).map(p=>`<option value="${p}" ${p==={keys:60,guitar:40,bass:28}[type]?'selected':''}>${C.noteName(p)} · ${p}</option>`).join('')}</select></label>`).join('')}</div><button id="wsGenerate" class="button secondary small">Generate selected highways</button></details>
     </aside><section class="ws-editor">
       <div class="ws-editor-heading"><div><h3>03 / Shape the highway</h3><p class="ws-small">Click a blank cell to add a note; click a note to select it. Edit exact pitch, timing and sustain underneath.</p></div><div class="ws-actions"><button id="wsUndo" class="icon-button" aria-label="Undo chart edit" disabled>↶</button><button id="wsRedo" class="icon-button" aria-label="Redo chart edit" disabled>↷</button></div></div>
@@ -1242,7 +1354,7 @@
   </dialog>`;
   class Controller{
     constructor({beforeOpen=()=>{},getSelected=()=>null,onPublish=()=>{},onLibrary=()=>{},onDelete=()=>{},onPlay=()=>{}}={}){
-      this.onPlay=onPlay;this.analysis=null;this.analysisJob=null;this.analysisBackend=null;this.lastAuto=null;this.quickTaps=[];this.beforeOpen=beforeOpen;this.getSelected=getSelected;this.onPublish=onPublish;this.onLibrary=onLibrary;this.onDelete=onDelete;
+      this.onPlay=onPlay;this.analysis=null;this.analysisJob=null;this.analysisBackend=null;this.chordCache=null;this.lastAuto=null;this.quickTaps=[];this.beforeOpen=beforeOpen;this.getSelected=getSelected;this.onPublish=onPublish;this.onLibrary=onLibrary;this.onDelete=onDelete;
       document.body.insertAdjacentHTML('beforeend',markup);this.dialog=$('workshopDialog');this.library=new W.Library();this.history=new W.History(W.empty());this.role='drums';this.selected=null;this.viewStart=0;this.span=8;this.buffer=null;this.blob=null;this.midi=null;this.routes={};this.wave=[];this.taps=[];this.generation=0;this.busy=false;this.preview=new StageAudio.AudioEngine();this.previewEnd=0;this.raf=0;this.dirty=true;
       this.bind();this.bindQuick();this.render();this.refreshLibrary().catch(e=>this.status(e.message));
     }
@@ -1250,7 +1362,7 @@
     status(message){$('wsStatus').textContent=message;}
     open(){if(this.beforeOpen()===false)return;this.dialog.showModal();this.render();}
     commit(project){this.stop();this.history.set(project);this.selected=null;this.dirty=true;this.render();}
-    replace(project,buffer=null,blob=null){this.stop();this.analysis=null;this.lastAuto=null;this.history=new W.History(project);this.selected=null;this.viewStart=0;this.buffer=buffer;this.blob=blob;this.dirty=true;this.makeWave();this.fitPitch();this.render();}
+    replace(project,buffer=null,blob=null){this.stop();this.analysis=null;this.chordCache=project.chordHighways?{events:project.chordHighways.guitar?.length?project.chordHighways.guitar:project.chordHighways.keys||[],bpm:project.bpm,firstBeat:project.firstBeat}:null;this.lastAuto=null;this.history=new W.History(project);this.selected=null;this.viewStart=0;this.buffer=buffer;this.blob=blob;this.dirty=true;this.makeWave();this.fitPitch();this.render();}
     async task(action){if(this.busy)return;const ticket=++this.generation;this.busy=true;this.renderBusy();try{await action(ticket);}catch(e){if(ticket===this.generation)this.status(e.message||'That action could not be completed.');}finally{if(ticket===this.generation){this.busy=false;this.renderBusy();}}}
     valid(ticket){return ticket===this.generation&&this.dialog.open;}
     renderBusy(){this.dialog.querySelectorAll('input,select').forEach(el=>{el.disabled=this.busy;});$('wsLow').disabled=this.busy||this.role==='drums';this.dialog.querySelectorAll('button').forEach(b=>{if(!['wsClose','wsCancelAnalysis'].includes(b.id))b.disabled=this.busy;});if(!this.busy){$('wsUpdate').disabled=$('wsDelete').disabled=this.selected===null;$('wsUndo').disabled=!this.history.past.length;$('wsRedo').disabled=!this.history.future.length;$('wsStop').disabled=$('wsTapNote').disabled=!this.preview.running;$('wsQuickStop').disabled=!this.preview.running;$('wsQuickPlay').disabled=!this.project.parts.some(p=>p.notes.length);}}
@@ -1321,10 +1433,10 @@
         let analysis;
         try{analysis=await this.analyzeBuffer(buffer,ticket);}catch(e){if(e.name==='AbortError')return;throw e;}
         if(!this.valid(ticket))return;
-        const options=this.quickOptions();let ready=project;
-        if(analysis.bpm)ready=W.fromAudioAnalysis(project,analysis,options);
-        this.midi=null;this.replace(ready,buffer,file);this.analysis=analysis;this.lastAuto=W.serialize(ready);$('wsAdvanced').open=false;
-        this.render();this.status(analysis.bpm?'Rhythm highway ready. Preview, then Play now. No instrument pitches were transcribed.':'Audio loaded, but the pulse is uncertain. Tap BPM to build a rhythm highway or open the advanced editor.');
+        const options=this.quickOptions();let ready=project,chords=[];
+        if(analysis.bpm){ready=W.fromAudioAnalysis(project,analysis,options);const chordRoles=options.roles.filter(r=>r==='keys'||r==='guitar');if(chordRoles.length&&$('wsAutoChords').checked){try{chords=await this.estimateChords(buffer,analysis.bpm,analysis.firstBeat,ticket);if(chords.length)ready=W.withChords(ready,chords,chordRoles);}catch(e){if(e.name==='AbortError')return;analysis.warnings.push('Chord estimate was skipped: '+e.message);}}}
+        this.midi=null;this.replace(ready,buffer,file);this.analysis=analysis;this.chordCache=chords.length?{events:chords,bpm:analysis.bpm,firstBeat:analysis.firstBeat,assist:$('wsPopAssist').checked,key:$('wsChordKey').value}:null;this.lastAuto=W.serialize(ready);$('wsAdvanced').open=false;
+        this.render();this.status(analysis.bpm?`${chords.length?chords.length+' estimated chord changes and ':''}rhythm highways ready. Preview, then Play now.`:'Audio loaded, but the pulse is uncertain. Tap BPM to build a rhythm highway or open the advanced editor.');
       }else{if(!attach)this.midi=null;$('wsAdvanced').open=true;this.replace(project,buffer,file);this.status(attach?'Backing audio attached. Existing notes are unchanged.':'Audio loaded. Set BPM and First beat, then generate a beat-practice chart or place notes manually. Audio is not automatically transcribed.');}
       }finally{if(ticket===this.generation)$('wsAnalysisProgress').hidden=true;}
     }
@@ -1337,19 +1449,23 @@
     async analyzeBuffer(buffer,ticket){
       if(!this.quickOptions().roles.length)throw Error('Choose at least one instrument above, then import your song.');
       const job=new StageSongAnalysis.Job();this.analysisJob=job;$('wsAnalysisProgress').hidden=false;
-      try{return await job.run(buffer,(fraction,label)=>{if(!this.valid(ticket))return;$('wsProgress').value=Math.round(fraction*100);$('wsAnalysisLabel').textContent=label;});}
-      finally{if(this.analysisJob===job)this.analysisJob=null;if(ticket===this.generation){this.analysisBackend=job.backend;$('wsAnalysisProgress').hidden=true;}}
+      try{return await job.run(buffer,(fraction,label)=>{if(!this.valid(ticket))return;$('wsProgress').value=Math.round(fraction*78);$('wsAnalysisLabel').textContent=label;});}
+      finally{if(this.analysisJob===job)this.analysisJob=null;if(ticket===this.generation)this.analysisBackend=job.backend;}
+    }
+    async estimateChords(buffer,bpm,firstBeat,ticket){
+      $('wsAnalysisProgress').hidden=false;$('wsAnalysisLabel').textContent='Estimating chord progression…';$('wsProgress').value=80;
+      const key=$('wsChordKey').value==='auto'?null:Number($('wsChordKey').value),events=await StageChords.analyzeBuffer(buffer,{bpm,firstBeat,progressionAssist:$('wsPopAssist').checked,forcedKey:key,progress:f=>{if(this.valid(ticket))$('wsProgress').value=80+Math.round(f*20);},cancelled:()=>!this.valid(ticket)});if(!this.valid(ticket))return [];$('wsAnalysisProgress').hidden=true;return events;
     }
     renderQuick(){
       const p=this.project,total=p.parts.reduce((s,t)=>s+t.notes.length,0),ready=!!this.buffer&&!this.midi;
       $('wsQuickReady').hidden=!ready;if(!ready)return;this.drawQuick();
-      const rhythm=p.matching==='rhythm';$('wsQuickScope').textContent=rhythm?'Rhythm only: hit any pad or play any clean single note at each marker. This does not identify the song’s individual instrument notes.':total?'Imported arrangement: this chart retains note-pitch / drum-lane matching. Rebuild replaces it with rhythm-only markers after confirmation.':'No rhythm chart yet. Enter or tap a tempo, then rebuild. The resulting markers score timing, not the song’s individual instrument notes.';$('wsPlay').textContent=rhythm?'Load without starting →':'Use highways in game →';
+      const rhythm=p.matching==='rhythm',chords=p.chordHighways?.guitar?.length||p.chordHighways?.keys?.length||0;$('wsQuickScope').textContent=chords?`Estimated chord highway: ${chords} chord changes. Keyboard MIDI requires the displayed chord tones; live guitar scores the strum timing because exact chord recognition is not yet verified. Review uncertain labels.`:rhythm?'Rhythm only: hit any pad or play any clean single note at each marker. This does not identify the song’s individual instrument notes.':total?'Imported arrangement: this chart retains note-pitch / drum-lane matching. Rebuild replaces it with rhythm-only markers after confirmation.':'No rhythm chart yet. Enter or tap a tempo, then rebuild. The resulting markers score timing, not the song’s individual instrument notes.';$('wsPlay').textContent=rhythm?'Load without starting →':'Use highways in game →';
       $('wsQuickTitle').textContent=rhythm&&total?'Your rhythm highway is ready.':this.analysis&&!this.analysis.bpm?'Tap the pulse to finish.':'Backing audio is ready.';
-      $('wsQuickSummary').textContent=`${p.title} · ${time(p.duration)} · ${total} markers · ${p.parts.filter(t=>t.notes.length).length} instrument highways`;
+      const chordCount=Math.max(p.chordHighways?.keys?.length||0,p.chordHighways?.guitar?.length||0);$('wsQuickSummary').textContent=`${p.title} · ${time(p.duration)} · ${total} markers · ${p.parts.filter(t=>t.notes.length).length} instrument highways${chordCount?' · '+chordCount+' chord changes':''}`;
       $('wsPulseBadge').textContent=this.analysis?.manual?'Manual pulse':this.analysis?({high:'Strong pulse estimate',medium:'Check the pulse',low:'Needs a tempo'}[this.analysis.confidence]):rhythm?'Saved rhythm chart':'Editable arrangement';
       $('wsPulseBadge').dataset.confidence=this.analysis?.confidence||'medium';
       $('wsQuickTempo').value=this.analysis?.bpm||p.bpm;
-      $('wsQuickHelp').textContent=this.analysis?.warnings.join(' ')||'Preview the alignment. Rebuild analyzes the attached audio only when needed; MIDI and hand-authored notes are not automatic transcriptions.';
+      const pop=p.chordHighways?.guitar?.find(c=>c.roman)?.key||p.chordHighways?.keys?.find(c=>c.roman)?.key;$('wsQuickHelp').textContent=(pop?`I–V–vi–IV assist: ${pop} major · labels show Roman numeral + chord name. `:'')+(this.analysis?.warnings.join(' ')||'Preview the alignment. Rebuild analyzes the attached audio only when needed; MIDI and hand-authored notes are not automatic transcriptions.');
     }
     async rebuildQuick(ticket,{grid=false}={}){
       if(!this.buffer)throw Error('Import or attach your audio first.');
@@ -1360,9 +1476,10 @@
       if(!this.valid(ticket))return;
       const firstBeat=Math.min(analysis.firstBeat,this.project.duration-.02);
       const useGrid=grid||analysis.manualGrid||!analysis.bpm;
-      const next=W.fromAudioAnalysis(this.project,analysis,{...options,bpm,firstBeat,useGrid});
+      let next=W.fromAudioAnalysis(this.project,analysis,{...options,bpm,firstBeat,useGrid}),chords=[];const chordRoles=options.roles.filter(r=>r==='keys'||r==='guitar');
+      if(chordRoles.length&&$('wsAutoChords').checked){if(this.chordCache&&Math.abs(this.chordCache.bpm-bpm)<.01&&Math.abs(this.chordCache.firstBeat-firstBeat)<.02&&this.chordCache.assist===$('wsPopAssist').checked&&this.chordCache.key===$('wsChordKey').value)chords=this.chordCache.events;else chords=await this.estimateChords(this.buffer,bpm,firstBeat,ticket);if(!this.valid(ticket))return;if(chords.length){next=W.withChords(next,chords,chordRoles);this.chordCache={events:chords,bpm,firstBeat,assist:$('wsPopAssist').checked,key:$('wsChordKey').value};}}
       this.analysis={...analysis,bpm,manual:analysis.manual||Math.abs((analysis.bpm||0)-bpm)>.01,manualGrid:useGrid};this.commit(next);this.lastAuto=W.serialize(next);$('wsAdvanced').open=false;
-      this.status(useGrid?'Manual-tempo rhythm chart rebuilt on active audio sections. Preview to check alignment.':'Rhythm chart rebuilt from detected attacks. Preview, then Play now.');
+      this.status(`${chords.length?chords.length+' chord changes · ':''}${useGrid?'manual-tempo rhythm chart':'attack-based rhythm chart'} ready. Preview, then Play now.`);
     }
     bindQuick(){
       $('wsFullBand').onclick=()=>{$('wsQuickRoles').querySelectorAll('input').forEach(e=>e.checked=true);this.status('Full band selected. Import a song or rebuild to use all four instruments.');};
@@ -1403,7 +1520,7 @@
       $('wsPitch').innerHTML=this.role==='drums'?C.DRUMS.map(d=>`<option value="${d.pitch}">${d.name} · ${d.pitch}</option>`).join(''):Array.from({length:128},(_,n)=>`<option value="${n}">${C.noteName(n)} · ${n}</option>`).join('');$('wsPitch').value=this.role==='drums'?(C.DRUMS.find(d=>d.notes.includes(oldPitch))?.pitch||36):oldPitch;
       $('wsSaveState').textContent=this.dirty?'Unsaved changes · no audio uploads':'Saved in this browser · local only';
       const warnings=[];for(const part of p.parts.filter(p=>p.type==='guitar'||p.type==='bass')){if(part.notes.length){const error=root.StageStrings.chartError(part.notes,part.type);if(error)warnings.push(error);}}
-      $('wsReview').textContent=`${Object.values(totals).reduce((a,b)=>a+b,0)} notes across ${Object.values(totals).filter(Boolean).length} highways. ${p.matching==='rhythm'?'Rhythm only: any note or pad; pitch values are placeholders, not transcribed notes. ':p.origin==='practice'?'Beat-practice exercise, not a transcription. ':''}${warnings.join(' ')}`;
+      const chordCount=Math.max(p.chordHighways?.keys?.length||0,p.chordHighways?.guitar?.length||0);$('wsReview').textContent=`${Object.values(totals).reduce((a,b)=>a+b,0)} notes across ${Object.values(totals).filter(Boolean).length} highways.${chordCount?' '+chordCount+' chord targets.':''} ${p.matching==='rhythm'?'Rhythm only outside chord highways: pitch values are placeholders, not transcribed notes. ':p.origin==='practice'?'Beat-practice exercise, not a transcription. ':''}${warnings.join(' ')}`;
       this.renderNotes();this.draw();this.renderQuick();this.renderBusy();
     }
     renderNotes(){const notes=this.project.parts.find(p=>p.type===this.role).notes;const visible=notes.map((n,i)=>({n,i})).filter(({n})=>n.time>=this.viewStart&&n.time<this.viewStart+this.span).slice(0,200);$('wsNoteList').innerHTML='<option value="">Select a note to edit</option>'+visible.map(({n,i})=>`<option value="${i}" ${this.selected===i?'selected':''}>${n.time.toFixed(3)}s · ${C.noteName(n.pitch)} / ${n.pitch} · ${n.duration.toFixed(2)}s</option>`).join('');}
@@ -1425,12 +1542,13 @@
       ctx.clearRect(0,0,w,h);ctx.fillStyle='#0a1822';ctx.fillRect(0,0,w,h);
       ctx.font='12px system-ui';ctx.textBaseline='middle';ctx.fillStyle='#9bb8c6';ctx.fillText('AUDIO',8,24);
       ctx.fillStyle='#3c7f78';for(let i=0;i<this.wave.length;i++){const t=i/this.wave.length*this.buffer.duration+p.audioOffset,px=x(t);if(px<left||px>right)continue;const a=this.wave[i]*18;ctx.fillRect(px,24-a,Math.max(1,this.buffer.duration/this.wave.length/span*width),a*2);}
-      const row=Math.min(28,112/Math.max(1,parts.length)),colors={drums:'#f66b84',keys:'#f6c273',guitar:'#61d9c3',bass:'#69aaff'};
-      parts.forEach((part,i)=>{const y=55+i*row;ctx.fillStyle='#a9c4ce';ctx.fillText(LABELS[part.type],8,y+row/2);ctx.fillStyle='#243746';ctx.fillRect(left,y+row/2,right-left,1);ctx.fillStyle=colors[part.type];for(const n of part.notes){const px=x(n.time);if(px<left||px>right)continue;ctx.fillRect(px-2,y+4,4,row-7);}});
+      const chordEvents=p.chordHighways?.guitar?.length?p.chordHighways.guitar:p.chordHighways?.keys||[],chordRow=chordEvents.length?22:0,row=Math.min(28,(112-chordRow)/Math.max(1,parts.length)),colors={drums:'#f66b84',keys:'#f6c273',guitar:'#61d9c3',bass:'#69aaff'};
+      if(chordEvents.length){ctx.fillStyle='#a9c4ce';ctx.fillText('CHORDS',8,49);for(const c of chordEvents){const x1=x(c.time),x2=x(Math.min(c.time+c.duration,from+span));if(x2<left||x1>right)continue;ctx.fillStyle=c.confidence<.12?'#68515d':'#244d49';ctx.fillRect(Math.max(left,x1),39,Math.max(18,x2-Math.max(left,x1)-2),18);ctx.fillStyle='#e5f7f1';ctx.font='11px system-ui';ctx.fillText((c.roman?c.roman+' ':'')+c.name,Math.max(left+4,x1+4),48);}}
+      parts.forEach((part,i)=>{const y=55+chordRow+i*row;ctx.fillStyle='#a9c4ce';ctx.fillText(LABELS[part.type],8,y+row/2);ctx.fillStyle='#243746';ctx.fillRect(left,y+row/2,right-left,1);ctx.fillStyle=colors[part.type];for(const n of part.notes){const px=x(n.time);if(px<left||px>right)continue;ctx.fillRect(px-2,y+4,4,row-7);}});
       if(!parts.length){ctx.fillStyle='#b7cbd1';ctx.fillText('Tap a tempo to build your rhythm markers.',left,94);}
       const position=this.preview.running?this.preview.songAt():from;if(position>=from&&position<=from+span){ctx.strokeStyle='#f3fbf7';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x(position),4);ctx.lineTo(x(position),h-20);ctx.stroke();}
       ctx.fillStyle='#91b1bc';ctx.fillText(time(from),left,h-9);ctx.fillText(time(from+span),right-44,h-9);
-      $('wsQuickWindow').textContent=`${time(from)} – ${time(from+span)} · ${this.preview.running?'Playing preview':'Preview window'} · markers show timing, not instrument pitches`;
+      $('wsQuickWindow').textContent=`${time(from)} – ${time(from+span)} · ${this.preview.running?'Playing preview':'Preview window'} · ${chordEvents.length?'chord labels are local estimates':'markers show timing, not instrument pitches'}`;
     }
     draw(){
       this.drawQuick();
@@ -1517,9 +1635,10 @@
     $('liveInputs').innerHTML=active.map(p=>{
       const data=live.latest.get(p.id),j=state.judges.get(p.id),next=j?.notes.find(n=>!n.state);
       const qualified=data?.pitch?.confidence>=.90&&Math.abs(data.pitch.cents)<=40;
-      const detected=qualified&&!data.clipping&&!data.muted?C.noteName(data.pitch.midi):'—';
+      const detected=qualified&&!data.clipping&&!data.muted?C.noteName(data.pitch.midi):'—',chordMode=!!j?.chordMode;
       const status=!live.running?'Capture off':data?.clipping?'CLIPPING: lower gain':data?.muted?'Input muted':data?.signal?(qualified?'Listening':'Pitch not stable'):'Below noise gate';
-      return `<section class="live-input"><strong>${p.label} · LIVE AUDIO</strong><span>${esc(status)} · Detected ${esc(detected)}</span><meter min="-80" max="0" value="${C.clamp(data?.db??-80,-80,0)}" aria-label="${p.label} live input level"></meter><span>Next: ${next?(state.song.rhythmOnly?'Any clean single note':esc(C.noteName(next.pitch)+' · '+S.fretHint(next.pitch,p.id))):'—'}</span><small>${state.song.rhythmOnly?'Rhythm only · no pitch judgment':'Exact pitch · standard-tuning hints'} · ${S.correctionMs(p,state.inputOffset)} ms correction</small></section>`;
+      const nextText=next?(next.chord?`${next.roman?next.roman+' ':''}${next.name}${j.timingOnly?' · STRUM':''}`:state.song.rhythmOnly?'Any clean single note':C.noteName(next.pitch)+' · '+S.fretHint(next.pitch,p.id)):'—';
+      return `<section class="live-input"><strong>${p.label} · LIVE AUDIO</strong><span>${esc(status)} · Detected ${esc(detected)}</span><meter min="-80" max="0" value="${C.clamp(data?.db??-80,-80,0)}" aria-label="${p.label} live input level"></meter><span>Next: ${esc(nextText)}</span><small>${chordMode&&j.timingOnly?'Chord highway · strum timing only':state.song.rhythmOnly?'Rhythm only · no pitch judgment':'Exact pitch · standard-tuning hints'} · ${S.correctionMs(p,state.inputOffset)} ms correction</small></section>`;
     }).join('');
     if(active.length)$('inputMode').textContent='LIVE AUDIO + MIDI · INPUT PLAYBACK MUTED';
   }
@@ -1531,7 +1650,7 @@
     state.startGeneration++;clearTimeout(loopTimer);live.stop();audio.stop();state.status='ready';state.position=0;state.demo=false;state.assisted=false;state.loops=0;state.activeTokens.clear();state.pedals.clear();state.deferred.clear();state.keyDown.clear();state.feedback.clear();state.particles=[];state.from=0;state.to=state.song.duration;
     rebuildCharts();setControls();$('stageOverlay').hidden=false;$('countdown').innerHTML='';lastCount='';$('runStatus').textContent=message||'Ready when you are.';updateHUD();
   }
-  function rebuildCharts(){state.charts.clear();state.judges.clear();for(const p of enabled()){const chart=C.makeChart(state.song,p,state.from,state.to);state.charts.set(p.id,chart);state.judges.set(p.id,new C.Judge(chart,{difficulty:state.difficulty,speed:state.speed,drums:p.type==='drums',mode:state.song.rhythmOnly?'rhythm':S.isAudio(p)?'exact':p.mode,verifiedHolds:S.isAudio(p)&&!state.song.rhythmOnly,onJudge:r=>feedback(p.id,r)}));}renderPads();}
+  function rebuildCharts(){state.charts.clear();state.judges.clear();for(const p of enabled()){const timingOnly=S.isAudio(p)&&p.type==='guitar',chordChart=state.song.chordHighways?.[p.type]?.length?X.makeChart(state.song,p,state.from,state.to,{timingOnly}):null,chart=chordChart||C.makeChart(state.song,p,state.from,state.to);state.charts.set(p.id,chart);const opts={difficulty:state.difficulty,speed:state.speed,mode:state.song.rhythmOnly?'rhythm':S.isAudio(p)?'exact':p.mode,onJudge:r=>feedback(p.id,r)};state.judges.set(p.id,chordChart?new X.ChordJudge(chart,{...opts,timingOnly}):new C.Judge(chart,{...opts,drums:p.type==='drums',verifiedHolds:S.isAudio(p)&&!state.song.rhythmOnly}));}renderPads();}
   function renderSetlist(){
     $('songCount').textContent=`${String(state.songs.length).padStart(2,'0')} TRACKS`;
     $('setlist').innerHTML=state.songs.map((s,i)=>`<button class="song-card ${s===state.song?'selected':''}" data-song="${esc(s.id)}" aria-pressed="${s===state.song}"><span class="song-art a${Math.min(i,3)}" aria-hidden="true">${['≋','◒','ϟ','♫'][Math.min(i,3)]}</span><span><strong>${esc(s.name)}</strong><small>${s.bpm} BPM &nbsp;·&nbsp; ${fmt(Math.ceil(s.duration))}</small></span><span class="song-indicator" aria-hidden="true">${s===state.song?'●':'›'}</span></button>`).join('');
@@ -1552,7 +1671,7 @@
     $('songTitle').textContent=song.name;$('songTag').textContent=`${song.original?'ORIGINAL SESSION':'YOUR COLLECTION'} / ${song.tag}`;$('bpmLabel').innerHTML=`${song.bpm} <small>${song.tempoMap.length>1?'BPM*':'BPM'}</small>`;$('bpmLabel').title=song.tempoMap.length>1?'Initial tempo. Tempo changes are preserved.':'';$('durationLabel').textContent=fmt(Math.ceil(song.duration));$('loopStart').value=0;$('loopEnd').value=Math.min(song.duration,Math.round(32*60/song.bpm*10)/10);$('loop').checked=false;renderSetlist();renderBand();resetReady();if(song.workshop)restoreBacking(song,ticket);
   }
   function renderPads(){
-    $('pads').innerHTML=enabled().map(p=>{const chart=state.charts.get(p.id);return `<div class="pad-group"><span class="pad-group-name">${p.label.toUpperCase()}</span>${chart.lanes.map((l,i)=>`<button class="pad" ${S.isAudio(p)?'disabled title="Use live audio for this player"':''} data-player="${p.id}" data-lane="${i}" style="--pad-color:${l.color}" aria-label="Play ${p.label} ${esc(l.name)}; keyboard ${C.keyLabel(C.KEYS[p.id][i])}"><span>${esc(l.short)}</span><kbd>${esc(C.keyLabel(C.KEYS[p.id][i]))}</kbd></button>`).join('')}</div>`;}).join('');
+    $('pads').innerHTML=enabled().map(p=>{const chart=state.charts.get(p.id);return `<div class="pad-group"><span class="pad-group-name">${p.label.toUpperCase()}</span>${chart.lanes.map((l,i)=>{const code=C.KEYS[p.id][i],key=code?C.keyLabel(code):'MIDI';return `<button class="pad" ${S.isAudio(p)?'disabled title="Use live audio for this player"':''} data-player="${p.id}" data-lane="${i}" style="--pad-color:${l.color}" aria-label="Play ${p.label} ${esc(l.name)}; ${esc(key)}"><span>${esc(l.short)}</span><kbd>${esc(key)}</kbd></button>`;}).join('')}</div>`;}).join('');
     $('pads').querySelectorAll('.pad').forEach(b=>{const p=players.find(p=>p.id===b.dataset.player),lane=Number(b.dataset.lane),token=`touch:${p.id}:${lane}`;b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);ensureAudio();inputHit(p,lane,state.charts.get(p.id).lanes[lane].pitch,token,105,performance.now(),true);};b.onpointerup=b.onpointercancel=()=>inputRelease(p,token,performance.now());});
   }
   async function ensureAudio(){try{await audio.init();}catch(e){toast(e.message);}}
@@ -1575,7 +1694,7 @@
       soundcheck.hub.stopAll();
       const ticket=state.startGeneration;
       if(!demo) {
-        for(const p of enabled().filter(S.isAudio)){const error=S.chartError(state.charts.get(p.id).notes,p.id);if(error)throw Error(error);}
+        for(const p of enabled().filter(S.isAudio)){const chart=state.charts.get(p.id);if(!chart.chordMode){const error=S.chartError(chart.notes,p.id);if(error)throw Error(error);}}
         if(!await live.start(players,soundcheck.settings)||ticket!==state.startGeneration)return;
       } else live.stop();
       if(document.hidden||ticket!==state.startGeneration){interrupt('Start cancelled while the page was hidden.');return;}
@@ -1592,7 +1711,7 @@
   }
   function feedback(id,result){
     const time=performance.now()/1000;state.feedback.set(id,{...result,until:time+.64});
-    if(result.note&&['perfect','great','good'].includes(result.grade)){flash(id,result.note.lane);if(!reduced)for(let i=0;i<5;i++)state.particles.push({id,lane:result.note.lane,created:time,vx:(i-2)*26,vy:-55-(i%3)*20,color:state.charts.get(id).lanes[result.note.lane].color});}
+    if(result.note&&['perfect','great','good'].includes(result.grade)){const hitLanes=result.note.lanes||[result.note.lane];for(const lane of hitLanes)flash(id,lane);if(!reduced)for(const lane of hitLanes.slice(0,4))for(let i=0;i<2;i++)state.particles.push({id,lane,created:time,vx:(i?1:-1)*22,vy:-60-i*18,color:state.charts.get(id).lanes[lane].color});}
     if(state.particles.length>120)state.particles.splice(0,state.particles.length-120);
   }
   function flash(id,lane){state.flashes.set(`${id}:${lane}`,performance.now()/1000+.14);const b=$('pads').querySelector(`[data-player="${id}"][data-lane="${lane}"]`);if(b){b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),120);}}
@@ -1703,6 +1822,7 @@
       for(let lane=0;lane<n;lane++){const mid=point(lane+.5,1),lw=bw/n;ctx.beginPath();ctx.ellipse(mid.x,hit,Math.min(lw*.36,31),7,0,0,Math.PI*2);ctx.fillStyle='#101d28';ctx.fill();ctx.strokeStyle=lanes[lane].color+'aa';ctx.lineWidth=1.5;ctx.stroke();text(lanes[lane].short,mid.x,hit+26,active.length>2?6:active.length>1?7:8,lanes[lane].color);if(active.length<3)text(C.keyLabel(C.KEYS[p.id][lane]),mid.x,hit+40,7,'#6d8996');}
       const drawNote=n=>{
         const isHeld=n.hold==='held',pr=isHeld?1:progress(n.time);if(pr<0||pr>1.12)return;if(n.state===1&&!isHeld)return;
+        if(n.chord){const ls=n.lanes||[n.lane],ps=ls.map(l=>({lane:l,pos:point(l+.5,pr)})),alpha=n.state===2?'32':'e8',tailPr=C.clamp(progress(n.time+n.duration),0,1.12);if(n.duration/state.speed>.25&&tailPr>=0){for(const q of ps){const tail=point(q.lane+.5,tailPr);ctx.beginPath();ctx.moveTo(tail.x,tail.y);ctx.lineTo(q.pos.x,q.pos.y);ctx.strokeStyle=lanes[q.lane].color+(n.state===2?'18':'42');ctx.lineWidth=Math.max(2,q.pos.width/lanes.length*.10);ctx.stroke();}}if(ps.length>1){ctx.beginPath();ctx.moveTo(ps[0].pos.x,ps[0].pos.y);for(const q of ps.slice(1))ctx.lineTo(q.pos.x,q.pos.y);ctx.strokeStyle='#d9fff0'+(n.state===2?'22':'82');ctx.lineWidth=Math.max(3,ps[0].pos.width/lanes.length*.12);ctx.stroke();}for(const q of ps){const color=lanes[q.lane].color,lw=q.pos.width/lanes.length;ctx.shadowColor=color;ctx.shadowBlur=n.state===2||reduced?0:8;ctx.beginPath();ctx.ellipse(q.pos.x,q.pos.y,Math.max(5,lw*.26),Math.max(3,pr*5),0,0,Math.PI*2);ctx.fillStyle=color+alpha;ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=1;ctx.stroke();ctx.shadowBlur=0;}const center=ps.reduce((sum,q)=>sum+q.pos.x,0)/ps.length;if(pr>.57&&active.length<3)text((n.roman?n.roman+' ':'')+n.name,center,ps[0].pos.y-14,active.length>1?9:11,n.confidence<.12?'#d79aaa':'#e7fff6','center','750');return;}
         const color=lanes[n.lane].color,pos=point(n.lane+.5,pr),lw=pos.width/lanes.length;
         if(p.type!=='drums'&&n.duration/state.speed>=.35&&n.time+n.duration>t){const tail=point(n.lane+.5,C.clamp(progress(n.time+n.duration),0,1));ctx.beginPath();ctx.moveTo(tail.x,tail.y);ctx.lineTo(pos.x,pos.y);ctx.strokeStyle=color+(n.state===2?'20':isHeld?'ba':'52');ctx.lineWidth=Math.max(2,lw*.15);ctx.stroke();}
         const alpha=n.state===2?'30':'e8',nh=Math.max(3,pr*7),hw=lw*.34;ctx.shadowColor=color;ctx.shadowBlur=n.state===2?0:reduced?0:7;
@@ -1720,7 +1840,7 @@
     if(state.status==='playing'){
       if(audio.ctx.state!=='running'){pauseGame('Audio was interrupted. Press Resume when ready.');t=state.position;}
       else{
-        for(const p of enabled()){const j=state.judges.get(p.id);if(state.demo){let i=j.demoCursor||0;while(i<j.notes.length&&j.notes[i].time<=t){const n=j.notes[i++];j.hit(n.time,{lane:n.lane,pitch:n.pitch,token:`demo:${p.id}:${n.id}`});}j.demoCursor=i;}j.tick(t-(state.demo?0:(S.correctionMs(p,state.inputOffset)+(S.isAudio(p)?S.LOOKBACK_MS:0))/1000)*state.speed);}
+        for(const p of enabled()){const j=state.judges.get(p.id);if(state.demo){let i=j.demoCursor||0;while(i<j.notes.length&&j.notes[i].time<=t){const n=j.notes[i++];if(n.chord&&!j.timingOnly){for(const pitch of (n.source==='midi'&&j.mode==='exact'?n.pitches:n.pcs.map(pc=>60+pc)))j.hit(n.time,{lane:n.lane,pitch,token:`demo:${p.id}:${n.id}:${pitch}`});}else j.hit(n.time,{lane:n.lane,pitch:n.pitch??40,token:`demo:${p.id}:${n.id}`});}j.demoCursor=i;}j.tick(t-(state.demo?0:(S.correctionMs(p,state.inputOffset)+(S.isAudio(p)?S.LOOKBACK_MS:0))/1000)*state.speed);}
         const before=state.position-t;if(before>0){const count=Math.ceil(before/(60/state.song.bpm));const s=String(C.clamp(count,1,4));if(s!==lastCount){$('countdown').innerHTML=`${s}<small>${state.demo?'AUTOPLAY DEMO':'COUNT IN'}</small>`;lastCount=s;}}
         else if(lastCount){$('countdown').innerHTML='';lastCount='';}
         const section=[...state.song.sections].reverse().find(s=>s.time<=t);$('sectionName').textContent=state.demo?'AUTOPLAY DEMO':section?.name||'COUNT IN';
@@ -1772,7 +1892,7 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)interrupt('Playback paused while this tab was hidden.');});
   window.addEventListener('beforeunload',()=>{live.destroy();audio.stop();cancelAnimationFrame(raf);});
   // Read-only diagnostics for tests and troubleshooting. No virtual scores or input backdoors.
-  window.MIDIStage={version:'0.5.0',getWorkshopSnapshot:()=>({open:workshop.dialog.open,busy:workshop.busy,analysis:workshop.analysis?{bpm:workshop.analysis.bpm,confidence:workshop.analysis.confidence,onsetCount:workshop.analysis.onsets.length,backend:workshop.analysisBackend}:null,preview:workshop.preview.running,project:StageWorkshop.clone(workshop.project)}),getSnapshot:()=>({rhythmOnly:!!state.song.rhythmOnly,backingLoading:state.backingLoading,bufferName:state.bufferName,songCount:state.songs.length,status:state.status,song:state.song.id,time:state.status==='playing'?audio.songAt():state.position,demo:state.demo,players:enabled().map(p=>({id:p.id,input:p.input,offsetMs:p.offsetMs,device:p.device,channel:p.channel,matching:state.judges.get(p.id)?.mode,stats:{...state.judges.get(p.id)?.stats},notes:state.judges.get(p.id)?.notes.map(n=>({time:n.time,lane:n.lane,pitch:n.pitch,state:n.state,hold:n.hold}))})),devices:state.devices.map(d=>({...d})),calibration:state.inputOffset,loopCount:state.loops,audio:{running:live.running,routes:[...live.hub.routes.keys()]}})};
+  window.MIDIStage={version:'0.6.0',getWorkshopSnapshot:()=>({open:workshop.dialog.open,busy:workshop.busy,analysis:workshop.analysis?{bpm:workshop.analysis.bpm,confidence:workshop.analysis.confidence,onsetCount:workshop.analysis.onsets.length,backend:workshop.analysisBackend}:null,preview:workshop.preview.running,project:StageWorkshop.clone(workshop.project)}),getSnapshot:()=>({rhythmOnly:!!state.song.rhythmOnly,backingLoading:state.backingLoading,bufferName:state.bufferName,songCount:state.songs.length,status:state.status,song:state.song.id,time:state.status==='playing'?audio.songAt():state.position,demo:state.demo,players:enabled().map(p=>({id:p.id,input:p.input,offsetMs:p.offsetMs,device:p.device,channel:p.channel,matching:state.judges.get(p.id)?.mode,stats:{...state.judges.get(p.id)?.stats},chordMode:!!state.judges.get(p.id)?.chordMode,notes:state.judges.get(p.id)?.notes.map(n=>({time:n.time,lane:n.lane,lanes:n.lanes,name:n.name,roman:n.roman,key:n.key,pitch:n.pitch,state:n.state,hold:n.hold}))})),devices:state.devices.map(d=>({...d})),calibration:state.inputOffset,loopCount:state.loops,audio:{running:live.running,routes:[...live.hub.routes.keys()]}})};
   renderSetlist();renderBand();resetReady();resize();raf=requestAnimationFrame(frame);
 })();
 

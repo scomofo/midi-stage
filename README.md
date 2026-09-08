@@ -1,15 +1,17 @@
-# MIDI Stage — v0.5 / Quick MP3 Highways
+# MIDI Stage — v0.6 / Chord Highways
 
 A local rhythm game for MIDI drums, an 88-key MIDI-capable keyboard, and electric
 guitar/bass through an audio interface. Original code, visuals and practice songs;
 not affiliated with Rock Band or Harmonix. No account, cloud service, recording,
 or audio uploads. The browser game has no runtime package dependencies.
 
-**v0.5 makes the common path: drop an MP3 → automatic rhythm analysis → preview →
-Play now.** The advanced Song Workshop, MIDI import, local song/audio library and
-portable chart exports remain available. The v0.3 live single-note guitar/
-bass scoring and MIDI drums/keys remain available. Actual instruments and physical
-interface latency still need validation.
+**v0.6 adds playable chord highways on top of the v0.5 quick MP3 flow.** Matching
+MIDI groups simultaneous notes into chord targets. MP3/audio imports can estimate
+major/minor chord changes locally, with an I–V–vi–IV assist enabled by default for
+pop-progressions such as `I C → V G → vi Am → IV F`. Keyboard/MIDI can score chord
+tones; live guitar chord charts score strum timing without claiming reliable chord
+identity. Actual instruments, real recordings, and physical interface latency still
+need validation.
 
 ## Run it
 
@@ -34,11 +36,12 @@ Use **All notes** to keep the original density, or thin fast runs for an easier
 arrangement. Difficulty here changes the chart; the game's difficulty control
 continues to change timing tolerance, not the composition.
 
-**Reduce guitar/bass to single notes** is optional and destructive to chord voicings:
-it keeps the upper guitar/lower bass tone at a chord onset and trims overlaps. This
-makes suitable single-note charts for the existing live-audio scoring path. Without
-reduction, imported chords remain editable but cannot be scored by the monophonic
-live guitar/bass detector.
+**Reduce guitar/bass to single notes** remains optional and destructive to chord
+voicings. Leave it off to preserve simultaneous MIDI notes: recognized voicings are
+grouped into version-3 chord targets for Keyboard/Guitar highways. MIDI keyboard
+players may use arcade pitch-class matching or exact authored MIDI pitches. Live
+guitar uses the same chord labels/highway but judges the strum attack only because
+the monophonic audio detector does not verify multi-string chord identity.
 
 ### MP3 / WAV → automatic rhythm highways
 
@@ -63,6 +66,30 @@ settings** apply corrections. If there are too few reliable attacks or no stable
 pulse, the app asks for a tempo rather than making up a playable transcription.
 Manual-tempo fallback creates rhythm-grid exercises within active audio regions.
 A completely silent file cannot produce a usable chart.
+
+### MP3 chord highways and I–V–vi–IV assist
+
+Enable **Estimate chord highways for Keys / Guitar** during quick audio import. The
+analyzer converts short audio windows to pitch-class energy and proposes chord
+labels locally. **I–V–vi–IV assist** is enabled by default: it searches all major
+keys, cycle phase and common one/two/four-beat chord spans, then constrains a strong
+fit to `I → V → vi → IV`. Choose a major key manually when you already know it.
+The preview displays both the Roman numeral and chord name.
+
+This is a *guided chord estimate*, not source separation or authoritative
+transcription. If the progression fit is weak, the analyzer falls back to general
+major/minor/seventh/sus/diminished/augmented chord templates. Low-confidence labels
+are visually subdued and should be reviewed. Songs that only use I–V–vi–IV in one
+section, modulate, use inversions/extensions, or have dense/distorted mixes may need
+manual correction or matching MIDI.
+
+For estimated chord charts, an 88-key MIDI keyboard scores the required pitch
+classes so any octave/inversion containing the displayed chord tones can work.
+Chord targets imported from MIDI can instead require exact authored MIDI pitches
+when Exact matching is selected. A partial chord is one missed chord target, not
+three independent misses. Live electric guitar displays the same `I/V/vi/IV` chord
+labels but scores one clean strum attack at the target time; it does **not** claim
+that the audio input played the displayed chord correctly.
 
 The confidence badge is a heuristic, not an accuracy guarantee. First beat is an
 estimated pulse phase, not a detected bar downbeat. Live/drifting tempo, rubato,
@@ -152,10 +179,10 @@ Keyboard shortcuts and MIDI do not score a player set to live audio; switch that
 player back to **MIDI / computer keys** for those input paths. MIDI Learn, CC64 pedal
 support, import, practice loops and existing MIDI timing remain available.
 
-Full chord recognition is **not** implemented. Chords, distortion, strong harmonics,
-noise, crosstalk or mixed signals can still confuse a monophonic detector. Imported
-chords/overlapping chart notes and out-of-range string parts are blocked with a
-message rather than presented as playable polyphonic audio charts.
+Live-audio **chord identity recognition is not implemented**. Chord highways and
+labels are implemented, but guitar audio scores their strum timing only. Distortion,
+strong harmonics, noise, crosstalk or mixed signals can still confuse the underlying
+single-note/attack detector. Use matching MIDI for authoritative chord pitches.
 
 ## Timing
 

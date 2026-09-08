@@ -6,6 +6,21 @@ Import audio → local pulse/attack analysis → preview → direct play is impl
 Generated charts explicitly judge rhythm, not the original instrument pitches.
 Physical hardware and a diverse, legally supplied music corpus remain to be tested.
 
+## Chord highway milestone — implemented in v0.6
+
+Version-3 charts can store playable Keyboard/Guitar chord targets. Matching MIDI
+groups simultaneous voicings automatically. MP3/audio import can estimate chord
+changes locally, with an I–V–vi–IV assist enabled by default for the initial song
+focus. The assist infers a major key/cycle phase when confidence is strong and
+allows a manual key override. Roman numerals and chord names are rendered on the
+highway.
+
+Keyboard/MIDI players can be judged on pitch classes or exact authored MIDI pitches.
+Live guitar uses the chord highway as a strum-timing target only; verifying that the
+player actually fretted the displayed multi-string chord remains future work.
+A diverse legally supplied song corpus and physical-device timing still need
+validation.
+
 ## Higher-fidelity song parts — future implementation
 
 Evaluate instrument separation and transcription as a separate, optional pipeline.
@@ -42,14 +57,14 @@ Implemented in the Song Workshop PR: MIDI/audio import, editable instrument
 highways, beat-practice exercises, preview, local library and chart JSON backups.
 This is not full audio transcription. Actual instrument trials remain pending.
 
-## Milestone 0.5 — 88-key keyboard experience
+## Milestone 0.7 — 88-key keyboard experience
 
 - Full piano-roll visualization
 - Left/right hand ranges and fingering hints where authored
 - Chord voicing and sustain-pedal feedback
 - Difficulty reductions that preserve musical intent
 
-## Milestone 0.6 — Band feel
+## Milestone 0.8 — Band feel
 
 - Shared crowd/energy meter
 - Unison sections and band bonuses
