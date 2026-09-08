@@ -35,6 +35,18 @@ LED controllers, MIDI interfaces and clock followers still require physical test
 Device-specific feedback profiles can be added after their models and MIDI
 implementations are known.
 
+## Hardware onboarding milestone — implemented in v0.8
+
+A five-step wizard now discovers MIDI ports, identifies player roles from real incoming
+MIDI events, routes guitar/bass users to Audio soundcheck, configures optional MIDI
+OUT/Clock profiles, launches per-player MIDI timing calibration, and saves a sanitized
+local hardware profile report. Advanced routing remains available separately.
+
+The software path is tested with simulated ports. The next hardware gate is to run the
+wizard on the actual drum kit, 88-key keyboard, audio interface and any MIDI OUT gear,
+record the detected labels/channels, and validate repeatable timing before adding
+named device presets.
+
 ## Higher-fidelity song parts — future implementation
 
 Evaluate instrument separation and transcription as a separate, optional pipeline.
