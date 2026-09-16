@@ -29,7 +29,7 @@ with sync_playwright() as p:
  browser=p.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH') or shutil.which('chromium') or shutil.which('google-chrome'),headless=True,args=['--no-sandbox','--autoplay-policy=no-user-gesture-required'])
  context=browser.new_context(viewport={'width':1440,'height':1150},device_scale_factor=1);context.add_init_script(MOCK)
  page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.set_content(HTML,wait_until='load')
- page.locator('[data-part="keys"]').click();page.locator('#connectMIDI').click()
+ page.locator('[data-song="neon-circuit"]').click();page.locator('[data-part="drums"]').click();page.locator('#connectMIDI').click()
  check('Web MIDI permission still requests SysEx disabled',page.evaluate('__permissionRequests.length===1 && __permissionRequests[0].sysex===false'))
  snap=page.evaluate('MIDIStage.getSnapshot()')
  check('two MIDI outputs are enumerated in hardware snapshot',len(snap['outputs'])==2 and {o['name'] for o in snap['outputs']}=={'Virtual Synth','LED Pads'})

@@ -1,3 +1,14 @@
+# 0.9.0 — Chord Stage
+
+- Chord judgment requires sounding overlap, supports octave doubling/common tones, and judges source-note tails and pedal releases.
+- Mixed charts retain single-note fills and unsupported voicings; Workshop edits keep MIDI notes and chord targets consistent.
+- Added Open Stage, an original 90-second band song with three musical difficulty arrangements and authored hand hints.
+- Added stable-range and 88-key piano guidance with target, held, missing, wrong-note, and upcoming-chord feedback at every lineup size.
+- Added pitch-preserving backing slowdown with bounded, cancellable preparation and separate backing/monitor/guide volume controls.
+- Added shared energy, cooperative phrase bonuses, stars, local records, and full-speed Exact mastery.
+- Synthesized guide parts respond to player hits/misses. Imported full mixes are not separated stems.
+- Added a physical keyboard/pedal acceptance checklist; automated checks do not certify hardware or musical sound quality.
+
 # 0.8.0 — Hardware Onboarding
 
 - Added a five-step Hardware Setup Wizard for discovery, role identification, MIDI OUT, calibration and review.
