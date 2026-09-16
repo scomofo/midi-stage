@@ -83,19 +83,25 @@ Implemented in the Song Workshop PR: MIDI/audio import, editable instrument
 highways, beat-practice exercises, preview, local library and chart JSON backups.
 This is not full audio transcription. Actual instrument trials remain pending.
 
-## Milestone 0.8 — 88-key keyboard experience
+## Chord Stage milestone — implemented in v0.9
 
-- Full piano-roll visualization
-- Left/right hand ranges and fingering hints where authored
-- Chord voicing and sustain-pedal feedback
-- Difficulty reductions that preserve musical intent
+- Trustworthy chord attacks, octave doubling, common tones, holds and pedal releases.
+- Mixed chord/single-note charts and consistent source-note/chord editing.
+- Original 90-second Open Stage song with three musical difficulty arrangements.
+- Stable-range/88-key piano guide, authored hand ranges, missing/wrong-tone feedback,
+  and upcoming changes. Fingering numbers and a full scrolling piano roll remain future work.
+- Pitch-preserving practice audio, separate backing/monitor/guide levels, and
+  per-player synthesized guide response. Imported mixes are not separated stems.
+- Shared energy, cooperative phrase bonuses, stars, local records and Exact mastery.
 
-## Milestone 0.9 — Band feel
+### Next acceptance and content gates
 
-- Shared crowd/energy meter
-- Unison sections and band bonuses
-- More responsive stage lighting and hit feedback
-- Player-specific results and band summary
+Run `docs/CHORD_ACCEPTANCE.md` on the real 88-key keyboard and pedal, then listen to
+Open Stage at all three difficulty levels and imported audio at 50/75/100% tempo.
+Expand the dedicated chord repertoire after that first arrangement passes a musician's
+play-through. The four earlier generated practice/validation songs remain available;
+they are not a verified chord-song catalog. Add artist-quality sounds and true stems
+as separate content work. Do not equate unit tests with an enjoyable finished game.
 
 ## Later
 

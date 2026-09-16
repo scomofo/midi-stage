@@ -33,3 +33,11 @@ jobs:
           export CHROMIUM_PATH="$(python -c 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()')"
           python tests/run.py --browser --storage
           git diff --exit-code -- MIDI-Stage.html
+      - name: Save browser acceptance screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: browser-acceptance
+          path: ../midi-stage-*.png
+          if-no-files-found: ignore
+          retention-days: 7

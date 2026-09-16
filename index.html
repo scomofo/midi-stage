@@ -5,7 +5,7 @@
   <meta name="theme-color" content="#0a1019"><meta name="description" content="An original local rhythm game for MIDI drums, keys, guitar/bass audio, song highways, hardware profiles and MIDI OUT.">
   <title>MIDI Stage — Your instruments. Your stage.</title>
   <link rel="stylesheet" href="src/styles.css">
-  <script defer src="src/core.js"></script><script defer src="src/chords.js"></script><script defer src="src/midi.js"></script><script defer src="src/hardware.js"></script><script defer src="src/onboarding.js"></script><script defer src="src/audio.js"></script><script defer src="src/input.js"></script><script defer src="src/strings.js"></script><script defer src="src/soundcheck.js"></script><script defer src="src/workshop.js"></script><script defer src="src/song-analysis.js"></script><script defer src="src/workshop-ui.js"></script><script defer src="src/app.js"></script>
+  <script defer src="src/core.js"></script><script defer src="src/chords.js"></script><script defer src="src/repertoire.js"></script><script defer src="src/guidance.js"></script><script defer src="src/performance.js"></script><script defer src="src/midi.js"></script><script defer src="src/hardware.js"></script><script defer src="src/onboarding.js"></script><script defer src="src/stretch.js"></script><script defer src="src/audio.js"></script><script defer src="src/input.js"></script><script defer src="src/strings.js"></script><script defer src="src/soundcheck.js"></script><script defer src="src/workshop.js"></script><script defer src="src/song-analysis.js"></script><script defer src="src/workshop-ui.js"></script><script defer src="src/app.js"></script>
 </head>
 <body>
   <header class="topbar">
@@ -16,8 +16,8 @@
     <aside class="sidebar">
       <div class="eyebrow">THE STAGE IS YOURS</div>
       <h1>Make some<br><em>real noise.</em></h1>
-      <p class="intro">Your drum kit. Your keys. Your band.<br>Plug in and find your groove.</p>
-      <div class="section-heading"><h2>SETLIST</h2><span id="songCount">03 TRACKS</span></div>
+      <p class="intro">Play real chords. Build your streak.<br>Start on keys, then bring your band.</p>
+      <div class="section-heading"><h2>SETLIST</h2><span id="songCount">05 TRACKS</span></div>
       <div id="setlist" class="setlist" aria-label="Choose a song"></div>
       <button id="openWorkshop" class="import-button workshop-launch"><span>＋</span> Song Workshop <small>IMPORT / CREATE</small></button>
       <button id="importButton" class="import-button"><span>↳</span> Quick MIDI import <small>.mid</small></button>
@@ -31,25 +31,32 @@
       <div class="sidebar-foot"><span>●</span> Runs locally. No account. No uploads.</div>
     </aside>
     <section class="play-area" aria-label="Rhythm game">
-      <div class="session-heading"><div><div class="eyebrow" id="songTag">ORIGINAL SESSION / SYNTH ROCK</div><h2 id="songTitle">Neon Circuit</h2></div><div class="song-meta"><strong id="bpmLabel">112 <small>BPM</small></strong><span id="durationLabel">01:09</span><span class="no-fail">NO-FAIL PRACTICE</span></div></div>
+      <div class="session-heading"><div><div class="eyebrow" id="songTag">ORIGINAL SESSION / CHORD ROCK</div><h2 id="songTitle">Open Stage</h2></div><div class="song-meta"><strong id="bpmLabel">96 <small>BPM</small></strong><span id="durationLabel">01:30</span><span class="no-fail">NO-FAIL PRACTICE</span></div></div>
+      <p id="arrangementHelp" class="arrangement-help"></p>
       <div class="hud" aria-live="off"><div class="score-stat"><span>SCORE</span><strong id="score">000,000</strong></div><div><span>STREAK</span><strong id="combo">0 <small>NOTES</small></strong></div><div><span>MULTIPLIER</span><strong id="multiplier">1<small>×</small></strong></div><div><span>ACCURACY</span><strong id="accuracy">—<small>%</small></strong></div><div class="best-stat"><span>PERSONAL BEST</span><strong id="best">—</strong></div></div>
+      <div class="performance-hud"><label>STAGE ENERGY <meter id="stageEnergy" min="0" max="100" value="50"></meter><span id="energyValue">50%</span></label><span id="bandBonus">SOLO · FIND YOUR GROOVE</span><span id="masteryStatus">Your first set awaits</span></div>
       <div id="liveInputs" class="live-inputs" aria-label="Live guitar and bass" hidden></div>
       <div id="stage" class="stage">
+        <div class="stage-visual">
         <div class="stage-top"><span id="stageMode"><i></i> SOLO SESSION</span><span id="sectionName">INTRO</span><button id="fullscreen" aria-label="Toggle full screen" class="fullscreen">⛶</button></div>
         <canvas id="stageCanvas" role="img" aria-label="Notes travel down each instrument highway. Hit the matching pad when a note reaches the glowing strike line."></canvas>
         <div id="stageOverlay" class="stage-overlay"><div class="overlay-mark" aria-hidden="true">↘</div><div class="eyebrow">YOUR NEXT SESSION</div><h3>Take the stage.</h3><p>Hit the notes as they cross the line.<br>Start with your keyboard or connect an instrument.</p><button id="overlayStart" class="button primary">▶ &nbsp; Start set <kbd>ENTER</kbd></button><span class="overlay-hint">Solo by default. Add your band on the left.</span></div>
         <div id="countdown" class="countdown" aria-live="polite"></div>
         <div class="stage-bottom"><span id="inputMode">COMPUTER KEYBOARD / MIDI</span><span id="speedBadge">1.00× TEMPO</span></div>
+        </div>
+        <div id="guideTools" class="guide-tools"><span>GOLD: TARGET · GREEN: SOUNDING · PINK: WRONG</span><label>Piano view <select id="guideRange"><option value="focus">Song range</option><option value="88">All 88 keys</option></select></label></div>
+        <div id="chordGuide" class="chord-guide" aria-label="Chord and keyboard guidance"></div>
       </div>
-      <div class="progress-wrap"><div class="progress-line"><span id="progressFill"></span></div><div class="progress-labels"><span id="elapsed">00:00</span><span id="runStatus" role="status">Ready when you are.</span><span id="remaining">01:09</span></div></div>
+      <div class="progress-wrap"><div class="progress-line"><span id="progressFill"></span></div><div class="progress-labels"><span id="elapsed">00:00</span><span id="runStatus" role="status">Ready when you are.</span><span id="remaining">01:30</span></div></div>
       <div class="transport"><div class="transport-main"><button id="start" class="button primary">▶ &nbsp; Start set</button><button id="pause" class="button secondary" disabled>Ⅱ &nbsp; Pause</button><button id="restart" class="icon-button" aria-label="Restart song" title="Restart (R)">↺</button></div><button id="demo" class="button ghost">▷ &nbsp; Watch demo</button></div>
       <div class="session-controls"><label>DIFFICULTY<select id="difficulty"><option value="chill">Chill</option><option value="standard" selected>Standard</option><option value="expert">Expert</option></select></label><label>TEMPO<select id="speed"><option value="0.5">50%</option><option value="0.75">75%</option><option value="1" selected>100%</option><option value="1.25">125%</option></select></label><label class="check"><input type="checkbox" id="guide"> Guide part</label><label class="check"><input type="checkbox" id="metronome"> Click</label><label class="volume-label">VOLUME<input type="range" id="volume" min="0" max="100" value="55" aria-label="Master volume"></label></div>
+      <details class="mix-tools"><summary>Sound mix <span>Balance the band and your instrument</span></summary><div class="mix-controls"><label>Backing <input id="mixBacking" type="range" min="0" max="100" value="100"></label><label>My MIDI instrument <input id="mixMonitor" type="range" min="0" max="100" value="100"></label><label>Guide part <input id="mixGuide" type="range" min="0" max="100" value="100"></label></div><p>Enable Guide part to hear the selected synthesized part respond to your hits and misses. Imported full mixes stay intact. Live guitar/bass monitoring comes from your interface.</p></details>
       <div id="pads" class="pads" aria-label="Playable input pads"></div>
       <div class="keyboard-hint"><span><kbd>ENTER</kbd> Start / pause</span><span><kbd>R</kbd> Restart <small>(when not a note)</small></span><span><kbd>ESC</kbd> Pause</span><span>Hold melodic notes to the end of their tails.</span></div>
       <details class="practice-tools"><summary>Practice tools <span>Loop a section · Add backing audio</span></summary><div class="practice-row"><label class="check"><input type="checkbox" id="loop"> Loop</label><label>From (sec)<input id="loopStart" type="number" min="0" step="0.5" value="0"></label><label>To (sec)<input id="loopEnd" type="number" min="1" step="0.5" value="17.1"></label><button id="audioButton" class="button secondary small">Add backing audio</button><input id="audioFile" type="file" accept="audio/*" hidden><button id="clearAudio" class="button ghost small" hidden>Clear audio</button><label>Audio starts at (sec)<input id="audioOffset" type="number" value="0" step="0.01" min="-120" max="120"></label></div><p id="audioStatus">MIDI tracks are synthesized locally. Optional audio must match your chart; it is not automatically transcribed or aligned.</p></details>
     </section>
   </main>
-  <footer><span>MIDI STAGE <b>0.8</b> / PLAYABLE PROTOTYPE</span><span>Original game & music. Not affiliated with Rock Band or Harmonix.</span></footer>
+  <footer><span>MIDI STAGE <b>0.9</b> / PLAYABLE PROTOTYPE</span><span>Original game & music. Not affiliated with Rock Band or Harmonix.</span></footer>
   <dialog id="onboardingDialog" class="onboarding-dialog" aria-labelledby="wizardTitle">
     <div class="dialog-heading"><div><div class="eyebrow" id="wizardEyebrow">STEP 1 / 5</div><h2 id="wizardTitle">Find your rig</h2></div><button id="wizardClose" class="icon-button" aria-label="Close hardware setup wizard">×</button></div>
     <div class="wizard-progress"><span id="wizardProgress"></span></div>

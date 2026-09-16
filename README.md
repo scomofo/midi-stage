@@ -1,11 +1,26 @@
-# MIDI Stage — v0.8 / Hardware Onboarding
+# MIDI Stage — v0.9 / Chord Stage
 
 A local rhythm game for MIDI drums, an 88-key MIDI-capable keyboard, and electric
 guitar/bass through an audio interface. Original code, visuals and practice songs;
 not affiliated with Rock Band or Harmonix. No account, cloud service, recording,
 or audio uploads. The browser game has no runtime package dependencies.
 
-**v0.8 adds a guided Hardware Setup Wizard on top of the v0.7 MIDI OUT layer.**
+**v0.9 makes the first playable experience chord-first.** Open Stage is an original
+90-second band song with three authored keyboard arrangements: open fifths/triads,
+triads/inversions, and seventh chords with bass notes and syncopation. A piano guide
+shows the required keys, held/missing/wrong notes, hand hints, and upcoming changes.
+Choose a focused stable keyboard range or all 88 keys. Chords and single-note fills
+share one chart; octave doubling, common tones, release timing, and sustain pedal
+are judged together. The Workshop can edit chord targets and their source notes.
+
+Backing audio can slow down without changing key. Preparing a long imported file
+may take a moment; preparation is cancellable and bounded. Backing, instrument
+monitoring, and synthesized guide levels are independent. Shared stage energy,
+cooperative phrase bonuses, stars, and local performance history reward complete
+sets. Full-speed Exact performances on Standard/Expert can earn mastery; demos,
+loops, and runs assisted by pausing a hold do not save records.
+
+The Hardware Setup Wizard remains available alongside the MIDI OUT layer.
 The wizard discovers MIDI ports, identifies drums/keys by listening for the next
 played note or pad, hands guitar/bass audio routing to Soundcheck, configures optional
 MIDI OUT/Clock profiles, launches per-player MIDI timing calibration, and saves a
@@ -95,7 +110,8 @@ instrument. Note times, pitches, velocities, tails and tempo changes are retaine
 identical time/pitch duplicates are combined. Unsupported drum pitches are reported.
 Use **All notes** to keep the original density, or thin fast runs for an easier
 arrangement. Difficulty here changes the chart; the game's difficulty control
-continues to change timing tolerance, not the composition.
+changes timing tolerance for imported songs. Open Stage additionally changes its
+authored arrangement with the game's difficulty control.
 
 **Reduce guitar/bass to single notes** remains optional and destructive to chord
 voicings. Leave it off to preserve simultaneous MIDI notes: recognized voicings are
@@ -177,6 +193,17 @@ clear to refine the chart. **Preview from view** plays the backing audio, or the
 synthesized chart when no file is attached. During preview, **Add note at playhead**
 (or T outside text fields) places the selected pitch at the current/snap time.
 Restart preview to hear changes in synthesized chart playback.
+
+For Keyboard/Guitar, **Chord targets** lists the chord name, time, length, and MIDI
+pitches. Add, edit, or delete targets there. Editing a MIDI-derived chord also updates
+its source notes; note edits and quantization regenerate matching chord targets.
+Clearing a part clears both notes and chord targets. Independent manual/estimated
+targets remain independently editable.
+
+Before relying on a physical rig, follow [the chord acceptance checklist](docs/CHORD_ACCEPTANCE.md).
+The automated tests use simulated MIDI and synthetic audio, not your keyboard,
+pedal, speakers, or audio interface. Live guitar chords still judge strum timing;
+they do not verify the fretted chord.
 
 **Attach / replace audio** retains existing highways. Audio starts at is an
 independent alignment offset in chart seconds: positive values delay the file;

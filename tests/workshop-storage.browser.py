@@ -39,7 +39,7 @@ with tempfile.TemporaryDirectory(prefix='midi-stage-profile-') as profile,sync_p
     context=p.chromium.launch_persistent_context(profile,**opts);page=context.pages[0]
     page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept())
     page.goto((ROOT/'MIDI-Stage.html').as_uri(),wait_until='load')
-    page.wait_for_function('MIDIStage.getSnapshot().songCount===5')
+    page.wait_for_function('MIDIStage.getSnapshot().songCount===6')
     check('saved chart is restored after Chromium process restart',page.get_by_role('button',name='Persistent library TEST',exact=False).count()==1)
     page.get_by_role('button',name='Persistent library TEST',exact=False).click()
     page.wait_for_function('!MIDIStage.getSnapshot().backingLoading')
@@ -59,7 +59,7 @@ with tempfile.TemporaryDirectory(prefix='midi-stage-profile-') as profile,sync_p
     context=p.chromium.launch_persistent_context(profile,**opts);page=context.pages[0]
     page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept())
     page.goto((ROOT/'MIDI-Stage.html').as_uri(),wait_until='load')
-    page.wait_for_function('MIDIStage.getSnapshot().songCount===5')
+    page.wait_for_function('MIDIStage.getSnapshot().songCount===6')
     page.get_by_role('button',name='quick-import-pulse',exact=False).click();page.wait_for_function('!MIDIStage.getSnapshot().backingLoading')
     check('restored rhythm chart stays timing-only in gameplay after process restart',page.evaluate('MIDIStage.getSnapshot().rhythmOnly && MIDIStage.getSnapshot().players.every(p=>p.matching==="rhythm")'))
     check('restored rhythm chart keeps original MP3 backing',page.evaluate('MIDIStage.getSnapshot().bufferName')=='quick-import-pulse.mp3')

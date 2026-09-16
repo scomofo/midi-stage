@@ -51,7 +51,7 @@ def snap(page):return page.evaluate('MIDIStage.getSnapshot()')
 def close_setup(page):page.locator('[data-close="setupDialog"]').last.click()
 def setup(page):
     page.locator('[data-song="first-rehearsal"]').click()
-    for role in ['keys','guitar','bass']:page.locator(f'[data-part="{role}"]').click()
+    for role in ['drums','guitar','bass']:page.locator(f'[data-part="{role}"]').click()
     page.locator('#connectMIDI').click()
     for role,device in [('drums','kit'),('keys','keys')]:page.locator(f'[data-route="device"][data-player="{role}"]').select_option(device)
     for role in ['guitar','bass']:page.locator(f'[data-route="input"][data-player="{role}"]').select_option('audio')
@@ -66,7 +66,7 @@ with sync_playwright() as p:
     page=context.new_page();errors=[];requests=[]
     page.on('pageerror',lambda e:errors.append(str(e)));page.on('request',lambda r:requests.append(r.url))
     page.set_content(HTML,wait_until='load')
-    check('v0.3 loads with four tracks and no capture permission request',snap(page)['status']=='ready' and page.locator('.song-card').count()==4 and page.evaluate('__audioMock.calls.length===0'))
+    check('v0.3 loads with five tracks and no capture permission request',snap(page)['status']=='ready' and page.locator('.song-card').count()==5 and page.evaluate('__audioMock.calls.length===0'))
     setup(page)
     check('audio routing controls preserve MIDI drums and keyboard',[(x['id'],x['input']) for x in snap(page)['players']]==[('drums','midi'),('keys','midi'),('guitar','audio'),('bass','audio')])
     check('soundcheck closure stops diagnostic capture',page.evaluate('__audioMock.live().length===0'))

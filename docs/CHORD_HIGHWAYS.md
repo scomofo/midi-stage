@@ -1,4 +1,4 @@
-# Chord Highways — v0.6
+# Chord Highways — v0.9
 
 MIDI Stage chord highways are a separate playable layer for **Keyboard** and
 **Guitar**. They do not replace the original note data in the chart.
@@ -16,6 +16,9 @@ diminished, augmented, sus2, sus4 and power chords.
 - **Exact matching** requires the authored MIDI pitches for MIDI-sourced chords.
 - A partial chord becomes one missed chord target, not one miss per tone.
 - The original MIDI notes remain in the project for editing/export.
+- Single notes, rolled passages, and unsupported voicings remain playable beside named chords.
+- MIDI note edits regenerate derived targets. Editing a derived target edits its notes too;
+  independent estimated/manual targets remain separate. Clearing a part removes both layers.
 
 ### MP3 / audio estimate
 
@@ -55,8 +58,18 @@ https://en.wikipedia.org/wiki/Category:Songs_containing_the_I%E2%80%93V-vi-IV_pr
 ### 88-key MIDI keyboard
 
 Estimated audio chords are judged by pitch class, so octave/inversion choice is
-flexible as long as the required chord tones are present within the timing window.
+flexible as long as the required chord tones sound together within the timing window.
+Octave doubling of a valid tone is accepted. An ordinary rolled chord has up to
+120 ms to arrive (adjusted for practice speed). Credited common tones may ring into
+the next change; repeated targets still require a new attack. Releasing a required
+tone before its authored tail ends breaks the hold; sustain-pedal state counts as
+sounding. A paused hold becomes practice-only and cannot earn its completion bonus.
 MIDI-sourced chords may instead use exact authored MIDI pitches.
+
+The piano guide names exact pitches and highlights target/sounding/missing/wrong
+keys. Its focused range stays stable for normal-range charts; wider pieces use a
+labeled moving focus or the optional 88-key view. Authored left/right-hand hints and
+upcoming chord names remain visible in four-player layouts.
 
 ### Electric guitar through live audio
 

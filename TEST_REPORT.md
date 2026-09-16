@@ -1,49 +1,37 @@
-# MIDI Stage 0.8.0 — Hardware Onboarding validation
+# MIDI Stage 0.9.0 — Chord Stage validation
 
 ## Completed local validation
 
-**218 Node unit checks pass** on the authorized Mac. The standalone build regenerates
-from source and `git diff --check` is clean. The ten new onboarding model checks cover
-role-name suggestions, connected/missing/audio status, per-player calibration math,
-readable report fields, clock-output resolution, and removal of raw browser device IDs.
+297 Node unit checks pass. Coverage includes chord overlap, octave doubling,
+common tones, exact pitches, release/pedal paths, mixed charts, Workshop metadata
+integrity, all three Open Stage arrangements, piano guidance, progression, and
+pitch-preserving audio preparation.
 
-The existing MIDI OUT, chord, input, audio, Song Workshop and analysis units remain
-part of the same 218-check run.
+The audio tests measure synthetic 440 Hz signals at 50%, 75%, and 125% speed,
+check output duration and stereo coherence, and exercise cancellation and memory
+limits. These are numerical regression checks, not listening tests of music.
 
-## Browser/hosted gate
+## Hosted gate
 
-`tests/onboarding.browser.py` adds **17 browser checks** to the standard GitHub Actions
-suite. It opens the real five-step wizard with simulated MIDI inputs/outputs and checks:
+The first scoring/editor commit passed the complete hosted suite (462 checks).
+The final integrated change adds browser acceptance for the default chord song,
+arrangement changes, octave doubling, early releases, CC64 holds, mixed passages,
+Workshop chord editing and a narrow/four-player guide. The final hosted result is
+pending; this report will be updated after the workflow finishes.
 
-- opening onboarding does not request permission before the user presses Connect;
-- Web MIDI permission keeps SysEx disabled;
-- discovery displays MIDI IN/OUT labels;
-- playing a drum pad and keyboard key binds the actual input and detected channel;
-- External synth / feedback profiles and MIDI Clock settings persist;
-- the wizard test-output button emits MIDI data;
-- manual per-player correction persists;
-- role calibration hands off to the named calibration dialog and returns to the wizard;
-- the summary reflects routes and finish stores the onboarding completion marker;
-- no JavaScript page errors occur.
-
-The hosted runner also repeats all previous browser suites and the real
-IndexedDB/process-restart storage gate. With the previous 408-check baseline, ten new
-unit checks and 17 onboarding browser checks, the expected hosted total is **435** if
-the complete workflow passes. This file does not claim that pending hosted result.
+CI also runs the existing import, routing, audio-input, calibration, MIDI OUT,
+onboarding, and real IndexedDB/process-restart suites. Browser screenshots are
+retained as workflow artifacts to support visual review.
 
 ## Reproducible build
 
-`python3 build.py` must reproduce the committed `MIDI-Stage.html`. CI verifies that
-with `git diff --exit-code -- MIDI-Stage.html` after all tests.
+`python3 build.py` regenerates `MIDI-Stage.html`. CI requires a clean diff after
+rebuilding the committed standalone file.
 
-## Product boundaries
+## Manual acceptance still required
 
-- Browser/device labels and simulated ports are not physical-device certification.
-- The role-specific click test includes human response and the audible monitoring path;
-  it does not isolate USB MIDI, audio interface or OS driver latency.
-- Guitar/bass audio setup still uses Audio soundcheck and manual player correction.
-- Generic MIDI Note/CC feedback does not guarantee LED behavior on a real controller.
-- SysEx remains disabled. The wizard does not install drivers or access firmware.
-- Exported onboarding reports omit raw browser MIDI IDs and audio samples.
-
-See `docs/HARDWARE_ONBOARDING.md` and `docs/MIDI_OUT.md`.
+Follow `docs/CHORD_ACCEPTANCE.md` with a real keyboard and sustain pedal. Validate
+physical timing and MIDI OUT behavior with the actual devices. Listen for practice
+stretch artifacts and play through each authored arrangement. Live guitar chord
+input still verifies strum timing only. One authored chord song and four earlier
+practice/validation songs are not a finished commercial song catalog.
