@@ -85,6 +85,13 @@ test('controller displays completed players without disappearing and can clear t
   controller.update([{judge:judge([{...chord(0,0),state:1}]),player,time:2}]);assert.equal(container.children.length,1);assert.equal(container.hidden,false);
   controller.clear();assert.equal(container.children.length,0);assert.equal(container.hidden,true);
 });
+test('piano input updates preserve the chosen scroll position within a fixed range',()=>{
+  const container=new Element('div',document),j=judge([chord(0,1)]),p={...player,guideRange:'88'};
+  G.render(container,[G.model({judge:j,player:p})]);
+  container.children[0].children.find(n=>n.className==='guide-piano-scroll').scrollLeft=420;
+  G.render(container,[G.model({judge:j,player:p,activePitches:[60]})]);
+  assert.equal(container.children[0].children.find(n=>n.className==='guide-piano-scroll').scrollLeft,420);
+});
 test('a chart within thirty semitones keeps the same keyboard positions across chord changes',()=>{
   const c=chord(0,1,[48,60,64],'C'),g=chord(1,3,[55,67,71],'G'),j=judge([c,g,chord(2,5,[66,74,78],'D')]);
   const first=G.model({judge:j,player,time:0});c.state=1;

@@ -33,11 +33,22 @@ jobs:
           export CHROMIUM_PATH="$(python -c 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()')"
           python tests/run.py --browser --storage
           git diff --exit-code -- MIDI-Stage.html
+      - name: Collect browser acceptance screenshots
+        if: always()
+        shell: python
+        run: |
+          import os, shutil
+          from pathlib import Path
+          destination = Path(os.environ['RUNNER_TEMP']) / 'midi-stage-acceptance'
+          destination.mkdir(exist_ok=True)
+          for pattern in ('midi-stage-*.png', 'MIDI-Stage-*.png'):
+              for source in Path(os.environ['GITHUB_WORKSPACE']).parent.glob(pattern):
+                  shutil.copy2(source, destination / source.name)
       - name: Save browser acceptance screenshots
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: browser-acceptance
-          path: ../midi-stage-*.png
+          path: ${{ runner.temp }}/midi-stage-acceptance
           if-no-files-found: ignore
           retention-days: 7

@@ -96,9 +96,18 @@
         const nextText=m.upcoming.map(n=>{const hands=[];if(n.hints.left.length)hands.push('L '+n.hints.left.map(C.noteName).join('/'));if(n.hints.right.length)hands.push('R '+n.hints.right.map(C.noteName).join('/'));return n.name+(hands.length?' ('+hands.join('; ')+')':'');});
         card.append(element('p','guide-upcoming','Then: '+nextText.join(' → ')));
       }
-      next.set(m.id,{signature:m.signature,node:card});
+      const sameRange=old?.range?.low===m.range.low&&old?.range?.high===m.range.high;
+      const targetKeys=m.keys.filter(k=>k.expected),center=targetKeys.length?targetKeys.reduce((sum,k)=>sum+k.x+k.width/2,0)/targetKeys.length:0;
+      next.set(m.id,{signature:m.signature,node:card,scroll,range:m.range,
+        scrollLeft:sameRange&&old.scroll?old.scroll.scrollLeft:null,center,whiteCount:m.whiteCount});
     }
     container.replaceChildren(...[...next.values()].map(entry=>entry.node));container.hidden=!list.length;
+    // Keep the player's chosen register while keys light up. Center a newly
+    // selected range once, after layout supplies its actual visible width.
+    for(const entry of next.values())if(entry.scroll&&entry!==cached?.cards.get(entry.node.dataset.player)){
+      const scroll=entry.scroll,width=scroll.firstElementChild?.scrollWidth||entry.whiteCount*24;
+      scroll.scrollLeft=entry.scrollLeft??Math.max(0,entry.center/entry.whiteCount*width-(scroll.clientWidth||width)/2);
+    }
     rendered.set(container,{signature,cards:next});return true;
   }
   class Controller{

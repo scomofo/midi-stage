@@ -69,8 +69,13 @@ with sync_playwright() as p:
     for part in ['drums','guitar','bass']:
         page.locator(f'[data-part="{part}"]').click()
     check('four-player view retains chord guidance',page.locator('#chordGuide').is_visible() and 'Cm' in page.locator('#chordGuide').inner_text())
+    page.screenshot(path=str(ROOT.parent/'midi-stage-chord-band.png'),full_page=True)
     page.set_viewport_size({'width':390,'height':844})
     check('chord guidance fits a narrow viewport',page.evaluate('document.body.scrollWidth<=window.innerWidth'))
+    page.screenshot(path=str(ROOT.parent/'midi-stage-chord-mobile.png'),full_page=True)
+    page.locator('#guideRange').select_option('88')
+    check('88-key guide centers the target in a narrow viewport',page.evaluate("""(()=>{const card=document.querySelector('#chordGuide .guide-card'),view=card.querySelector('.guide-piano-scroll').getBoundingClientRect();return [...card.querySelectorAll('.piano-key.expected')].every(key=>{const r=key.getBoundingClientRect();return r.left>=view.left&&r.right<=view.right;});})()"""))
+    page.screenshot(path=str(ROOT.parent/'midi-stage-chord-88-keys.png'),full_page=True)
     check('no JavaScript errors in chord-first workflow',not errors)
     browser.close()
 print(json.dumps({'checks':len(checks),'passed':checks,'javascript_errors':errors},indent=2))
