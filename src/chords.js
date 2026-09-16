@@ -80,22 +80,130 @@
   function makeChart(song,player,start=0,end=song.duration,{timingOnly=false}={}){
     const events=song.chordHighways?.[player.type]||[];if(!events.length)return null;
     const lanes=timingOnly?[{name:'CHORD STRUM',short:'STRUM',pitch:40,pc:0,any:true,color:C.COLORS[2]}]:C.PC.map((name,i)=>({name,short:name,pitch:60+i,pc:i,color:C.COLORS[i]}));
-    const notes=events.filter(e=>e.time>=start-1e-6&&e.time<end-1e-6).map((e,id)=>({...e,id,chord:true,lanes:timingOnly?[0]:e.pcs.map(p=>p),lane:timingOnly?0:e.pcs[0],duration:Math.min(e.duration,end-e.time)}));
+    const source=C.sourceFor(song,player)?.notes||[],consumed=new Set();
+    const notes=events.filter(e=>e.time>=start-1e-6&&e.time<end-1e-6).map(e=>{
+      const toneEnds={};
+      // Only replace the source attacks belonging to this target. Riffs, rolled
+      // voicings and unsupported chord names remain playable ordinary notes.
+      if(!song.rhythmOnly)for(let i=C.lowerBound(source,e.time-.035-1e-8);i<source.length&&source[i].time<=e.time+.035+1e-8;i++){
+        const n=source[i];
+        if(!consumed.has(i)&&Math.abs(n.time-e.time)<=.035+1e-8&&e.pitches.includes(n.pitch)){
+          consumed.add(i);toneEnds[n.pitch]=Math.max(toneEnds[n.pitch]||0,Math.min(end,n.time+n.duration));
+        }
+      }
+      return {...e,chord:true,lanes:timingOnly?[0]:e.pcs.slice(),lane:timingOnly?0:e.pcs[0],duration:Math.min(e.duration,end-e.time),toneEnds};
+    });
+    // Audio rhythm markers are placeholders, not additional authored pitches.
+    if(!song.rhythmOnly)source.forEach((n,i)=>{
+      if(!consumed.has(i)&&n.time>=start-1e-6&&n.time<end-1e-6)notes.push({...n,chord:false,lane:timingOnly?0:C.pc(n.pitch),duration:Math.min(n.duration,end-n.time)});
+    });
+    notes.sort((a,b)=>a.time-b.time||(a.pitch??-1)-(b.pitch??-1));notes.forEach((n,id)=>n.id=id);
     return {lanes,notes,chordMode:true,timingOnly};
   }
   class ChordJudge{
-    constructor(chart,{difficulty='standard',speed=1,mode='pitch',timingOnly=false,onJudge=()=>{}}={}){this.notes=chart.notes.map(n=>({...n,state:0,received:new Set(),errors:[]}));this.lanes=chart.lanes;this.windows=(C.WINDOWS[difficulty]||C.WINDOWS.standard).map(x=>x*speed);this.speed=speed;this.mode=mode;this.timingOnly=timingOnly;this.chordMode=true;this.cursor=0;this.onJudge=onJudge;this.activeHolds=new Set();this.held=new Map();this.stats={score:0,combo:0,maxCombo:0,perfect:0,great:0,good:0,miss:0,extra:0,holdBreaks:0,holds:0,weight:0,offsets:[]};}
-    get multiplier(){return Math.min(4,1+Math.floor(this.stats.combo/10));}get accuracy(){const s=this.stats,n=s.perfect+s.great+s.good+s.miss+s.extra;return n?100*s.weight/n:100;}
-    tick(t){while(this.cursor<this.notes.length&&this.notes[this.cursor].time<t-this.windows[2]-1e-8){const n=this.notes[this.cursor++];if(!n.state){n.state=2;this.stats.miss++;this.stats.combo=0;this.onJudge({grade:'miss',note:n,delta:0});}}}
-    hit(t,{lane,pitch,arcade=false}){this.tick(t);let closest=null,best=Infinity,key=null,exact=false;
-      for(let i=this.cursor;i<this.notes.length;i++){const n=this.notes[i];if(n.time>t+this.windows[2]+1e-8)break;if(n.state)continue;const d=Math.abs(n.time-t);if(d>this.windows[2]+1e-8)continue;
-        if(this.timingOnly){closest=n;best=d;key='strum';break;}exact=this.mode==='exact'&&n.source==='midi'&&!arcade;const candidate=exact?pitch:C.pc(pitch),required=exact?n.pitches:n.pcs;if(required.includes(candidate)&&d<best){closest=n;best=d;key=candidate;}}
-      if(!closest){this.stats.extra++;this.stats.combo=0;this.onJudge({grade:'extra',lane,delta:0});return null;}
-      if(this.timingOnly){closest.received.add('strum');return this.award(closest,t,best);}
-      if(closest.received.has(key))return null;closest.received.add(key);closest.errors.push(best);const need=exact?closest.pitches.length:closest.pcs.length;if(closest.received.size<need)return closest;return this.award(closest,t,Math.max(...closest.errors));
+    constructor(chart,{difficulty='standard',speed=1,mode='pitch',timingOnly=false,verifiedHolds=false,onJudge=()=>{}}={}){
+      this.notes=chart.notes.map(n=>({...n,state:0,hold:null,received:new Set()}));this.lanes=chart.lanes;
+      this.windows=(C.WINDOWS[difficulty]||C.WINDOWS.standard).map(x=>x*speed);this.speed=speed;this.mode=mode;this.timingOnly=timingOnly;this.verifiedHolds=verifiedHolds;
+      this.chordMode=true;this.cursor=0;this.onJudge=onJudge;this.activeHolds=new Set();this.held=new Map();this.confirmed=new Map();this.sounding=new Map();this.pending=new Set();this.recentChords=[];
+      this.stats={score:0,combo:0,maxCombo:0,perfect:0,great:0,good:0,miss:0,extra:0,holdBreaks:0,holds:0,weight:0,offsets:[]};
     }
-    award(n,t,best){const grade=best<=this.windows[0]+1e-8?'perfect':best<=this.windows[1]+1e-8?'great':'good',weight={perfect:1,great:.75,good:.4}[grade],s=this.stats;n.state=1;n.hitAt=t;n.grade=grade;s[grade]++;s.weight+=weight;s.combo++;s.maxCombo=Math.max(s.maxCombo,s.combo);s.score+=Math.round(140*weight*this.multiplier);s.offsets.push((t-n.time)/this.speed*1000);this.onJudge({grade,note:n,delta:(t-n.time)/this.speed*1000});return n;}
-    confirm(){}release(){}finishHold(){}finish(t){this.tick(t+this.windows[2]+.001);return {...this.stats,accuracy:this.accuracy,total:this.notes.length,meanOffset:this.stats.offsets.length?this.stats.offsets.reduce((a,b)=>a+b,0)/this.stats.offsets.length:0};}
+    get multiplier(){return Math.min(4,1+Math.floor(this.stats.combo/10));}
+    get accuracy(){const s=this.stats,n=s.perfect+s.great+s.good+s.miss+s.extra;return n?100*s.weight/n:100;}
+    exact(n,arcade=false){return this.mode==='exact'&&!arcade&&(!n.chord||n.source==='midi');}
+    required(n,exact=this.exact(n)){return n.chord?(exact?n.pitches:n.pcs):[exact?n.pitch:(this.lanes[n.lane]?.pc??C.pc(n.pitch))];}
+    voiceKey(v,exact){return exact?v.pitch:(this.lanes[v.lane]?.pc??C.pc(v.pitch));}
+    matches(n,v,exact=this.exact(n,v.arcade)){
+      if(n.chord)return this.timingOnly||this.required(n,exact).includes(this.voiceKey(v,exact));
+      return n.lane===v.lane&&(!exact||n.pitch===v.pitch);
+    }
+    voicesFor(n,exact=this.exact(n)){return [...this.sounding.entries()].filter(([,v])=>this.matches(n,v,exact));}
+    guidance(){
+      let n;for(let i=this.cursor;i<this.notes.length;i++)if(!this.notes[i].state){n=this.notes[i];break;}if(!n)return null;
+      const exact=this.exact(n),expected=this.required(n,exact),held=unique(this.voicesFor(n,exact).map(([,v])=>this.voiceKey(v,exact)));
+      return {id:n.id,name:n.name||C.noteName(n.pitch),chord:!!n.chord,exact,timingOnly:!!(n.chord&&this.timingOnly),expected:expected.slice(),held,missing:expected.filter(k=>!held.includes(k))};
+    }
+    tick(t){
+      while(this.cursor<this.notes.length&&this.notes[this.cursor].time<t-this.windows[2]-1e-8){const n=this.notes[this.cursor++];if(!n.state){n.state=2;this.pending.delete(n);this.stats.miss++;this.stats.combo=0;this.onJudge({grade:'miss',note:n,delta:0});}}
+      if(!this.verifiedHolds)for(const n of [...this.activeHolds])if(t>=n.time+n.duration-.065*this.speed)this.finishHold(n,true);
+    }
+    hit(t,{lane,pitch,token=`note:${pitch}`,arcade=false}){
+      if(!Number.isFinite(t)||!Number.isInteger(pitch)||pitch<0||pitch>127)return null;
+      this.tick(t);if(this.sounding.has(token))this.release(token,t);
+      const voice={lane:lane??this.lanes.findIndex(l=>l.pc===C.pc(pitch)),pitch,at:t,arcade,credited:false};this.sounding.set(token,voice);
+      // A doubled octave can take over a pitch-class sustain before another
+      // octave releases. Track every sounding token, not just the scoring onset.
+      for(const n of this.activeHolds)if(n.chord&&this.matches(n,voice,n.matchExact))this.attach(n,token);
+      let closest=null,best=Infinity;
+      for(let i=this.cursor;i<this.notes.length;i++){
+        const n=this.notes[i];if(n.time>t+this.windows[2]+1e-8)break;
+        const d=Math.abs(n.time-t);if(n.state||d>this.windows[2]+1e-8||!this.matches(n,voice))continue;
+        if(d<best){closest=n;best=d;}
+      }
+      // MIDI serializes a simultaneous voicing. The final doubled tone must not
+      // become an extra just because the other tones completed the target first.
+      this.recentChords=this.recentChords.filter(n=>n.hold==='held'||Math.abs(t-n.hitAt)<=.08*this.speed+1e-8);
+      const completed=this.recentChords.find(n=>!this.timingOnly&&this.matches(n,voice,n.matchExact)&&
+        (n.hold==='held'||Math.abs(t-n.hitAt)<=.08*this.speed+1e-8)&&Math.abs(t-n.time)<=best+1e-8);
+      if(completed){voice.credited=true;return completed;}
+      if(!closest){this.stats.extra++;this.stats.combo=0;this.onJudge({grade:'extra',lane:voice.lane,delta:0});return null;}
+      if(!closest.chord||this.timingOnly){voice.credited=true;return this.award(closest,t,best,token,this.exact(closest,arcade));}
+      this.pending.add(closest);const exact=this.exact(closest,arcade),required=this.required(closest,exact),voices=this.voicesFor(closest,exact);
+      // Credited common tones may remain held through a chord change. All other
+      // tones must start in this target's window and within a 120 ms roll. A hit
+      // call is always required: holding a repeated chord never scores itself.
+      const eligible=voices.filter(([,v])=>v.credited||Math.abs(v.at-closest.time)<=this.windows[2]+1e-8);
+      const received=new Set(eligible.map(([,v])=>this.voiceKey(v,exact)));closest.received=received;
+      if(required.some(k=>!received.has(k)))return closest;
+      // Select one voice per tone: octave doubling cannot worsen the grade.
+      const chosen=required.map(k=>eligible.filter(([,v])=>this.voiceKey(v,exact)===k).sort((a,b)=>Number(b[1].credited)-Number(a[1].credited)||Math.abs(a[1].at-closest.time)-Math.abs(b[1].at-closest.time))[0]);
+      const fresh=chosen.filter(([,v])=>!v.credited).map(([,v])=>v.at);fresh.push(t);
+      if(Math.max(...fresh)-Math.min(...fresh)>.12*this.speed+1e-8)return closest;
+      const error=Math.max(...fresh.map(at=>Math.abs(at-closest.time)));
+      for(const [,v]of voices)v.credited=true;
+      return this.award(closest,t,error,token,exact);
+    }
+    attach(n,token){if(!this.held.has(token))this.held.set(token,new Set());this.held.get(token).add(n);}
+    award(n,t,best,token,exact){
+      const grade=best<=this.windows[0]+1e-8?'perfect':best<=this.windows[1]+1e-8?'great':'good',weight={perfect:1,great:.75,good:.4}[grade],s=this.stats;
+      n.state=1;n.hitAt=t;n.grade=grade;n.matchExact=exact;s[grade]++;s.weight+=weight;s.combo++;s.maxCombo=Math.max(s.maxCombo,s.combo);s.score+=Math.round((n.chord?140:100)*weight*this.multiplier);s.offsets.push((t-n.time)/this.speed*1000);
+      this.pending.delete(n);if(n.chord)this.recentChords.push(n);
+      if(n.duration/this.speed>=.35&&!(n.chord&&this.timingOnly)){
+        n.hold='held';n.token=token;n.holdMultiplier=this.multiplier;this.activeHolds.add(n);
+        if(n.chord){for(const [tok]of this.voicesFor(n,exact))this.attach(n,tok);}else this.attach(n,token);
+      }
+      this.onJudge({grade,note:n,delta:(t-n.time)/this.speed*1000});return n;
+    }
+    finishHold(n,success){
+      if(n.hold!=='held')return;n.hold=success?'complete':'broken';this.activeHolds.delete(n);
+      for(const [token,set]of this.held){set.delete(n);if(!set.size)this.held.delete(token);}
+      if(success){this.stats.holds++;this.stats.score+=50*n.holdMultiplier;}else{this.stats.holdBreaks++;this.stats.combo=0;this.onJudge({grade:'release',note:n,delta:0});}
+    }
+    confirm(token,t){
+      if(!Number.isFinite(t)||!this.held.has(token))return;this.confirmed.set(token,Math.max(this.confirmed.get(token)??-Infinity,t));
+      for(const n of [...this.held.get(token)])if(!n.chord&&t>=n.time+n.duration-.065*this.speed)this.finishHold(n,true);
+    }
+    release(token,t){
+      if(!Number.isFinite(t))return;const holds=[...(this.held.get(token)||[])];this.sounding.delete(token);this.held.delete(token);
+      for(const n of holds){
+        const through=this.verifiedHolds?(this.confirmed.get(token)??-Infinity):t;
+        if(!n.chord){this.finishHold(n,through>=n.time+n.duration-.09*this.speed);continue;}
+        const still=new Set(this.voicesFor(n,n.matchExact).map(([,v])=>this.voiceKey(v,n.matchExact)));
+        const needed=this.required(n,n.matchExact).filter(key=>{
+          const pitches=n.pitches.filter(p=>n.matchExact?p===key:C.pc(p)===key);
+          const until=Math.max(...pitches.map(p=>n.toneEnds?.[p]??n.time+n.duration));
+          return t<until-.09*this.speed;
+        });
+        if(needed.some(key=>!still.has(key)))this.finishHold(n,false);
+        else if(t>=n.time+n.duration-.09*this.speed)this.finishHold(n,true);
+      }
+      this.confirmed.delete(token);
+      for(const n of this.pending)n.received=new Set(this.voicesFor(n).map(([,v])=>this.voiceKey(v,this.exact(n))));
+    }
+    cancelHolds(){
+      const count=this.activeHolds.size;for(const n of this.activeHolds)n.hold='paused';this.activeHolds.clear();this.held.clear();this.confirmed.clear();this.sounding.clear();
+      for(const n of this.pending)n.received.clear();this.pending.clear();this.recentChords=[];return count;
+    }
+    finish(t){this.tick(t+this.windows[2]+.001);return {...this.stats,accuracy:this.accuracy,total:this.notes.length,meanOffset:this.stats.offsets.length?this.stats.offsets.reduce((a,b)=>a+b,0)/this.stats.offsets.length:0};}
   }
   return {TEMPLATES,chordName,groupNotes,templateScore,progressionForKey,fitPopProgression,classifyChroma,fftChroma,analyzeBuffer,makeChart,ChordJudge};
 });

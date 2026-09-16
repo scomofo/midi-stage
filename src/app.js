@@ -90,7 +90,21 @@
     state.startGeneration++;clearTimeout(loopTimer);live.stop();audio.stop();hardware.stop();state.status='ready';state.position=0;state.demo=false;state.assisted=false;state.loops=0;state.activeTokens.clear();state.pedals.clear();state.deferred.clear();state.keyDown.clear();state.feedback.clear();state.particles=[];state.from=0;state.to=state.song.duration;
     rebuildCharts();setControls();$('stageOverlay').hidden=false;$('countdown').innerHTML='';lastCount='';$('runStatus').textContent=message||'Ready when you are.';updateHUD();
   }
-  function rebuildCharts(){state.charts.clear();state.judges.clear();for(const p of enabled()){const timingOnly=S.isAudio(p)&&p.type==='guitar',chordChart=state.song.chordHighways?.[p.type]?.length?X.makeChart(state.song,p,state.from,state.to,{timingOnly}):null,chart=chordChart||C.makeChart(state.song,p,state.from,state.to);state.charts.set(p.id,chart);const opts={difficulty:state.difficulty,speed:state.speed,mode:state.song.rhythmOnly?'rhythm':S.isAudio(p)?'exact':p.mode,onJudge:r=>feedback(p.id,r)};state.judges.set(p.id,chordChart?new X.ChordJudge(chart,{...opts,timingOnly}):new C.Judge(chart,{...opts,drums:p.type==='drums',verifiedHolds:S.isAudio(p)&&!state.song.rhythmOnly}));}renderPads();}
+  function rebuildCharts(){
+    state.charts.clear();state.judges.clear();
+    for(const p of enabled()){
+      const timingOnly=S.isAudio(p)&&p.type==='guitar';
+      // Quick MIDI imports use the same grouping as Workshop, including when the
+      // player chooses a different source track in instrument setup.
+      const rawMIDI=!state.song.original&&!state.song.workshop&&!state.song.rhythmOnly&&['keys','guitar'].includes(p.type);
+      const song=rawMIDI?{...state.song,chordHighways:{[p.type]:X.groupNotes(C.sourceFor(state.song,p).notes)}}:state.song;
+      const chordChart=X.makeChart(song,p,state.from,state.to,{timingOnly});
+      const chart=chordChart||C.makeChart(song,p,state.from,state.to);state.charts.set(p.id,chart);
+      const opts={difficulty:state.difficulty,speed:state.speed,mode:state.song.rhythmOnly?'rhythm':S.isAudio(p)?'exact':p.mode,verifiedHolds:S.isAudio(p)&&!state.song.rhythmOnly,onJudge:r=>feedback(p.id,r)};
+      state.judges.set(p.id,chordChart?new X.ChordJudge(chart,{...opts,timingOnly}):new C.Judge(chart,{...opts,drums:p.type==='drums'}));
+    }
+    renderPads();
+  }
   function renderSetlist(){
     $('songCount').textContent=`${String(state.songs.length).padStart(2,'0')} TRACKS`;
     $('setlist').innerHTML=state.songs.map((s,i)=>`<button class="song-card ${s===state.song?'selected':''}" data-song="${esc(s.id)}" aria-pressed="${s===state.song}"><span class="song-art a${Math.min(i,3)}" aria-hidden="true">${['≋','◒','ϟ','♫'][Math.min(i,3)]}</span><span><strong>${esc(s.name)}</strong><small>${s.bpm} BPM &nbsp;·&nbsp; ${fmt(Math.ceil(s.duration))}</small></span><span class="song-indicator" aria-hidden="true">${s===state.song?'●':'›'}</span></button>`).join('');
@@ -104,7 +118,7 @@
   function selectSong(song){
     const ticket=++selectionTicket;state.backingLoading=false;$('audioOffset').value=song.backingOffset||0;
     state.song=song;state.buffer=null;state.bufferName='';$('audioFile').value='';$('clearAudio').hidden=true;$('audioStatus').textContent='MIDI tracks are synthesized locally. Optional audio must match your chart; it is not automatically transcribed or aligned.';
-    if(song.workshop){players.forEach(p=>{p.source=p.type;p.enabled=!!song.parts.find(part=>part.type===p.type)?.notes.length;});if(!enabled().length)players[0].enabled=true;}else if(song.original){players.forEach(p=>p.source=p.type);}else{
+    if(song.workshop){players.forEach(p=>{p.source=p.type;p.enabled=!!(song.parts.find(part=>part.type===p.type)?.notes.length||song.chordHighways?.[p.type]?.length);});if(!enabled().length)players[0].enabled=true;}else if(song.original){players.forEach(p=>p.source=p.type);}else{
       const drums=song.parts.find(p=>p.channel===10),melodic=song.parts.filter(p=>p.channel!==10);
       players.forEach(p=>{p.source=p.type==='drums'?(drums||song.parts[0]).id:(melodic.find(t=>t.name.toLowerCase().includes(p.type))||melodic[0]||song.parts[0]).id;p.enabled=drums?p.type==='drums':p.type==='keys';});
     }
@@ -147,7 +161,7 @@
   function pauseGame(message='Paused. Press Enter or Resume to continue.'){
     if(state.status!=='playing')return;state.position=C.clamp(audio.songAt(),state.from,state.to);state.status='paused';live.stop();audio.stop();hardware.stop();
     // A paused hold earns no unplayed sustain bonus. The run becomes practice-only.
-    for(const j of state.judges.values())for(const n of [...j.activeHolds]){n.hold='paused';j.activeHolds.delete(n);j.held.delete(n.token);state.assisted=true;}
+    for(const j of state.judges.values()){if(j.activeHolds.size)state.assisted=true;if(j.cancelHolds)j.cancelHolds();else{for(const n of [...j.activeHolds])n.hold='paused';j.activeHolds.clear();j.held.clear();j.confirmed?.clear();}}
     state.activeTokens.clear();state.pedals.clear();state.deferred.clear();state.keyDown.clear();$('countdown').innerHTML='Ⅱ<small>PAUSED</small>';$('runStatus').textContent=message;setControls();
   }
   function feedback(id,result){
@@ -281,12 +295,20 @@
     state.particles=state.particles.filter(p=>now-p.created<.5);if(!reduced)for(const p of state.particles){const g=geom.get(p.id);if(!g)continue;const dt=now-p.created,a=g.point(p.lane+.5,1);ctx.globalAlpha=1-dt*2;ctx.fillStyle=p.color;ctx.fillRect(a.x+p.vx*dt,g.hit+p.vy*dt+80*dt*dt,2.5,2.5);}ctx.globalAlpha=1;
     const vignette=ctx.createLinearGradient(0,0,0,h);vignette.addColorStop(0,'#060d1500');vignette.addColorStop(.89,'#060d1500');vignette.addColorStop(1,'#070f18bb');ctx.fillStyle=vignette;ctx.fillRect(0,0,w,h);
   }
+  function advanceDemo(j,p,t){
+    let i=j.demoCursor||0;const releases=j.demoReleases||(j.demoReleases=[]);
+    const releaseThrough=at=>{for(let k=releases.length-1;k>=0;k--)if(releases[k].at<=at){const r=releases.splice(k,1)[0];j.release(r.token,r.at);}};
+    while(i<j.notes.length&&j.notes[i].time<=t){const n=j.notes[i++];releaseThrough(n.time);const pitches=n.chord&&!j.timingOnly?(n.source==='midi'&&j.mode==='exact'?n.pitches:n.pcs.map(pc=>60+pc)):[n.pitch??40];
+      for(const pitch of pitches){const token=`demo:${p.id}:${n.id}:${pitch}`,lane=n.chord&&!j.timingOnly?C.pc(pitch):n.lane;j.hit(n.time,{lane,pitch,token});releases.push({token,at:n.time+n.duration});}
+    }
+    releaseThrough(t);j.demoCursor=i;
+  }
   function frame(stamp){
     const now=stamp/1000;let t=state.status==='playing'?audio.songAt():state.status==='ready'?.4:state.position;
     if(state.status==='playing'){
       if(audio.ctx.state!=='running'){pauseGame('Audio was interrupted. Press Resume when ready.');t=state.position;}
       else{
-        for(const p of enabled()){const j=state.judges.get(p.id);if(state.demo){let i=j.demoCursor||0;while(i<j.notes.length&&j.notes[i].time<=t){const n=j.notes[i++];if(n.chord&&!j.timingOnly){for(const pitch of (n.source==='midi'&&j.mode==='exact'?n.pitches:n.pcs.map(pc=>60+pc)))j.hit(n.time,{lane:n.lane,pitch,token:`demo:${p.id}:${n.id}:${pitch}`});}else j.hit(n.time,{lane:n.lane,pitch:n.pitch??40,token:`demo:${p.id}:${n.id}`});}j.demoCursor=i;}j.tick(t-(state.demo?0:(S.correctionMs(p,state.inputOffset)+(S.isAudio(p)?S.LOOKBACK_MS:0))/1000)*state.speed);}
+        for(const p of enabled()){const j=state.judges.get(p.id);if(state.demo)advanceDemo(j,p,t);j.tick(t-(state.demo?0:(S.correctionMs(p,state.inputOffset)+(S.isAudio(p)?S.LOOKBACK_MS:0))/1000)*state.speed);}
         const before=state.position-t;if(before>0){const count=Math.ceil(before/(60/state.song.bpm));const s=String(C.clamp(count,1,4));if(s!==lastCount){$('countdown').innerHTML=`${s}<small>${state.demo?'AUTOPLAY DEMO':'COUNT IN'}</small>`;lastCount=s;}}
         else if(lastCount){$('countdown').innerHTML='';lastCount='';}
         const section=[...state.song.sections].reverse().find(s=>s.time<=t);$('sectionName').textContent=state.demo?'AUTOPLAY DEMO':section?.name||'COUNT IN';

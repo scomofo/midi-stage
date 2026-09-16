@@ -46,3 +46,84 @@ test('undo memory is bounded to 20 states',()=>{const h=new W.History(W.empty())
 test('chart revision changes high-score identity',()=>{const p=W.empty();assert.notEqual(W.toSong(p).id,W.toSong({...p,title:'New title'}).id);assert.equal(W.toSong(p).id,W.toSong(p).id);});
 test('song conversion routes each part into actual gameplay highways',()=>{const p=W.practice(W.empty({duration:8}),{roles:C.TYPES}),song=W.toSong(p);for(const player of C.defaults()){const chart=C.makeChart(song,player);assert.equal(chart.notes.length,p.parts.find(q=>q.type===player.type).notes.length);}});
 test('library reports missing browser storage rather than claiming success',async()=>{const library=new W.Library(null);await assert.rejects(library.save(W.empty()),/storage is unavailable/);});
+
+function chordProject(time=1){
+  const song=C.makeValidationSong();song.parts.find(p=>p.type==='keys').notes=[... [60,64,67].map(p=>note(time,p,.6)),note(3,62,.2)];
+  return W.fromMIDI(song,{keys:'keys'}).project;
+}
+test('editing a chord tone updates the playable chord while preserving mixed source notes',()=>{
+  const original=chordProject(),minor=W.revise(original,'keys',1,note(1,63,.6));
+  assert.equal(minor.chordHighways.keys[0].name,'Cm');assert.deepEqual(minor.chordHighways.keys[0].pitches,[60,63,67]);
+  assert.equal(minor.parts[1].notes.length,4);assert.equal(minor.parts[1].notes.at(-1).pitch,62);
+  assert.equal(original.chordHighways.keys[0].name,'C');assert.equal(original.parts[1].notes[1].pitch,64);
+  const restored=W.parse(W.serialize(minor));assert.deepEqual(restored,minor);assert.equal(W.toSong(restored).chordHighways.keys[0].name,'Cm');
+});
+test('deleting source notes removes obsolete chord targets without deleting remaining notes',()=>{
+  let p=W.revise(chordProject(),'keys',1,null);assert.equal(p.chordHighways.keys[0].name,'C5');
+  p=W.revise(p,'keys',1,null);assert.equal(p.chordHighways,undefined);assert.deepEqual(p.parts[1].notes.map(n=>n.pitch),[60,62]);
+});
+test('adding notes recreates a chord after its previous target disappeared',()=>{
+  let p=W.revise(chordProject(),'keys',1,null);p=W.revise(p,'keys',1,null);
+  p=W.revise(p,'keys',null,note(1,63,.6));p=W.revise(p,'keys',null,note(1,67,.6));
+  assert.equal(p.chordHighways.keys[0].name,'Cm');
+});
+test('quantization moves the source voicing and derived chord together',()=>{
+  const p=W.quantize(chordProject(.31),'keys',2);assert.equal(p.chordHighways.keys[0].time,.3125);
+  assert.ok(p.parts[1].notes.slice(0,3).every(n=>n.time===.3125));assert.deepEqual(W.parse(W.serialize(p)),p);
+});
+test('editing and quantizing rhythm markers preserves independently estimated harmony',()=>{
+  const base=chordProject(.31),estimated={...base.chordHighways.keys[0],source:'estimated',roman:'I',key:'C',confidence:.4};
+  const p=W.withChords({...base,version:3,matching:'rhythm'},[estimated],['keys']);
+  const edited=W.quantize(W.revise(p,'keys',1,note(.31,63,.6)),'keys',2);
+  assert.deepEqual(edited.chordHighways.keys,p.chordHighways.keys);
+});
+test('practice regeneration replaces selected chord targets and preserves other roles',()=>{
+  let p=chordProject();p=W.withChords(p,p.chordHighways.keys,['guitar']);
+  const regenerated=W.practice(p,{roles:['keys'],density:'easy'});
+  assert.equal(regenerated.chordHighways.keys.length,0);assert.deepEqual(regenerated.chordHighways.guitar,p.chordHighways.guitar);
+  assert.ok(regenerated.parts[1].notes.every(n=>n.pitch===60));assert.deepEqual(W.parse(W.serialize(regenerated)),regenerated);
+});
+test('MIDI density rebuild derives targets only from retained notes',()=>{
+  const song=C.makeValidationSong();song.parts[1].notes=[...[60,64,67].map(p=>note(1,p)),...[62,65,69].map(p=>note(1.1,p)),note(3,62)];
+  const p=W.fromMIDI(song,{keys:'keys'},{density:'easy'}).project;
+  assert.deepEqual(p.chordHighways.keys.map(c=>c.name),['C']);assert.equal(p.parts[1].notes.length,4);
+});
+test('explicit MIDI chord edits rewrite source notes and preserve separate single notes',()=>{
+  const p=chordProject(),updated=W.reviseChord(p,'keys',0,{time:1.5,duration:.5,pitches:[60,63,67]});
+  assert.equal(updated.chordHighways.keys[0].name,'Cm');assert.equal(updated.chordHighways.keys[0].time,1.5);
+  assert.deepEqual(updated.parts[1].notes.slice(0,3).map(n=>[n.time,n.pitch,n.duration]),[[1.5,60,.5],[1.5,63,.5],[1.5,67,.5]]);
+  assert.deepEqual(updated.parts[1].notes.at(-1),p.parts[1].notes.at(-1));assert.deepEqual(W.parse(W.serialize(updated)),updated);
+  const removed=W.reviseChord(updated,'keys',0,null);assert.equal(removed.chordHighways,undefined);assert.deepEqual(removed.parts[1].notes,[p.parts[1].notes.at(-1)]);
+});
+test('explicit estimated-chord corrections become manual without modifying source markers',()=>{
+  const base=chordProject(),p=W.withChords(base,[{...base.chordHighways.keys[0],source:'estimated',roman:'I',key:'C',confidence:.3}],['keys']);
+  const fixed=W.reviseChord(p,'keys',0,{time:1,duration:.6,pitches:[60,63,67]});
+  assert.equal(fixed.chordHighways.keys[0].name,'Cm');assert.equal(fixed.chordHighways.keys[0].source,'manual');assert.equal(fixed.chordHighways.keys[0].confidence,1);
+  assert.equal(fixed.chordHighways.keys[0].roman,'');assert.equal(fixed.chordHighways.keys[0].key,'');assert.deepEqual(fixed.parts,p.parts);
+  assert.deepEqual(W.quantize(fixed,'keys',2).chordHighways,fixed.chordHighways);
+});
+test('invalid explicit chord edits are rejected without mutating the chart',()=>{
+  const p=chordProject(),copy=W.clone(p);
+  assert.throws(()=>W.reviseChord(p,'keys',0,{time:1,duration:1,pitches:[60,128]}),/pitch/i);
+  assert.throws(()=>W.reviseChord(p,'keys',5,null),/existing chord/);assert.deepEqual(p,copy);
+});
+test('clearPart removes both notes and chord targets only from the selected role',()=>{
+  const p=W.withChords(chordProject(),chordProject().chordHighways.keys,['guitar']);
+  const cleared=W.clearPart(p,'keys');assert.equal(cleared.parts[1].notes.length,0);assert.equal(cleared.chordHighways.keys.length,0);
+  assert.deepEqual(cleared.chordHighways.guitar,p.chordHighways.guitar);assert.deepEqual(W.parse(W.serialize(cleared)),cleared);
+  assert.equal(W.clearPart(cleared,'guitar').chordHighways,undefined);
+});
+test('new manual chord targets support a chord-only part and survive save/reload',()=>{
+  const p=W.reviseChord(W.empty(),'keys',null,{time:1,duration:1,pitches:[60,64,67]});
+  assert.equal(p.chordHighways.keys[0].source,'manual');assert.equal(p.chordHighways.keys[0].name,'C');assert.equal(p.parts[1].notes.length,0);
+  assert.deepEqual(W.parse(W.serialize(p)),p);
+});
+test('new targets on MIDI charts add corresponding source notes and preserve the existing arrangement',()=>{
+  const original=chordProject(),p=W.reviseChord(original,'keys',null,{time:4,duration:.5,pitches:[62,65,69]});
+  assert.deepEqual(p.parts[1].notes.slice(0,4),original.parts[1].notes);assert.deepEqual(p.chordHighways.keys.map(c=>c.name),['C','Dm']);
+  assert.deepEqual(p.parts[1].notes.slice(4).map(n=>n.pitch),[62,65,69]);
+});
+test('short source chords at the song end remain valid notes instead of extending beyond the song',()=>{
+  let p=W.empty({duration:1});for(const pitch of [60,64,67])p=W.revise(p,'keys',null,note(.98,pitch,.02));
+  assert.equal(p.parts[1].notes.length,3);assert.equal(p.chordHighways,undefined);assert.deepEqual(W.parse(W.serialize(p)),p);
+});
